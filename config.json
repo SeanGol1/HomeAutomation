@@ -1,0 +1,21 @@
+{
+
+    "Pi_IP": "192.168.1.1", 
+    "Pi_port": "5000", 
+
+    "fireStick_IP": "192.168.1.2", 
+
+    "Light_IP_1": "192.168.1.3",
+    "Light_ID_1": "TESTID",
+    "Light_KEY_1": "TESTKEY",
+
+    "Light_IP_2": "192.168.1.4",
+    "Light_ID_2": "TESTID",
+    "Light_KEY_2": "TESTKEY",
+
+    "Light_IP_3": "192.168.1.5",
+    "Light_ID_3": "TESTID",
+    "Light_KEY_3": "TESTKEY"
+
+
+}
