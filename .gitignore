@@ -3,6 +3,7 @@ adbkey.pub
 adbkey
 myconfig.json
 
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
