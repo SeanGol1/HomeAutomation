@@ -65,8 +65,9 @@ function deletePubnote(noteId) {
     });
     $('#lampswitch').on('click', function(e) {
         e.preventDefault()
-        fetch('lampswitch',{
-            method: "POST",
+        const ip = $(this).data('ip');
+        fetch('lampswitch/${ip}',{
+            method: "POST",            
         }).then((_res) => {
         });
         return false;

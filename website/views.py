@@ -2,13 +2,22 @@ from distutils.command.config import config
 from multiprocessing.connection import wait
 from turtle import update
 from flask import Blueprint, render_template, request, flash, jsonify
-from . import fireStickController
+#from . import fireStickController
 import json , time , tinytuya , cv2, numpy as np
 
 views = Blueprint('views', __name__)
 configdata = ''
 with open("config.json", "r") as jsonfile:
     configdata = json.load(jsonfile)
+
+class Device:
+  def __init__(self, name, ip, type,make,id,key):
+    self.name = name
+    self.ip = ip
+    self.type = type
+    self.make = make
+    self.id = id 
+    self.key = key
 
 ### WEBSITE ROUTES ###
 @views.route('/')
@@ -18,7 +27,22 @@ def home():
 @views.route('/devices', methods=['GET','POST'])
 #@login_required
 def light():
-    return render_template("devices.html")
+     # Load config from file
+    with open("config.json") as f:
+        configdata = json.load(f)
+
+    deviceList = []
+    for d in configdata["devices"]:
+        deviceList.append(Device(
+            d.get("name"),
+            d.get("ip"),
+            d.get("type"),
+            d.get("make"),
+            d.get("id"),
+            d.get("key")
+        ))
+
+    return render_template("devices.html",deviceList=deviceList)
 
 @views.route('/addDevice', methods=['GET'])
 #@login_required
@@ -125,22 +149,46 @@ def hallbright():
     else:
         d.set_brightness(1000)
 
-@views.route('/lampswitch', methods=['GET','POST'])
-def lampswitch():
-    d = tinytuya.BulbDevice(configdata['Light_ID_3'], configdata['Light_IP_3'], configdata['Light_KEY_3'])
-    d.set_version(3.1)  # IMPORTANT to set this regardless of version
-    d.set_socketPersistent(True)  # Optional: Keep socket open for multiple commands
+
+def get_device_by_ip(ip):
+    with open("config.json") as f:
+        config = json.load(f)
+    
+    for device in config.get("devices", []):
+        if device.get("ip") == ip:
+            return Device(
+            device.get("name"),
+            device.get("ip"),
+            device.get("type"),
+            device.get("make"),
+            device.get("id"),
+            device.get("key")
+            )
+
+    return None  # Not found
+
+@views.route('/lampswitch/<ip>', methods=['GET','POST'])
+def lampswitch(ip):
+    device:Device = get_device_by_ip(ip)
+    #print(device.id + ' ----- ' + device.ip + ' ----- ' + device.key)
+    
+    d = tinytuya.BulbDevice(device.id,device.ip,device.key)
+    d.set_version(3.3)  # IMPORTANT to set this regardless of version
+    #d.set_socketPersistent(True)  # Optional: Keep socket open for multiple commands
     
     data = d.status()
-    print('set_status() result %r' % data)
+    #print('set_status() result %r' % data)
     
-
-    if data['dps']['1'] == False:
+    print(data)
+    #d.set_status(True, 20)
+    if data['dps']['20'] == False:
         d.turn_on()
-        #d.set_white(255,255)
-        #d.set_brightness(255)
+        d.set_white(255,255)
+        d.set_brightness(255)
     else:
         d.turn_off()
+
+    return "Success"
 
 @views.route('/lampbright', methods=['GET','POST'])
 def lampbright():
@@ -162,7 +210,7 @@ def lampbright():
     else:
         d.set_brightness(255)
 
-
+    return "Success"
 
 @views.route('/lightsoff', methods=['GET','POST'])
 def lightsoff():

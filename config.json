@@ -3,7 +3,14 @@
     "Pi_IP": "192.168.1.1", 
     "Pi_port": "5000", 
 
-    "devices": [],
+    "devices": [  {
+            "name": "Living Room",
+            "ip": "192.168.0.19",
+            "type": "light",
+            "make": "tuya",
+            "id": "eb4eb54574e97932beiy1z",
+            "key": "pY)=7X#`Q<gYDG3~"
+        }],
 
     "fireStick_IP": "192.168.1.2", 
 
