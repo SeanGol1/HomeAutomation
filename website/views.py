@@ -3,7 +3,7 @@ from multiprocessing.connection import wait
 from turtle import update
 from flask import Blueprint, render_template, request, flash, jsonify
 #from . import fireStickController
-import json , time , tinytuya , cv2, numpy as np, colorsys
+import json , time , tinytuya , cv2, numpy as np
 
 views = Blueprint('views', __name__)
 configdata = ''

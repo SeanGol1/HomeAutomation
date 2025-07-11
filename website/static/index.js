@@ -1,61 +1,16 @@
-function deleteNote(noteId) {
-    fetch('delete-note', {
-        method: "POST",
-        body: JSON.stringify({ noteId: noteId})
-    }).then((_res) => {
-        window.location.href = "members_area";
-    });
-}
-
-function deletePubnote(noteId) {
-    fetch('delete-pubnote', {
-        method: "POST",
-        body: JSON.stringify({ noteId: noteId})
-    }).then((_res) => {
-        window.location.href = "public_notes";
-    });
-}
-
- function commentPubnote(noteId) {
-     var comment = document.getElementById("pubcom"+noteId).value;
-     fetch('comment-pubnote',{
-         method: "POST",
-         body: JSON.stringify({ noteId: noteId, comment: comment})
-     }).then((_res) => {
-        window.location.href = "public_notes";
-    });
-}
 
  $(document).ready(function(){
   
-    // Check Radio-box
-    /*$(".rating input:radio").attr("checked", false);
-
-    $('.rating input').click(function () {
-        $(".rating span").removeClass('checked');
-        $(this).parent().addClass('checked');
-    });
-
-    $('input:radio').change(
-      function(){
-        var userRating = this.value;
-        var noteId = $("input:radio").parent().attr('id');
-        fetch('rate-pubnote',{
-            method: "POST",
-            body: JSON.stringify({ noteId: noteId, rating: userRating})
-        }).then((_res) => {
-            window.location.href = "public_notes";
-            alert(noteId);
-        });
-    }); 
-   $('#recent_show').on('click', function(e) {
+    $('.lampswitch').on('click', function(e) {
         e.preventDefault()
-        fetch('recent_show',{
-            method: "POST",
+        const ip = $(this).data('ip');
+        fetch(`/lampswitch/${ip}`,{
+            method: "GET",            
         }).then((_res) => {
         });
         return false;
-    });*/
+    });
+
     $('.lampbright').on('click', function(e) {
         e.preventDefault()
         const ip = $(this).data('ip');
@@ -65,10 +20,10 @@ function deletePubnote(noteId) {
         });
         return false;
     });
+
     $('.brightnessSlider').on('change', function(e) {
         e.preventDefault()
         const ip = $(this).data('ip');
-        // const brightness = $('#brightnessSlider').value;
         const brightness = $(this).val();
         data = {
             ip: ip ,
@@ -84,6 +39,7 @@ function deletePubnote(noteId) {
         });
         return false;
     });
+
     $('.lightcolour').on('change', function(e) {
         e.preventDefault()
         const ip = $(this).data('ip');
@@ -102,15 +58,7 @@ function deletePubnote(noteId) {
         });
         return false;
     });
-    $('.lampswitch').on('click', function(e) {
-        e.preventDefault()
-        const ip = $(this).data('ip');
-        fetch(`/lampswitch/${ip}`,{
-            method: "GET",            
-        }).then((_res) => {
-        });
-        return false;
-    });
+    
     /*$('#moodlight').on('click', function(e) {
         e.preventDefault()
         fetch('moodlight',{
@@ -119,9 +67,6 @@ function deletePubnote(noteId) {
         });
         return false;
     });
-
-
-
     
     $('#lightsoff').on('click', function(e) {
         e.preventDefault()
@@ -169,6 +114,15 @@ function deletePubnote(noteId) {
     $('#formula1').on('click', function(e) {
         e.preventDefault()
         fetch('formula1',{
+            method: "POST",
+        }).then((_res) => {
+        });
+        return false;
+    });
+
+   $('#recent_show').on('click', function(e) {
+        e.preventDefault()
+        fetch('recent_show',{
             method: "POST",
         }).then((_res) => {
         });
