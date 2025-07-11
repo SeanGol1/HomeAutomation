@@ -27,8 +27,9 @@ function deletePubnote(noteId) {
 }
 
  $(document).ready(function(){
+  
     // Check Radio-box
-    $(".rating input:radio").attr("checked", false);
+    /*$(".rating input:radio").attr("checked", false);
 
     $('.rating input').click(function () {
         $(".rating span").removeClass('checked');
@@ -54,25 +55,63 @@ function deletePubnote(noteId) {
         }).then((_res) => {
         });
         return false;
-    });
-    $('#lampbright').on('click', function(e) {
+    });*/
+    $('.lampbright').on('click', function(e) {
         e.preventDefault()
-        fetch('lampbright',{
+        const ip = $(this).data('ip');
+        fetch(`lampbright/${ip}`,{
             method: "POST",
         }).then((_res) => {
         });
         return false;
     });
-    $('#lampswitch').on('click', function(e) {
+    $('.brightnessSlider').on('change', function(e) {
         e.preventDefault()
         const ip = $(this).data('ip');
-        fetch('lampswitch/${ip}',{
-            method: "POST",            
+        // const brightness = $('#brightnessSlider').value;
+        const brightness = $(this).val();
+        data = {
+            ip: ip ,
+            brightness:brightness
+        };
+        fetch('/setlampbright',{            
+            method: "POST",
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
         }).then((_res) => {
         });
         return false;
     });
-    $('#moodlight').on('click', function(e) {
+    $('.lightcolour').on('change', function(e) {
+        e.preventDefault()
+        const ip = $(this).data('ip');
+        const colour = $(this).val();
+        data = {
+            ip: ip ,
+            colour:colour
+        };
+        fetch('/setcolour',{            
+            method: "POST",
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        }).then((_res) => {
+        });
+        return false;
+    });
+    $('.lampswitch').on('click', function(e) {
+        e.preventDefault()
+        const ip = $(this).data('ip');
+        fetch(`/lampswitch/${ip}`,{
+            method: "GET",            
+        }).then((_res) => {
+        });
+        return false;
+    });
+    /*$('#moodlight').on('click', function(e) {
         e.preventDefault()
         fetch('moodlight',{
             method: "POST",
@@ -175,5 +214,5 @@ function deletePubnote(noteId) {
         return false;
     });
           
-     
-});
+     */
+  });

@@ -3,7 +3,7 @@ from multiprocessing.connection import wait
 from turtle import update
 from flask import Blueprint, render_template, request, flash, jsonify
 #from . import fireStickController
-import json , time , tinytuya , cv2, numpy as np
+import json , time , tinytuya , cv2, numpy as np, colorsys
 
 views = Blueprint('views', __name__)
 configdata = ''
@@ -190,27 +190,76 @@ def lampswitch(ip):
 
     return "Success"
 
-@views.route('/lampbright', methods=['GET','POST'])
-def lampbright():
-    d = tinytuya.BulbDevice(configdata['Light_ID_3'], configdata['Light_IP_3'], configdata['Light_KEY_3'])
-    d.set_version(3.1)  # IMPORTANT to set this regardless of version
-    d.set_socketPersistent(True)  # Optional: Keep socket open for multiple commands
-
+# /lampbright/<ip> - Toggles brightness between 25 , 100 , 255
+@views.route('/lampbright/<ip>', methods=['GET','POST'])
+def lampbright(ip):
+    device:Device = get_device_by_ip(ip)
+    #print(device.id + ' ----- ' + device.ip + ' ----- ' + device.key)
+    
+    d = tinytuya.BulbDevice(device.id,device.ip,device.key)
+    d.set_version(3.3)  
+    
+    data = d.status()
     data = d.status()
     d.turn_on()
     
-
-    #update = ''
-    if data['dps']['3'] == 255:
+    if data['dps']['22'] == 255:
         d.set_brightness(25)
         #update = 'Light set to dim brightness'
-    elif data['dps']['3'] == 25:
+    elif data['dps']['22'] == 25:
         d.set_brightness(100)
         #update = 'Light set to medium brightness'
     else:
         d.set_brightness(255)
 
     return "Success"
+
+@views.route('/setlampbright', methods=['GET','POST'])
+def setlampbright():
+    data = request.get_json()
+    ip = data['ip']
+    brightness = data['brightness']
+
+    device:Device = get_device_by_ip(ip)
+    #print(device.id + ' ----- ' + device.ip + ' ----- ' + device.key)
+    
+    d = tinytuya.BulbDevice(device.id,device.ip,device.key)
+    d.set_version(3.3)  
+    
+    data = d.status()
+    data = d.status()
+    d.turn_on()
+    print(int(brightness))
+    if(int(brightness) == 0):
+        d.turn_off()
+    else:
+        d.set_brightness_percentage(int(brightness))
+
+    return "Success"
+
+@views.route('/setcolour', methods=['GET','POST'])
+def setcolour():
+    data = request.get_json()
+    ip = data['ip']
+    colour = data['colour']
+
+    device:Device = get_device_by_ip(ip)
+    
+    d = tinytuya.BulbDevice(device.id,device.ip,device.key)
+    d.set_version(3.3)  
+
+    
+    data = d.status()
+    d.turn_on()
+
+    colour = colour[1:]
+    c = hex_to_rgb(colour)
+    d.set_colour(c[0],c[1],c[2])
+
+    return "Success"
+
+def hex_to_rgb(hex):
+  return tuple(int(hex[i:i+2], 16) for i in (0, 2, 4))
 
 @views.route('/lightsoff', methods=['GET','POST'])
 def lightsoff():
