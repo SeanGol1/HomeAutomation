@@ -10,10 +10,54 @@ configdata = ''
 with open("config.json", "r") as jsonfile:
     configdata = json.load(jsonfile)
 
-
+### WEBSITE ROUTES ###
 @views.route('/')
 def home():    
     return render_template("home.html")
+
+@views.route('/devices', methods=['GET','POST'])
+#@login_required
+def light():
+    return render_template("devices.html")
+
+@views.route('/addDevice', methods=['GET'])
+#@login_required
+def addDevice():
+    return render_template("addDevice.html")
+
+@views.route('/addDevice', methods=['POST'])
+#@login_required
+def addDevicePost():
+    #Add device to config file.
+    new_device = {
+        "name": request.form.get("device_name"),
+        "ip": request.form.get("device_ip"),
+        "type": request.form.get("device_type"),
+    }
+
+    # Add light-specific fields if it's a smart bulb
+    if new_device["type"] == "light":
+        new_device.update({
+            "make": request.form.get("device_make"),
+            "id": request.form.get("device_id"),
+            "key": request.form.get("device_key")
+        })
+
+    # # Load existing config
+    # try:
+    #     with open(CONFIG_FILE, 'r') as f:
+    #         config = json.load(f)
+    # except FileNotFoundError:
+    #     config = {"devices": []}
+
+    # Add the new device
+    configdata["devices"].append(new_device)
+
+    # Save back to file
+    with open("config.json", 'w') as f:
+        json.dump(configdata, f, indent=4)
+
+    return render_template("devices.html")
 
 
 ### Control Lights ###
@@ -118,10 +162,7 @@ def lampbright():
     else:
         d.set_brightness(255)
 
-@views.route('/light', methods=['GET','POST'])
-#@login_required
-def light():
-    return render_template("light.html")
+
 
 @views.route('/lightsoff', methods=['GET','POST'])
 def lightsoff():
@@ -226,6 +267,8 @@ def wakeup():
     mc.home()
     
     
+### Change lights to match the colour that the camera picks up ###
+
 @views.route('/moodlight', methods=['GET','POST'])
 def moodlight():
     # taking the input from webcam

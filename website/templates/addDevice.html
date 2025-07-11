@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}addDevice{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card bg-dark text-light">
+        <div class="card-header">
+            <h4><i class="fa fa-plus-circle"></i> Add New Device</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="/addDevice">
+                
+                <div class="form-group">
+                    <label for="device-type">Device Type</label>
+                    <select class="form-control" id="device-type" name="device_type" required>
+                        <option value="">Select a Type</option>
+                        <option value="light">Smart Lightbulb</option>
+                        <option value="firestick">Firestick TV</option>
+                        <option value="spotify">Spotify</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="device-name">Device Name</label>
+                    <input type="text" class="form-control" id="device-name" name="device_name"
+                        placeholder="e.g., Kitchen Lamp" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="device-ip">IP Address</label>
+                    <input type="text" class="form-control" id="device_ip" name="device_ip"
+                        placeholder="e.g., 192.168.1.15" required pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$">
+                </div>
+                <div id="bulb-fields" class="d-none">
+                <div class="form-group">
+                    <label for="device-make">Bulb Make</label>
+                    <select class="form-control" id="device-make" name="device_make">
+                        <option value="">Select a Make</option>
+                        <option value="tuya">Tuya</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="device-id">Light ID</label>
+                    <input type="text" class="form-control" id="device-id" name="device_id"
+                        placeholder="vai7va98756da7687vd6b87a0n">
+                </div>
+
+                <div class="form-group">
+                    <label for="device-key">Light Key/ Local Key</label>
+                    <input type="text" class="form-control" id="device-key" name="device_key" placeholder="py#ef~4vp;dr4">
+                </div>
+            </div>
+
+
+                <button type="submit" class="btn btn-success btn-block">
+                    <i class="fa fa-save"></i> Save Light
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Toggle bulb fields visibility -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const deviceType = document.getElementById("device-type");
+        const bulbFields = document.getElementById("bulb-fields");
+        // bulbFields.classList.add("d-none");
+        deviceType.addEventListener("change", function () {
+            if (this.value === "light") {
+                bulbFields.classList.remove("d-none");
+            } else {
+                bulbFields.classList.add("d-none");
+            }
+        });
+    });
+</script>
+{% endblock %}
