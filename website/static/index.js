@@ -119,39 +119,9 @@ function deletePubnote(noteId) {
         });
         return false;
     });
-    $('#lightbright').on('click', function(e) {
-        e.preventDefault()
-        fetch('lightbright',{
-            method: "POST",
-        }).then((_res) => {
-        });
-        return false;
-    });
-    $('#lightswitch').on('click', function(e) {
-        e.preventDefault()
-        fetch('lightswitch',{
-            method: "POST",
-        }).then((_res) => {
-        });
-        return false;
-    });
-    
-    $('#hallbright').on('click', function(e) {
-        e.preventDefault()
-        fetch('hallbright',{
-            method: "POST",
-        }).then((_res) => {
-        });
-        return false;
-    });
-    $('#hallswitch').on('click', function(e) {
-        e.preventDefault()
-        fetch('hallswitch',{
-            method: "POST",
-        }).then((_res) => {
-        });
-        return false;
-    });
+
+
+
     
     $('#lightsoff').on('click', function(e) {
         e.preventDefault()

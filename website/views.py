@@ -85,70 +85,6 @@ def addDevicePost():
 
 
 ### Control Lights ###
-@views.route('/lightswitch', methods=['GET','POST'])
-def lightswitch():
-    #Light
-    d = tinytuya.BulbDevice(configdata['Light_ID_1'], configdata['Light_IP_1'], configdata['Light_KEY_1'])
-    d.set_version(3.3)
-    d.set_socketPersistent(True)  # Optional: Keep socket open for multiple commands
-
-    data = d.status()
-    #print('set_status() result %r' % data)
-    #time.sleep(2)
-    print(data)
-    if data['dps']['20'] == False:
-        d.turn_on()
-    else:
-        d.turn_off()
-
-
-@views.route('/lightbright', methods=['GET','POST'])
-def lightbright():
-    #Light
-    d = tinytuya.BulbDevice(configdata['Light_ID_1'], configdata['Light_IP_1'], configdata['Light_KEY_1'])
-    d.set_version(3.3)
-    d.set_socketPersistent(True)  # Optional: Keep socket open for multiple commands
-    data = d.status()
-    d.turn_on()
-    if data['dps']['22'] == 1000:
-        d.set_brightness(100)
-    elif data['dps']['22'] == 100:
-        d.set_brightness(500)
-    else:
-        d.set_brightness(1000)
-
-@views.route('/hallswitch', methods=['GET','POST'])
-def hallswitch():
-    #Light
-    d = tinytuya.BulbDevice(configdata['Light_ID_2'], configdata['Light_IP_2'], configdata['Light_KEY_2'])
-    d.set_version(3.3)
-    d.set_socketPersistent(True)  # Optional: Keep socket open for multiple commands
-
-    data = d.status()
-    #print('set_status() result %r' % data)
-    #time.sleep(2)
-    print(data)
-    if data['dps']['20'] == False:
-        d.turn_on()
-    else:
-        d.turn_off()
-
-@views.route('/hallbright', methods=['GET','POST'])
-def hallbright():
-    #Light
-    d = tinytuya.BulbDevice(configdata['Light_ID_2'], configdata['Light_IP_2'], configdata['Light_KEY_2'])
-    d.set_version(3.3)
-    d.set_socketPersistent(True)  # Optional: Keep socket open for multiple commands
-
-    data = d.status()
-    d.turn_on()
-    if data['dps']['22'] == 1000:
-        d.set_brightness(100)
-    elif data['dps']['22'] == 100:
-        d.set_brightness(500)
-    else:
-        d.set_brightness(1000)
-
 
 def get_device_by_ip(ip):
     with open("config.json") as f:
@@ -165,7 +101,25 @@ def get_device_by_ip(ip):
             device.get("key")
             )
 
-    return None  # Not found
+    return None 
+
+def get_all_devices():
+    with open("config.json") as f:
+        config = json.load(f)
+    
+    deviceList = []
+    for device in config.get("devices", []):
+        deviceList.append(Device(
+            device.get("name"),
+            device.get("ip"),
+            device.get("type"),
+            device.get("make"),
+            device.get("id"),
+            device.get("key")
+            ))
+    
+    return deviceList  
+
 
 @views.route('/lampswitch/<ip>', methods=['GET','POST'])
 def lampswitch(ip):
@@ -173,14 +127,10 @@ def lampswitch(ip):
     #print(device.id + ' ----- ' + device.ip + ' ----- ' + device.key)
     
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
-    d.set_version(3.3)  # IMPORTANT to set this regardless of version
-    #d.set_socketPersistent(True)  # Optional: Keep socket open for multiple commands
+    d.set_version(3.3) 
     
     data = d.status()
-    #print('set_status() result %r' % data)
     
-    print(data)
-    #d.set_status(True, 20)
     if data['dps']['20'] == False:
         d.turn_on()
         d.set_white(255,255)
@@ -237,6 +187,7 @@ def setlampbright():
 
     return "Success"
 
+# /lampbright/{ip,colour(hex)} - Sets colour of the light
 @views.route('/setcolour', methods=['GET','POST'])
 def setcolour():
     data = request.get_json()
@@ -246,9 +197,7 @@ def setcolour():
     device:Device = get_device_by_ip(ip)
     
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
-    d.set_version(3.3)  
-
-    
+    d.set_version(3.3)      
     data = d.status()
     d.turn_on()
 
@@ -264,20 +213,11 @@ def hex_to_rgb(hex):
 @views.route('/lightsoff', methods=['GET','POST'])
 def lightsoff():
     #Light
-    d = tinytuya.BulbDevice(configdata['Light_ID_1'], configdata['Light_IP_1'], configdata['Light_KEY_1'])
-    e = tinytuya.BulbDevice(configdata['Light_ID_2'], configdata['Light_IP_2'], configdata['Light_KEY_2'])
-    f = tinytuya.BulbDevice(configdata['Light_ID_3'], configdata['Light_IP_3'], configdata['Light_KEY_3'])
-    d.set_version(3.3)
-    d.set_socketPersistent(True)  # Optional: Keep socket open for multiple commands
-    e.set_version(3.1)
-    e.set_socketPersistent(True)  # Optional: Keep socket open for multiple commands
-    f.set_version(3.3)
-    f.set_socketPersistent(True)  # Optional: Keep socket open for multiple commands
-
-    d.turn_off()
-    e.turn_off()
-    f.turn_off()
-        
+    deviceList= get_all_devices()
+    for d in deviceList:
+        b = tinytuya.BulbDevice(d.id, d.ip, d.key)
+        b.set_version(3.3)
+        b.turn_off()
 
 ### Control Firestick ###
 
