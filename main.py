@@ -7,4 +7,4 @@ with open("config.json", "r") as jsonfile:
 
 app = create_app()
 
-if __name__ == '__main__':    app.run ( host=configdata["Pi_IP"], port=configdata["Pi_port"])#app.run(debug=True) .0.13 '192.168.87.176'
+if __name__ == '__main__':    app.run ( host=configdata["Pi_IP"], port=configdata["Pi_port"])

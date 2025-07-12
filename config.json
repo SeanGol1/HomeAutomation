@@ -18,5 +18,7 @@
             "id": "eb463393c11d9b52c56cw9",
             "key": "OUKLmC/t-aiVI/6S"
         }
-    ]
+    ],
+    "weather_api_key": "292ece52c9b4473faca93924251207",
+    "city" : "Vancouver"
 }

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Home Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a2e0d4b308.js" crossorigin="anonymous"></script>
+
+    <style>
+    body {
+        background-color: #0d1117;
+        color: #f8f9fa; /* Bright light text */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .card {
+        background-color: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 16px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        color: #f8f9fa; /* Ensures text inside cards is light */
+    }
+
+    .card-header {
+        background-color: #161b22;
+        color: #f8f9fa;
+        font-weight: 600;
+    }
+
+    .clock {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #58a6ff;
+    }
+
+    .timezone {
+        font-size: 0.9rem;
+        color: #b1bac4;
+    }
+
+    .btn-custom {
+        background-color: #238636;
+        border: none;
+        color: #ffffff;
+    }
+
+    .btn-custom:hover {
+        background-color: #2ea043;
+    }
+
+    .btn-panel {
+        background-color: #1f6feb;
+        border: none;
+        color: #ffffff;
+    }
+
+    .btn-panel:hover {
+        background-color: #388bfd;
+    }
+
+    .btn-danger {
+        background-color: #da3633;
+        border: none;
+        color: #ffffff;
+    }
+
+    .btn-danger:hover {
+        background-color: #f85149;
+    }
+
+    .form-range::-webkit-slider-thumb {
+        background-color: #58a6ff;
+    }
+
+    .form-control,
+    input[type="range"],
+    input[type="color"] {
+        background-color: #0d1117;
+        color: #f8f9fa;
+        border: 1px solid #30363d;
+    }
+
+    label,
+    p,
+    h1, h2, h3, h4, h5, h6 {
+        color: #f8f9fa;
+    }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <h2 class="mb-4 text-center">Smart Home Dashboard</h2>
+
+        <div class="row g-4 mb-4">
+            <!-- Clock -->
+            <div class="col-md-4">
+                <div class="card p-4 text-center">
+                    <div class="clock" id="local-time">--:--:--</div>
+                    <div class="timezone">Local Time</div>
+                    <div class="timezone mt-3">
+                        EST: <span id="est-time">--:--</span><br>
+                        GMT: <span id="gmt-time">--:--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather -->
+            <div class="col-md-4">
+                <div class="card bg-dark text-light mb-3" style="max-width: 300px;">
+                    <div class="card-header">Weather</div>
+                    <div class="card-body">
+                        {% if weather and weather.current %}
+                        <h5 class="card-title">{{ weather.location.name }}, {{ weather.location.country }}</h5>
+                        <p class="card-text">
+                            <strong>{{ weather.current.temp_c }}°C</strong><br>
+                            {{ weather.current.condition.text }}<br>
+                            <img src="{{ weather.current.condition.icon }}" alt="Weather icon">
+                        </p>
+                        {% else %}
+                        <p>Weather data not available.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- General Controls -->
+            <div class="col-md-4">
+                <div class="card p-4">
+                    <h5>Quick Controls</h5>
+                    <button class="btn btn-custom w-100 mb-2" onclick="toggleAllLights()">Toggle Lights</button>
+                    <button class="btn btn-panel w-100 mb-2" onclick="playPause()">Play/Pause</button>
+                    <button class="btn btn-danger w-100" onclick="turnOffAll()">Turn Off All</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Device Cards -->
+        <div class="row g-4">
+            {% for d in deviceList %}
+            <div class="col-md-4">
+                <div class="card p-3">
+                    <h5 class="card-title">{{ d.name }}</h5>
+
+                    {% if d.type == 'light' %}
+                        <p class="card-text">IP: {{ d.ip }}</p>
+                        <button class="btn btn-outline-light w-100 mb-2 lampswitch" data-ip="{{ d.ip }}">Toggle Light</button>
+                        <input type="range" class="form-range brightnessSlider mb-2" min="0" max="100" value="{{ d.brightness }}" data-ip="{{ d.ip }}">
+                        <input type="color" class="form-control lightcolour" value="{{ d.colour }}" data-ip="{{ d.ip }}">
+                    {% elif d.type == 'firestick' %}
+                        <button class="btn btn-warning w-100 mb-2" onclick="firestickCommand('next_episode')">Next Episode</button>
+                        <button class="btn btn-info w-100 mb-2" onclick="firestickCommand('playpause')">Play/Pause</button>
+                        <button class="btn btn-danger w-100" onclick="firestickCommand('poweroff')">Power Off</button>
+                    {% else %}
+                        <p>Unknown device type.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        function updateClock() {
+            const now = new Date();
+            document.getElementById("local-time").textContent = now.toLocaleTimeString();
+
+            const est = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+            const gmt = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Dublin" }));
+
+            document.getElementById("est-time").textContent = est.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.getElementById("gmt-time").textContent = gmt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // function updateGMTClock() {
+        //     const now = new Date();
+        //     const gmtOffset = 0; // GMT/UTC+0
+        //     const gmtTime = new Date(now.getTime() + (gmtOffset - now.getTimezoneOffset() / 60) * 3600000);
+            
+        //     const hours = String(gmtTime.getUTCHours()).padStart(2, '0');
+        //     const minutes = String(gmtTime.getUTCMinutes()).padStart(2, '0');
+        //     const seconds = String(gmtTime.getUTCSeconds()).padStart(2, '0');
+            
+        //     document.getElementById("gmt-clock").innerText = `${hours}:${minutes}:${seconds}`;
+        // }
+
+        // setInterval(updateGMTClock, 1000);
+        // updateGMTClock();
+
+        function toggleAllLights() {
+            fetch('/lightsoff', { method: 'POST' });
+        }
+
+        function playPause() {
+            fetch('/playpause', { method: 'POST' });
+        }
+
+        function turnOffAll() {
+            fetch('/lightsoff', { method: 'POST' });
+            fetch('/poweroff', { method: 'POST' });
+        }
+
+        function firestickCommand(endpoint) {
+            fetch(`/${endpoint}`, { method: 'POST' });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.lampswitch').forEach(button => {
+                button.addEventListener('click', () => {
+                    const ip = button.dataset.ip;
+                    fetch(`/lampswitch/${ip}`, { method: 'POST' });
+                });
+            });
+
+            document.querySelectorAll('.brightnessSlider').forEach(slider => {
+                slider.addEventListener('change', () => {
+                    const ip = slider.dataset.ip;
+                    const brightness = slider.value;
+                    fetch('/setlampbright', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ip, brightness })
+                    });
+                });
+            });
+
+            document.querySelectorAll('.lightcolour').forEach(picker => {
+                picker.addEventListener('change', () => {
+                    const ip = picker.dataset.ip;
+                    const colour = picker.value;
+                    fetch('/setcolour', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ip, colour })
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

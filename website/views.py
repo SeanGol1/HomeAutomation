@@ -3,7 +3,7 @@ from multiprocessing.connection import wait
 from turtle import update
 from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect
 #from . import fireStickController
-import json , time , tinytuya , cv2, numpy as np , colorsys, re
+import json , time , tinytuya , cv2, numpy as np , colorsys, re, requests
 
 views = Blueprint('views', __name__)
 configdata = ''
@@ -32,7 +32,6 @@ def home():
     return render_template("home.html")
 
 @views.route('/devices', methods=['GET','POST'])
-#@login_required
 def devices():
      # Load config from file
     with open("config.json") as f:
@@ -96,12 +95,10 @@ def devices():
     return render_template("devices.html",deviceList=deviceList)
 
 @views.route('/addDevice', methods=['GET'])
-#@login_required
 def addDevice():
     return render_template("addDevice.html")
 
 @views.route('/addDevice', methods=['POST'])
-#@login_required
 def addDevicePost():
     #Add device to config file.
     new_device = {
@@ -154,7 +151,30 @@ def delete_device():
         print(f"Error deleting device: {e}")
         return jsonify({"success": False})
 
-### Control Lights ###
+@views.route('/dashboard', methods=['GET','POST'])
+def dashboard():
+    deviceList = get_all_devices()
+
+    with open("config.json", 'r') as f:
+        configdata = json.load(f)
+
+    
+    api_key = configdata['weather_api_key']
+    location = configdata['city']  
+    url = f'http://api.weatherapi.com/v1/current.json?key={api_key}&q={location}&aqi=no'
+    
+    weather_data = {}
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            weather_data = response.json()
+    except Exception as e:
+        print("Error fetching weather:", e)
+
+    return render_template("dashboard.html", deviceList=deviceList, weather=weather_data)
+
+
+### Functions ###
 
 def get_device_by_ip(ip):
     with open("config.json") as f:
@@ -237,7 +257,7 @@ def get_brightness_from_hex(code):
 
     return round(brightness_percent)
 
-
+### Control Devices Endpoints ###
 
 @views.route('/lampswitch/<ip>', methods=['POST'])
 def lampswitch(ip):
