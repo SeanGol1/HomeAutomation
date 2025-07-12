@@ -8,11 +8,11 @@
 
 <div class="container mt-4">
 
-
+    <div class="row">
     {% for d in deviceList %}
 
     {% if d.type == "light"%}
-    <div class="row">
+    
         <div class="col-md-6 mb-4" id="obj{{d.ip}}" data-object="{{d}}" >
             <div class="card bg-dark text-light">
                 <div class="card-header"><i class="fa fa-lightbulb-o"></i> {{d.name}}</div>
@@ -25,7 +25,7 @@
                     <button class="btn btn-secondary btn-block lampbright" id="lampbright" data-ip="{{d.ip}}">Toggle Brightness</button>
                     <div class="slidecontainer">
                         <p>Set Brightness:</p>
-                        <input type="range" min="0" max="100" value="50" class="slider brightnessSlider" id="brightnessSlider" data-ip="{{d.ip}}">
+                        <input type="range" min="0" max="100" value="{{d.brightness}}" class="slider brightnessSlider" id="brightnessSlider" data-ip="{{d.ip}}">
                     </div>
                     
                     <input type="color" id="lightcolour" class="lightcolour" name="lightcolour" value="{{d.colour}}" data-ip="{{d.ip}}">
@@ -61,10 +61,10 @@
         {% endif %}
 
 
-      
+       {% endfor %}
 
 
-    </div>  {% endfor %}
+    </div> 
 </div>
 
     {% endblock %}

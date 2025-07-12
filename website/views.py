@@ -56,13 +56,11 @@ def devices():
                     data = b.status()
                     print(data)
 
-                    # hsv = extract_hsv_ranges(data["dps"]["24"])
-                    # currentcolor = colorsys.hsv_to_rgb(hsv[0], hsv[1], hsv[0])
+                    #get current colour
                     currentcolour = decode_hsv_hex_to_rgb_hex(data["dps"]["24"])
 
-                    # hsv = decode_hsv_hex(data["dps"]["24"])
-                    # rgb = colorsys.hsv_to_rgb(hsv[0],hsv[1],hsv[2])
-                    # currentcolor = rgb_to_hex(rgb)
+                    #getcurrentbrightness
+                    brightness = get_brightness_from_hex(data["dps"]["24"])
 
                     newBulb = Bulb(d.get("name"),
                     d.get("ip"),
@@ -71,7 +69,7 @@ def devices():
                     d.get("id"),
                     d.get("key"),
                     data["dps"]["20"],
-                    data["dps"]["22"],
+                    brightness,
                     currentcolour)
 
                     
@@ -204,6 +202,15 @@ def decode_hsv_hex_to_rgb_hex(hsv_hex):
     # Step 3: Convert RGB to hex
     return "#{:02x}{:02x}{:02x}".format(r, g, b)
 
+def get_brightness_from_hex(code):
+    if len(code) != 12:
+        raise ValueError("Hex string must be 12 characters (6 bytes).")
+    
+    brightness_hex = code[-4:]  # last 4 hex chars = brightness
+    brightness = int(brightness_hex, 16)  # convert to int
+    brightness_percent = (brightness / 1000) * 100
+
+    return round(brightness_percent)
 
 @views.route('/lampswitch/<ip>', methods=['GET'])
 def lampswitch(ip):
@@ -227,31 +234,23 @@ def lampswitch(ip):
     response = make_response(jsonify({'isOn': isOn}), 200)
     response.headers['Content-Type'] = 'application/json'
     return response
-    #return jsonify(device.ip)
 
 # /lampbright/<ip> - Toggles brightness between 25 , 100 , 255
 @views.route('/lampbright/<ip>', methods=['GET','POST'])
 def lampbright(ip):
-    device:Device = get_device_by_ip(ip)
-    #print(device.id + ' ----- ' + device.ip + ' ----- ' + device.key)
-    
+    device:Device = get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
-    d.set_version(3.4)  
+    d.set_version(3.3)  
     
     data = d.status()
     d.turn_on()
-    
-    if data['dps']['23'] == 255:
-        d.set_brightness(25)
-        print(25)
-        #update = 'Light set to dim brightness'
-    elif data['dps']['23'] == 25:
-        d.set_brightness(100)
-        print(100)
-        #update = 'Light set to medium brightness'
-    else:
-        d.set_brightness(255)
-        print(255)
+    if data['dps']['21'] == 'color':
+        if data['dps']['22'] == 255:
+            d.set_brightness(25)
+        elif data['dps']['22'] == 25:
+            d.set_brightness(100)
+        else:
+            d.set_brightness(255)
 
     data = d.status()
     print(data)
@@ -264,14 +263,11 @@ def setlampbright():
     ip = data['ip']
     brightness = data['brightness']
 
-    device:Device = get_device_by_ip(ip)
-    #print(device.id + ' ----- ' + device.ip + ' ----- ' + device.key)
-    
+    device:Device = get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
     d.set_version(3.3)  
     
-    data = d.status()
-    
+    data = d.status()    
     d.turn_on()
     
     print(int(brightness))
