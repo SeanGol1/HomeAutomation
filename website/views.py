@@ -212,7 +212,7 @@ def get_brightness_from_hex(code):
 
     return round(brightness_percent)
 
-@views.route('/lampswitch/<ip>', methods=['GET'])
+@views.route('/lampswitch/<ip>', methods=['POST'])
 def lampswitch(ip):
     device:Device = get_device_by_ip(ip)
     #print(device.id + ' ----- ' + device.ip + ' ----- ' + device.key)
@@ -236,7 +236,7 @@ def lampswitch(ip):
     return response
 
 # /lampbright/<ip> - Toggles brightness between 25 , 100 , 255
-@views.route('/lampbright/<ip>', methods=['GET','POST'])
+@views.route('/lampbright/<ip>', methods=['GET'])
 def lampbright(ip):
     device:Device = get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
@@ -244,14 +244,21 @@ def lampbright(ip):
     
     data = d.status()
     d.turn_on()
-    if data['dps']['21'] == 'color':
+    if data['dps']['21'] == 'colour':
+        brightness = get_brightness_from_hex(data["dps"]["24"])
+        if brightness > 67:
+            d.set_brightness_percentage(25)
+        elif brightness < 67 and brightness > 26:
+            d.set_brightness_percentage(100)
+        else:
+            d.set_brightness_percentage(66)
+    elif data['dps']['21'] == 'white':
         if data['dps']['22'] == 255:
             d.set_brightness(25)
         elif data['dps']['22'] == 25:
             d.set_brightness(100)
         else:
             d.set_brightness(255)
-
     data = d.status()
     print(data)
     return "Success"

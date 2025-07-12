@@ -1,9 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
 
-{% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
-%}
+{% block content %}
+<div class="container mt-5">
+  <div class="card bg-dark text-light p-4">
+    <h1 class="mb-4"><i class="fa fa-home"></i> Smart Home Controller</h1>
 
-<h1 align="center">This is the hompage</h1> 
-    <div>
+     <div>
         <a class="btn btn-primary btn-block mb-2" id="devices" href="/devices">View Devices</a>
     </div>
+
+    <h4 class="text-info">Overview</h4>
+    <p>
+      This app is a smart home automation dashboard and API system designed to run on a local server — ideally a <strong>Raspberry Pi</strong>. It allows you to control various devices in your home using web-based commands or by scanning NFC tags that trigger API requests.
+    </p>
+
+    <h4 class="text-info">How it Works</h4>
+    <ol>
+      <li>Install and run the Flask app on your home server (Raspberry Pi recommended).</li>
+      <li>The server exposes a web dashboard and a set of API endpoints to control smart devices like lights and Firestick TVs.</li>
+      <li>You can place <strong>NFC tags</strong> around your house that are programmed to hit specific endpoints when scanned (e.g. turn off all lights, play a show, etc.).</li>
+      <li>The dashboard allows you to monitor and control all configured devices in one place.</li>
+    </ol>
+
+    <h4 class="text-info">Hardware Requirements</h4>
+    <ul>
+      <li>Raspberry Pi (or any always-on server)</li>
+      <li>Smart Bulbs that work with Tuya (TinyTuya compatible)</li>
+      <li>Firestick TV (for Firestick integration)</li>
+      <li>NFC Tags (optional but powerful for automation)</li>
+    </ul>
+
+    <h4 class="text-info mt-4">Available API Endpoints</h4>
+    <div class="table-responsive">
+      <table class="table table-dark table-striped">
+        <thead>
+          <tr>
+            <th>Endpoint</th>
+            <th>Method</th>
+            <th>Arguments</th>
+            <th>Description</th>            
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>/devices</td>
+            <td>GET</td>
+            <td></td>
+            <td>Displays all configured devices in the dashboard.</td>
+        </tr>
+        <tr>
+            <td>/addDevice</td>
+            <td>GET/POST</td>
+            <td></td>
+            <td>Form and submission route for adding a new device to config.</td>
+        </tr>
+        <tr>
+            <td>/lampswitch/&lt;ip&gt;</td>
+            <td>GET</td>
+            <td>IP Adress {string}</td>
+            <td>Toggles power on/off for a smart bulb by IP address.</td>
+        </tr>
+        <tr>
+            <td>/lampbright/&lt;ip&gt;</td>
+            <td>POST</td>
+            <td>IP Adress {string}</td>
+            <td>Toggles brightness levels (25%, 66%, 100%) for a bulb.</td>
+        </tr>
+        <tr>
+            <td>/setlampbright</td>
+            <td>POST</td>
+            <td>IP Adress {string} , Brightness Percentage 0-100 {int}</td>
+            <td>Sets brightness for a bulb to a specific percentage.</td>
+        </tr>
+        <tr>
+            <td>/setcolour</td>
+            <td>POST</td>
+            <td>IP Adress {string} , Colour in Hex #000000 {string}</td>
+            <td>Changes the colour of the light using a hex code.</td>
+        </tr>
+        <tr>
+            <td>/lightsoff</td>
+            <td>GET/POST</td>
+            <td></td>
+            <td>Turns off all configured smart lights.</td>
+        </tr>
+        <tr>
+            <td>/next_episode</td>
+            <td>GET/POST</td>
+            <td></td>
+            <td>Navigates Firestick to play the next episode.</td>
+        </tr>
+        <tr>
+            <td>/recent_show</td>
+            <td>GET/POST</td>
+            <td></td>
+            <td>Plays the most recently watched show on Firestick.</td>
+        </tr>
+        <tr>
+            <td>/playpause</td>
+            <td>GET/POST</td>
+            <td></td>
+            <td>Toggles play/pause on the Firestick.</td>
+        </tr>
+        <tr>
+            <td>/poweroff</td>
+            <td>GET/POST</td>
+            <td></td>
+            <td>Powers off the Firestick device.</td>
+        </tr>
+        <tr>
+            <td>/formula1</td>
+            <td>GET/POST</td>
+            <td></td>
+            <td>Launches the Formula 1 app on Firestick and starts playback.</td>
+        </tr>
+        <tr>
+            <td>/wakeup</td>
+            <td>GET/POST</td>
+            <td></td>
+            <td>Wakes up the Firestick and brings it to the home screen.</td>
+        </tr>
+        <tr>
+            <td>/moodlight</td>
+            <td>GET/POST</td>
+            <td></td>
+            <td>Reads the average colour from your webcam and adjusts light colour to match.</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4 class="text-info mt-4">NFC Automation Ideas</h4>
+    <ul>
+      <li>Stick an NFC tag by your front door that turns off all lights when you leave.</li>
+      <li>Place a tag near your bed that dims the lights and starts your favorite show.</li>
+      <li>Use tags for specific moods: work mode, movie time, party lights, etc.</li>
+    </ul>
+
+    <p class="mt-4">
+      For more configuration or to contribute, visit the <a href="https://github.com/SeanGol1/HomeAutomation" target="_blank">GitHub repository.</a>
+    </p>
+  </div>
+</div>
 {% endblock %}
