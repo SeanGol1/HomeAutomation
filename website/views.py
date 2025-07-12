@@ -1,9 +1,9 @@
 from distutils.command.config import config
 from multiprocessing.connection import wait
 from turtle import update
-from flask import Blueprint, render_template, request, flash, jsonify
+from flask import Blueprint, render_template, request, flash, jsonify ,  make_response
 #from . import fireStickController
-import json , time , tinytuya , cv2, numpy as np
+import json , time , tinytuya , cv2, numpy as np , colorsys, re
 
 views = Blueprint('views', __name__)
 configdata = ''
@@ -19,6 +19,13 @@ class Device:
     self.id = id 
     self.key = key
 
+class Bulb(Device):
+    def __init__(self,name, ip, type,make,id,key,state, brightness, colour):
+        Device.__init__(self, name, ip, type,make,id,key)
+        self.state = state
+        self.brightness = brightness
+        self.colour = colour
+
 ### WEBSITE ROUTES ###
 @views.route('/')
 def home():    
@@ -26,21 +33,61 @@ def home():
 
 @views.route('/devices', methods=['GET','POST'])
 #@login_required
-def light():
+def devices():
      # Load config from file
     with open("config.json") as f:
         configdata = json.load(f)
+    try:
+        deviceList = []
+        for d in configdata["devices"]:
+            device = Device( d.get("name"),
+                d.get("ip"),
+                d.get("type"),
+                d.get("make"),
+                d.get("id"),
+                d.get("key"))
+            
+            if(device.type == "light"):
 
-    deviceList = []
-    for d in configdata["devices"]:
-        deviceList.append(Device(
-            d.get("name"),
-            d.get("ip"),
-            d.get("type"),
-            d.get("make"),
-            d.get("id"),
-            d.get("key")
-        ))
+                    device:Device = get_device_by_ip(device.ip)    
+                    print(device)
+                    b = tinytuya.BulbDevice(device.id,device.ip,device.key)
+                    b.set_version(3.3) 
+                    data = b.status()
+                    print(data)
+
+                    # hsv = extract_hsv_ranges(data["dps"]["24"])
+                    # currentcolor = colorsys.hsv_to_rgb(hsv[0], hsv[1], hsv[0])
+                    currentcolour = decode_hsv_hex_to_rgb_hex(data["dps"]["24"])
+
+                    # hsv = decode_hsv_hex(data["dps"]["24"])
+                    # rgb = colorsys.hsv_to_rgb(hsv[0],hsv[1],hsv[2])
+                    # currentcolor = rgb_to_hex(rgb)
+
+                    newBulb = Bulb(d.get("name"),
+                    d.get("ip"),
+                    d.get("type"),
+                    d.get("make"),
+                    d.get("id"),
+                    d.get("key"),
+                    data["dps"]["20"],
+                    data["dps"]["22"],
+                    currentcolour)
+
+                    
+                    print('colour')
+                    print(currentcolour)
+
+                    deviceList.append(newBulb)
+            else:
+                deviceList.append(device)
+    except:
+        deviceList.append(device)
+            
+
+        
+
+        
 
     return render_template("devices.html",deviceList=deviceList)
 
@@ -120,8 +167,45 @@ def get_all_devices():
     
     return deviceList  
 
+def decode_hsv_hex_to_rgb_hex(hsv_hex):
+    if len(hsv_hex) != 12:
+        raise ValueError("HSV hex must be exactly 12 characters")
 
-@views.route('/lampswitch/<ip>', methods=['GET','POST'])
+    # Step 1: Extract HSV values from hex
+    h = int(hsv_hex[0:4], 16)
+    s = int(hsv_hex[4:8], 16)
+    v = int(hsv_hex[8:12], 16)
+
+    # Step 2: Convert HSV to RGB
+    s /= 1000.0
+    v /= 1000.0
+
+    c = v * s
+    x = c * (1 - abs((h / 60.0) % 2 - 1))
+    m = v - c
+
+    if 0 <= h < 60:
+        r1, g1, b1 = c, x, 0
+    elif 60 <= h < 120:
+        r1, g1, b1 = x, c, 0
+    elif 120 <= h < 180:
+        r1, g1, b1 = 0, c, x
+    elif 180 <= h < 240:
+        r1, g1, b1 = 0, x, c
+    elif 240 <= h < 300:
+        r1, g1, b1 = x, 0, c
+    else:
+        r1, g1, b1 = c, 0, x
+
+    r = int((r1 + m) * 255)
+    g = int((g1 + m) * 255)
+    b = int((b1 + m) * 255)
+
+    # Step 3: Convert RGB to hex
+    return "#{:02x}{:02x}{:02x}".format(r, g, b)
+
+
+@views.route('/lampswitch/<ip>', methods=['GET'])
 def lampswitch(ip):
     device:Device = get_device_by_ip(ip)
     #print(device.id + ' ----- ' + device.ip + ' ----- ' + device.key)
@@ -130,15 +214,20 @@ def lampswitch(ip):
     d.set_version(3.3) 
     
     data = d.status()
-    
+    isOn = False
     if data['dps']['20'] == False:
         d.turn_on()
-        d.set_white(255,255)
-        d.set_brightness(255)
+        isOn = True
     else:
         d.turn_off()
+        isOn = False
+    print(jsonify(isOn))
 
-    return "Success"
+
+    response = make_response(jsonify({'isOn': isOn}), 200)
+    response.headers['Content-Type'] = 'application/json'
+    return response
+    #return jsonify(device.ip)
 
 # /lampbright/<ip> - Toggles brightness between 25 , 100 , 255
 @views.route('/lampbright/<ip>', methods=['GET','POST'])
@@ -147,23 +236,28 @@ def lampbright(ip):
     #print(device.id + ' ----- ' + device.ip + ' ----- ' + device.key)
     
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
-    d.set_version(3.3)  
+    d.set_version(3.4)  
     
-    data = d.status()
     data = d.status()
     d.turn_on()
     
-    if data['dps']['22'] == 255:
+    if data['dps']['23'] == 255:
         d.set_brightness(25)
+        print(25)
         #update = 'Light set to dim brightness'
-    elif data['dps']['22'] == 25:
+    elif data['dps']['23'] == 25:
         d.set_brightness(100)
+        print(100)
         #update = 'Light set to medium brightness'
     else:
         d.set_brightness(255)
+        print(255)
 
+    data = d.status()
+    print(data)
     return "Success"
 
+# /lampbright/{ip,brightness} - sets brightness to to a percentage value. 
 @views.route('/setlampbright', methods=['GET','POST'])
 def setlampbright():
     data = request.get_json()
@@ -177,14 +271,18 @@ def setlampbright():
     d.set_version(3.3)  
     
     data = d.status()
-    data = d.status()
+    
     d.turn_on()
+    
     print(int(brightness))
     if(int(brightness) == 0):
         d.turn_off()
     else:
         d.set_brightness_percentage(int(brightness))
 
+    data = d.status()
+    print(data)
+    
     return "Success"
 
 # /lampbright/{ip,colour(hex)} - Sets colour of the light
@@ -200,6 +298,7 @@ def setcolour():
     d.set_version(3.3)      
     data = d.status()
     d.turn_on()
+
 
     colour = colour[1:]
     c = hex_to_rgb(colour)

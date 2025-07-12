@@ -6,8 +6,24 @@
         const ip = $(this).data('ip');
         fetch(`/lampswitch/${ip}`,{
             method: "GET",            
-        }).then((_res) => {
+        })
+        .then(response => {
+            console.log(response);
+            return response.json();
+        })
+        .then(data => {
+            console.log("Response from /lampswitch:", data);
+            console.log(`#lampswitch-${ip}`)
+            //id = `lampswitch-${ip}`
+            const id = `lampswitch-${ip}`;
+            const safeId = CSS.escape(id);
+            if (data.isOn === true) {
+                $(`#${safeId}`).removeClass('btn-danger').addClass('btn-success');
+            } else {
+                $(`#${safeId}`).removeClass('btn-success').addClass('btn-danger');
+            }
         });
+        
         return false;
     });
 
