@@ -1,7 +1,7 @@
 from distutils.command.config import config
 from multiprocessing.connection import wait
 from turtle import update
-from flask import Blueprint, render_template, request, flash, jsonify ,  make_response
+from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect
 #from . import fireStickController
 import json , time , tinytuya , cv2, numpy as np , colorsys, re
 
@@ -37,7 +37,7 @@ def devices():
      # Load config from file
     with open("config.json") as f:
         configdata = json.load(f)
-    try:
+    
         deviceList = []
         for d in configdata["devices"]:
             device = Device( d.get("name"),
@@ -48,39 +48,45 @@ def devices():
                 d.get("key"))
             
             if(device.type == "light"):
+                    device:Device = get_device_by_ip(device.ip) 
+                    try:   
+                        if(device.ip != "0.0.0.0"):  # for testing purposes
+                            print('Connecting to bulb %r ...' % device.ip)
+                            b = tinytuya.BulbDevice(device.id,device.ip,device.key)
+                            b.connection_timeout(200)
+                            b.set_version(3.3) 
+                            data = b.status()                            
 
-                    device:Device = get_device_by_ip(device.ip)    
-                    print(device)
-                    b = tinytuya.BulbDevice(device.id,device.ip,device.key)
-                    b.set_version(3.3) 
-                    data = b.status()
-                    print(data)
+                            #get current colour
+                            currentcolour = decode_hsv_hex_to_rgb_hex(data["dps"]["24"])
 
-                    #get current colour
-                    currentcolour = decode_hsv_hex_to_rgb_hex(data["dps"]["24"])
+                            #getcurrentbrightness
+                            brightness = get_brightness_from_hex(data["dps"]["24"])
 
-                    #getcurrentbrightness
-                    brightness = get_brightness_from_hex(data["dps"]["24"])
+                            newBulb = Bulb(d.get("name"),
+                            d.get("ip"),
+                            d.get("type"),
+                            d.get("make"),
+                            d.get("id"),
+                            d.get("key"),
+                            data["dps"]["20"],
+                            brightness,
+                            currentcolour)
 
-                    newBulb = Bulb(d.get("name"),
-                    d.get("ip"),
-                    d.get("type"),
-                    d.get("make"),
-                    d.get("id"),
-                    d.get("key"),
-                    data["dps"]["20"],
-                    brightness,
-                    currentcolour)
+                            
+                            print('colour')
+                            print(currentcolour)
 
-                    
-                    print('colour')
-                    print(currentcolour)
-
-                    deviceList.append(newBulb)
-            else:
+                            deviceList.append(newBulb) 
+                            print('Connection Successful!') 
+                        else: 
+                            deviceList.append(device)
+                    except:
+                        deviceList.append(device)
+                        print('Connection Failed.')
+            else:                
                 deviceList.append(device)
-    except:
-        deviceList.append(device)
+
             
 
         
@@ -113,11 +119,11 @@ def addDevicePost():
         })
 
     # # Load existing config
-    # try:
-    #     with open(CONFIG_FILE, 'r') as f:
-    #         config = json.load(f)
-    # except FileNotFoundError:
-    #     config = {"devices": []}
+    try:
+        with open("config.json", 'r') as f:
+            configdata = json.load(f)
+    except FileNotFoundError:
+            configdata = {"devices": []}
 
     # Add the new device
     configdata["devices"].append(new_device)
@@ -126,8 +132,27 @@ def addDevicePost():
     with open("config.json", 'w') as f:
         json.dump(configdata, f, indent=4)
 
-    return render_template("devices.html")
+    return redirect("/devices", code=200)
 
+
+@views.route('/deleteDevice', methods=['POST'])
+def delete_device():
+    data = request.get_json()
+    ip = data.get('ip')
+
+    try:
+        with open("config.json", 'r') as f:
+            configdata = json.load(f)
+
+        configdata['devices'] = [d for d in configdata['devices'] if d.get('ip') != ip]
+
+        with open("config.json", 'w') as f:
+            json.dump(configdata, f, indent=4)
+
+        return jsonify({"success": True})
+    except Exception as e:
+        print(f"Error deleting device: {e}")
+        return jsonify({"success": False})
 
 ### Control Lights ###
 
@@ -212,11 +237,11 @@ def get_brightness_from_hex(code):
 
     return round(brightness_percent)
 
+
+
 @views.route('/lampswitch/<ip>', methods=['POST'])
 def lampswitch(ip):
-    device:Device = get_device_by_ip(ip)
-    #print(device.id + ' ----- ' + device.ip + ' ----- ' + device.key)
-    
+    device:Device = get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
     d.set_version(3.3) 
     
@@ -236,7 +261,7 @@ def lampswitch(ip):
     return response
 
 # /lampbright/<ip> - Toggles brightness between 25 , 100 , 255
-@views.route('/lampbright/<ip>', methods=['GET'])
+@views.route('/lampbright/<ip>', methods=['GET','POST'])
 def lampbright(ip):
     device:Device = get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
@@ -302,10 +327,13 @@ def setcolour():
     data = d.status()
     d.turn_on()
 
-
     colour = colour[1:]
     c = hex_to_rgb(colour)
-    d.set_colour(c[0],c[1],c[2])
+    if (colour == 'ffffff'):
+        d.set_white(1000,10)
+    else:
+        c = hex_to_rgb(colour)
+        d.set_colour(c[0],c[1],c[2])
 
     return "Success"
 

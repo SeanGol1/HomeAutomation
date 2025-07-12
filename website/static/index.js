@@ -5,7 +5,7 @@
         e.preventDefault()
         const ip = $(this).data('ip');
         fetch(`/lampswitch/${ip}`,{
-            method: "GET",            
+            method: "POST",            
         })
         .then(response => {
             console.log(response);
@@ -74,6 +74,26 @@
         });
         return false;
     });
+
+    $('.deleteDevice').on('click', function(e) {
+    e.preventDefault();
+    const ip = $(this).data('ip');
+    if (!confirm(`Are you sure you want to delete device with IP: ${ip}?`)) return;
+
+    fetch('/deleteDevice', {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ip: ip })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            $(`#obj${CSS.escape(ip)}`).remove();
+        } else {
+            alert("Failed to delete device.");
+        }
+    });
+});
     
     /*$('#moodlight').on('click', function(e) {
         e.preventDefault()

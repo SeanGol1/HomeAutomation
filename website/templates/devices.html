@@ -15,6 +15,10 @@
     
         <div class="col-md-6 mb-4" id="obj{{d.ip}}" data-object="{{d}}" >
             <div class="card bg-dark text-light">
+                <button type="button" class="close text-danger deleteDevice" data-ip="{{d.ip}}" aria-label="Close"
+                    style="position: absolute; top: 5px; right: 10px; z-index: 1;">
+                    <span aria-hidden="true"><i class="fa fa-trash"></i></span>
+                </button>
                 <div class="card-header"><i class="fa fa-lightbulb-o"></i> {{d.name}}</div>
                 <div class="card-body">
                     {% if d.state == True %}                    
@@ -29,6 +33,7 @@
                     </div>
                     
                     <input type="color" id="lightcolour" class="lightcolour" name="lightcolour" value="{{d.colour}}" data-ip="{{d.ip}}">
+                    <!-- <button class="btn btn-danger btn-block mt-2 deleteDevice" data-ip="{{d.ip}}">Delete Device</button> -->
                 </div>
             </div>
         </div>
@@ -38,12 +43,17 @@
         {% if d.type == "firestick"%}
         <div class="col-md-6 mb-4">
             <div class="card bg-dark text-light">
+                <button type="button" class="close text-danger deleteDevice" data-ip="{{d.ip}}" aria-label="Close"
+                    style="position: absolute; top: 5px; right: 10px; z-index: 1;">
+                    <span aria-hidden="true"><i class="fa fa-trash"></i></span>
+                </button>
                 <div class="card-header"><i class="fa fa-television"></i> {{d.name}}</div>
                 <div class="card-body">
                     <button class="btn btn-info btn-block mb-2" id="next_episode">Next Episode</button>
                     <button class="btn btn-info btn-block mb-2" id="playpause">Play/Pause</button>
                     <button class="btn btn-info btn-block mb-2" id="recent_show">Most Recent Show</button>
                     <button class="btn btn-info btn-block" id="formula1">Formula 1</button>
+                    
                 </div>
             </div>
         </div>
@@ -52,6 +62,10 @@
         {% if d.type == "spotify"%}
         <div class="col-md-6 mb-4">
             <div class="card bg-dark text-light">
+                <button type="button" class="close text-danger deleteDevice" data-ip="{{d.ip}}" aria-label="Close"
+                    style="position: absolute; top: 5px; right: 10px; z-index: 1;">
+                    <span aria-hidden="true"><i class="fa fa-trash"></i></span>
+                </button>
                 <div class="card-header"><i class="fa fa-spotify"></i> Spotify</div>
                 <div class="card-body">
                     <button class="btn btn-info btn-block" id="spotify">Toggle Spotify</button>
