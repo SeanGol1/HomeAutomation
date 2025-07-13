@@ -1,6 +1,6 @@
 {
-    "Pi_IP": "192.168.87.176",  
-    "Pi_port": "5001", 
+    "Pi_IP": "192.168.0.21",
+    "Pi_port": "5000",
     "devices": [
         {
             "name": "Living Room Lamp",
@@ -8,7 +8,7 @@
             "type": "light",
             "make": "tuya",
             "id": "eb4eb54574e97932beiy1z",
-            "key": "pY)=7X#`Q<gYDG3~"
+            "key": "?ootB(jQ?(SfVuVv"
         },
         {
             "name": "Big Lamp",
@@ -16,9 +16,14 @@
             "type": "light",
             "make": "tuya",
             "id": "eb463393c11d9b52c56cw9",
-            "key": "OUKLmC/t-aiVI/6S"
+            "key": "Sl[*~Lu7{Oa8(m[T"
+        },
+        {
+            "name": "Living Room Firestick ",
+            "ip": "192.168.0.0",
+            "type": "firestick"
         }
     ],
     "weather_api_key": "292ece52c9b4473faca93924251207",
-    "city" : "Vancouver"
+    "city": "Vancouver"
 }

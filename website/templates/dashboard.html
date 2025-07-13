@@ -1,105 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Smart Home Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/a2e0d4b308.js" crossorigin="anonymous"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
     <style>
-    body {
-        background-color: #0d1117;
-        color: #f8f9fa; /* Bright light text */
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+        body {
+            /* background-color: #0d1117;*/
 
-    .card {
-        background-color: #161b22;
-        border: 1px solid #30363d;
-        border-radius: 16px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        color: #f8f9fa; /* Ensures text inside cards is light */
-    }
+            background: url('/static/tech_background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #f8f9fa; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-    .card-header {
-        background-color: #161b22;
-        color: #f8f9fa;
-        font-weight: 600;
-    }
+        .card {
+            /* background-color: #161b22; */
+            background-color: rgba(22, 27, 34, 0.7);
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            color: #f8f9fa;
+        }
 
-    .clock {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #58a6ff;
-    }
+        .card-header {
+            background-color: #161b22;
+            color: #f8f9fa;
+            font-weight: 600;
+        }
 
-    .timezone {
-        font-size: 0.9rem;
-        color: #b1bac4;
-    }
+        .clock {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #58a6ff;
+        }
 
-    .btn-custom {
-        background-color: #238636;
-        border: none;
-        color: #ffffff;
-    }
+        .timezone {
+            font-size: 0.9rem;
+            color: #b1bac4;
+        }
 
-    .btn-custom:hover {
-        background-color: #2ea043;
-    }
+        .btn-custom {
+            background-color: #238636;
+            border: none;
+            color: #ffffff;
+        }
 
-    .btn-panel {
-        background-color: #1f6feb;
-        border: none;
-        color: #ffffff;
-    }
+        .btn-custom:hover {
+            background-color: #2ea043;
+        }
 
-    .btn-panel:hover {
-        background-color: #388bfd;
-    }
+        .btn-panel {
+            background-color: #1f6feb;
+            border: none;
+            color: #ffffff;
+        }
 
-    .btn-danger {
-        background-color: #da3633;
-        border: none;
-        color: #ffffff;
-    }
+        .btn-panel:hover {
+            background-color: #388bfd;
+        }
 
-    .btn-danger:hover {
-        background-color: #f85149;
-    }
+        .btn-danger {
+            background-color: #da3633;
+            border: none;
+            color: #ffffff;
+        }
 
-    .form-range::-webkit-slider-thumb {
-        background-color: #58a6ff;
-    }
+        .btn-danger:hover {
+            background-color: #f85149;
+        }
 
-    .form-control,
-    input[type="range"],
-    input[type="color"] {
-        background-color: #0d1117;
-        color: #f8f9fa;
-        border: 1px solid #30363d;
-    }
+        .form-range::-webkit-slider-thumb {
+            background-color: #58a6ff;
+        }
 
-    label,
-    p,
-    h1, h2, h3, h4, h5, h6 {
-        color: #f8f9fa;
-    }
+        .form-control,
+        input[type="range"],
+        input[type="color"] {
+            background-color: #0d1117;
+            color: #f8f9fa;
+            border: 1px solid #30363d;
+        }
+
+        label,
+        p,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: #f8f9fa;
+        }
     </style>
 </head>
-<body>
-    <div class="container py-5">
-        <h2 class="mb-4 text-center">Smart Home Dashboard</h2>
 
-        <div class="row g-4 mb-4">
+<body>
+    <div class="container">
+        <p></p>
+        <div class="row g-1 mb-2">
             <!-- Clock -->
             <div class="col-md-4">
-                <div class="card p-4 text-center">
+                <div class="card p-1 text-center">
                     <div class="clock" id="local-time">--:--:--</div>
                     <div class="timezone">Local Time</div>
-                    <div class="timezone mt-3">
+                    <div class="timezone mt-1">
                         EST: <span id="est-time">--:--</span><br>
                         GMT: <span id="gmt-time">--:--</span>
                     </div>
@@ -125,44 +137,132 @@
                 </div>
             </div>
 
-            <!-- General Controls -->
+            <!-- System Details -->
             <div class="col-md-4">
-                <div class="card p-4">
-                    <h5>Quick Controls</h5>
-                    <button class="btn btn-custom w-100 mb-2" onclick="toggleAllLights()">Toggle Lights</button>
-                    <button class="btn btn-panel w-100 mb-2" onclick="playPause()">Play/Pause</button>
-                    <button class="btn btn-danger w-100" onclick="turnOffAll()">Turn Off All</button>
+                <div class="card bg-secondary text-light mb-1" id="system-status-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fa fa-cogs"></i> System Status</span>
+                        <small id="battery-status">Battery: --%</small>
+                    </div>
+                    <div class="card-body">
+                        <p>CPU Usage: <span id="cpu-usage">--%</span></p>
+                        <p>RAM Usage: <span id="ram-usage">--%</span></p>
+                        <p>Download Speed: <span id="download-speed">-- Mbps</span></p>
+                        <p>Upload Speed: <span id="upload-speed">-- Mbps</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- General Controls -->
+            <div class="col-sm-2">
+                <div class="card bg-dark text-light mb-2">
+                    <div class="card-body text-center">
+                        <h5 class="card-title"><i class="fas fa-bolt mr-2"></i> Quick Controls</h5>
+                        <button class="btn btn-custom w-100 mb-2" onclick="toggleAllLights()"><i
+                                class="fas fa-lightbulb"></i> Toggle Lights</button>
+                        <button class="btn btn-panel w-100 mb-2" onclick="playPause()"><i
+                                class="fas fa-play-circle"></i> Play/Pause</button>
+                        <button class="btn btn-danger w-100" onclick="turnOffAll()"><i class="fas fa-power-off"></i>
+                            Turn Off All</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Website Controls -->
+            <div class="col-sm-2">
+                <div class="card bg-dark text-light mb-2">
+                    <div class="card-body text-center">
+                        <h5 class="card-title"><i class="fas fa-cogs"></i> Website Controls</h5>
+                        <button class="btn btn-primary w-100 mb-2" onclick="window.location.href='/'"><i
+                                class="fas fa-home"></i> Home </button>
+                        <button class="btn btn-secondary w-100 mb-2" onclick="window.location.href='/devices'"><i
+                                class="fas fa-lightbulb"></i> Devices </button>
+                        <button class="btn btn-success w-100" onclick="location.reload()"><i
+                                class="fas fa-sync-alt"></i> Refresh </button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Device Cards -->
-        <div class="row g-4">
-            {% for d in deviceList %}
-            <div class="col-md-4">
-                <div class="card p-3">
-                    <h5 class="card-title">{{ d.name }}</h5>
+        <div class="row">
+            <div class="devices-section text-light my-4">
+                <h3 class="mb-4">Devices</h3>
+                <div class="row g-4">
+                    {% for d in deviceList %}
+                    <div class="col-md-4 col-lg-3 col-sm-6">
+                        <div class="card bg-dark text-white shadow">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span>
+                                    {% if d.type == 'light' %}
+                                    💡
+                                    {% elif d.type == 'firestick' %}
+                                    📺
+                                    {% else %}
+                                    ⚙️
+                                    {% endif %}
+                                    {{ d.name }}
+                                </span>
+                            </div>
+                            <div class="card-body text-center">
+                                {% if d.type == 'light' %}
+                                <div class="row">
+                                    <div class="col-md-6 text-center">
+                                        {% if d.state == true %}
+                                        <button class="btn btn-success mb-3 lampswitch " id="lampswitch-{{d.ip}}" data-ip="{{ d.ip }}"
+                                            title="Toggle Light">
+                                            <i class="fas fa-power-off"></i>
+                                        </button>
+                                        {% else %}
+                                        <button class="btn btn-danger mb-3 lampswitch " id="lampswitch-{{d.ip}}" data-ip="{{ d.ip }}"
+                                            title="Toggle Light">
+                                            <i class="fas fa-power-off"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6 text-center">
+                                        <input type="color" class="lightcolour" width="100px" height="100px"
+                                            title="Select Colour" value="{{ d.colour }}" data-ip="{{ d.ip }}">
+                                    </div>
+                                </div>
+                                <label class="form-label">Brightness</label>
+                                <input type="range" class="form-range brightnessSlider mb-2" min="0" max="100"
+                                    value="{{ d.brightness }}" data-ip="{{ d.ip }}">
 
-                    {% if d.type == 'light' %}
-                        <p class="card-text">IP: {{ d.ip }}</p>
-                        <button class="btn btn-outline-light w-100 mb-2 lampswitch" data-ip="{{ d.ip }}">Toggle Light</button>
-                        <input type="range" class="form-range brightnessSlider mb-2" min="0" max="100" value="{{ d.brightness }}" data-ip="{{ d.ip }}">
-                        <input type="color" class="form-control lightcolour" value="{{ d.colour }}" data-ip="{{ d.ip }}">
-                    {% elif d.type == 'firestick' %}
-                        <button class="btn btn-warning w-100 mb-2" onclick="firestickCommand('next_episode')">Next Episode</button>
-                        <button class="btn btn-info w-100 mb-2" onclick="firestickCommand('playpause')">Play/Pause</button>
-                        <button class="btn btn-danger w-100" onclick="firestickCommand('poweroff')">Power Off</button>
-                    {% else %}
-                        <p>Unknown device type.</p>
-                    {% endif %}
+                                {% elif d.type == 'firestick' %}
+                                <button class="btn btn-warning w-100 mb-2"
+                                    onclick="firestickCommand('next_episode')">Next
+                                    Episode</button>
+                                <button class="btn btn-info w-100 mb-2"
+                                    onclick="firestickCommand('playpause')">Play/Pause</button>
+                                <button class="btn btn-danger w-100" onclick="firestickCommand('poweroff')">Power
+                                    Off</button>
+                                {% else %}
+                                <p class="text-muted">Unknown device type.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
-            {% endfor %}
         </div>
+
+
     </div>
 
     <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha384-+r6gDfG5/wCqu3OyXQYbM/h2vGzt6KoYzVxNfCLxlyyNHm2YLa0bGbHzrTNBvUjL"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
     <script>
+
         function updateClock() {
             const now = new Date();
             document.getElementById("local-time").textContent = now.toLocaleTimeString();
@@ -176,23 +276,34 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // function updateGMTClock() {
-        //     const now = new Date();
-        //     const gmtOffset = 0; // GMT/UTC+0
-        //     const gmtTime = new Date(now.getTime() + (gmtOffset - now.getTimezoneOffset() / 60) * 3600000);
-            
-        //     const hours = String(gmtTime.getUTCHours()).padStart(2, '0');
-        //     const minutes = String(gmtTime.getUTCMinutes()).padStart(2, '0');
-        //     const seconds = String(gmtTime.getUTCSeconds()).padStart(2, '0');
-            
-        //     document.getElementById("gmt-clock").innerText = `${hours}:${minutes}:${seconds}`;
-        // }
+        function fetchSystemStatus() {
+            fetch('/system_status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("cpu-usage").textContent = `${data.cpu}%`;
+                    document.getElementById("ram-usage").textContent = `${data.ram}%`;
+                    document.getElementById("download-speed").textContent = data.download ? `${data.download} Mbps` : "N/A";
+                    document.getElementById("upload-speed").textContent = data.upload ? `${data.upload} Mbps` : "N/A";
+                });
+        }
 
-        // setInterval(updateGMTClock, 1000);
-        // updateGMTClock();
+        function updateBatteryStatus() {
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(battery => {
+                    const percent = Math.round(battery.level * 100);
+                    document.getElementById("battery-status").textContent = `Battery: ${percent}%`;
+                });
+            }
+        }
+
+        // Update on load and every 30 seconds
+        fetchSystemStatus();
+        updateBatteryStatus();
+        setInterval(fetchSystemStatus, 30000);
+        setInterval(updateBatteryStatus, 60000);
 
         function toggleAllLights() {
-            fetch('/lightsoff', { method: 'POST' });
+            fetch('/lightson', { method: 'POST' });
         }
 
         function playPause() {
@@ -208,38 +319,89 @@
             fetch(`/${endpoint}`, { method: 'POST' });
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.lampswitch').forEach(button => {
-                button.addEventListener('click', () => {
-                    const ip = button.dataset.ip;
-                    fetch(`/lampswitch/${ip}`, { method: 'POST' });
+        $(document).ready(function () {
+            $('.lampswitch').on('click', function (e) {
+                e.preventDefault()
+                const ip = $(this).data('ip');
+                fetch(`/lampswitch/${ip}`, {
+                    method: "POST",
+                })
+                .then(response => {
+                    console.log(response);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Response from /lampswitch:", data);
+                    console.log(`#lampswitch-${ip}`)
+                    //id = `lampswitch-${ip}`
+                    const id = `lampswitch-${ip}`;
+                    const safeId = CSS.escape(id);
+                    if (data.isOn === true) {
+                        $(`#${safeId}`).removeClass('btn-danger').addClass('btn-success');
+                    } else {
+                        $(`#${safeId}`).removeClass('btn-success').addClass('btn-danger');
+                    }
                 });
-            });
 
-            document.querySelectorAll('.brightnessSlider').forEach(slider => {
-                slider.addEventListener('change', () => {
-                    const ip = slider.dataset.ip;
-                    const brightness = slider.value;
-                    fetch('/setlampbright', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ip, brightness })
-                    });
-                });
+                return false;
             });
+        });
 
-            document.querySelectorAll('.lightcolour').forEach(picker => {
-                picker.addEventListener('change', () => {
-                    const ip = picker.dataset.ip;
-                    const colour = picker.value;
-                    fetch('/setcolour', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ip, colour })
-                    });
+        // document.querySelectorAll('.lampswitch').forEach(button => {
+        //     button.addEventListener('click', function (e) {
+        //         e.preventDefault();
+
+        //         const ip = this.dataset.ip;
+        //         const id = `lampswitch-${ip}`;
+        //         const targetBtn = document.getElementById(id);
+
+        //         fetch(`/lampswitch/${ip}`, {
+        //             method: "POST",
+        //         })
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             console.log("Response from /lampswitch:", data);
+
+        //             if (!targetBtn) return;
+
+        //             if (data.isOn === true) {
+        //                 targetBtn.classList.remove('btn-danger');
+        //                 targetBtn.classList.add('btn-success');
+        //             } else {
+        //                 targetBtn.classList.remove('btn-success');
+        //                 targetBtn.classList.add('btn-danger');
+        //             }
+        //         });
+
+        //         return false;
+        //     });
+        // });
+
+        document.querySelectorAll('.brightnessSlider').forEach(slider => {
+            slider.addEventListener('change', () => {
+                const ip = slider.dataset.ip;
+                const brightness = slider.value;
+                fetch('/setlampbright', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip, brightness })
                 });
             });
         });
+
+        document.querySelectorAll('.lightcolour').forEach(picker => {
+            picker.addEventListener('change', () => {
+                const ip = picker.dataset.ip;
+                const colour = picker.value;
+                fetch('/setcolour', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip, colour })
+                });
+            });
+        });
+
     </script>
 </body>
+
 </html>

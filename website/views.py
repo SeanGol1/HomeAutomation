@@ -1,9 +1,10 @@
-from distutils.command.config import config
+#from distutils.command.config import config
 from multiprocessing.connection import wait
 from turtle import update
 from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect
 #from . import fireStickController
-import json , time , tinytuya , cv2, numpy as np , colorsys, re, requests
+import json , time , tinytuya , cv2, numpy as np , colorsys, re, requests , speedtest
+import psutil 
 
 views = Blueprint('views', __name__)
 configdata = ''
@@ -33,58 +34,58 @@ def home():
 
 @views.route('/devices', methods=['GET','POST'])
 def devices():
-     # Load config from file
-    with open("config.json") as f:
-        configdata = json.load(f)
+    #  # Load config from file
+    # with open("config.json") as f:
+    #     configdata = json.load(f)
     
-        deviceList = []
-        for d in configdata["devices"]:
-            device = Device( d.get("name"),
-                d.get("ip"),
-                d.get("type"),
-                d.get("make"),
-                d.get("id"),
-                d.get("key"))
+    #     deviceList = []
+    #     for d in configdata["devices"]:
+    #         device = Device( d.get("name"),
+    #             d.get("ip"),
+    #             d.get("type"),
+    #             d.get("make"),
+    #             d.get("id"),
+    #             d.get("key"))
             
-            if(device.type == "light"):
-                    device:Device = get_device_by_ip(device.ip) 
-                    try:   
-                        if(device.ip != "0.0.0.0"):  # for testing purposes
-                            print('Connecting to bulb %r ...' % device.ip)
-                            b = tinytuya.BulbDevice(device.id,device.ip,device.key)
-                            b.connection_timeout(200)
-                            b.set_version(3.3) 
-                            data = b.status()                            
+    #         if(device.type == "light"):
+    #                 device:Device = get_device_by_ip(device.ip) 
+    #                 try:   
+    #                     if(device.ip != "0.0.0.0"):  # for testing purposes
+    #                         print('Connecting to bulb %r ...' % device.ip)
+    #                         b = tinytuya.BulbDevice(device.id,device.ip,device.key)
+    #                         #b.connection_timeout(1000)
+    #                         b.set_version(3.3) 
+    #                         data = b.status()                            
 
-                            #get current colour
-                            currentcolour = decode_hsv_hex_to_rgb_hex(data["dps"]["24"])
+    #                         #get current colour
+    #                         currentcolour = decode_hsv_hex_to_rgb_hex(data["dps"]["24"])
 
-                            #getcurrentbrightness
-                            brightness = get_brightness_from_hex(data["dps"]["24"])
+    #                         #getcurrentbrightness
+    #                         brightness = get_brightness_from_hex(data["dps"]["24"])
 
-                            newBulb = Bulb(d.get("name"),
-                            d.get("ip"),
-                            d.get("type"),
-                            d.get("make"),
-                            d.get("id"),
-                            d.get("key"),
-                            data["dps"]["20"],
-                            brightness,
-                            currentcolour)
+    #                         newBulb = Bulb(d.get("name"),
+    #                         d.get("ip"),
+    #                         d.get("type"),
+    #                         d.get("make"),
+    #                         d.get("id"),
+    #                         d.get("key"),
+    #                         data["dps"]["20"],
+    #                         brightness,
+    #                         currentcolour)
 
                             
-                            print('colour')
-                            print(currentcolour)
+    #                         print('colour')
+    #                         print(currentcolour)
 
-                            deviceList.append(newBulb) 
-                            print('Connection Successful!') 
-                        else: 
-                            deviceList.append(device)
-                    except:
-                        deviceList.append(device)
-                        print('Connection Failed.')
-            else:                
-                deviceList.append(device)
+    #                         deviceList.append(newBulb) 
+    #                         print('Connection Successful!') 
+    #                     else: 
+    #                         deviceList.append(device)
+    #                 except:
+    #                     deviceList.append(device)
+    #                     print('Connection Failed.')
+    #         else:                
+    #             deviceList.append(device)
 
             
 
@@ -92,7 +93,7 @@ def devices():
 
         
 
-    return render_template("devices.html",deviceList=deviceList)
+    return render_template("devices.html",deviceList=get_all_device_objs())
 
 @views.route('/addDevice', methods=['GET'])
 def addDevice():
@@ -153,7 +154,7 @@ def delete_device():
 
 @views.route('/dashboard', methods=['GET','POST'])
 def dashboard():
-    deviceList = get_all_devices()
+    #deviceList = get_all_devices()
 
     with open("config.json", 'r') as f:
         configdata = json.load(f)
@@ -171,10 +172,86 @@ def dashboard():
     except Exception as e:
         print("Error fetching weather:", e)
 
-    return render_template("dashboard.html", deviceList=deviceList, weather=weather_data)
+    return render_template("dashboard.html", deviceList=get_all_device_objs(), weather=weather_data)
 
+
+@views.route('/system_status')
+def system_status():
+    # CPU and RAM usage
+    cpu = psutil.cpu_percent(interval=1)
+    ram = psutil.virtual_memory().percent
+
+    # Network speed test
+    try:
+        st = speedtest.Speedtest()
+        download = round(st.download() / 1_000_000, 2)  # Mbps
+        upload = round(st.upload() / 1_000_000, 2)      # Mbps
+    except:
+        download = upload = None
+
+    return jsonify({
+        'cpu': cpu,
+        'ram': ram,
+        'download': download,
+        'upload': upload
+    })
 
 ### Functions ###
+
+def get_all_device_objs():
+     # Load config from file
+    with open("config.json") as f:
+        configdata = json.load(f)
+    
+        deviceList = []
+        for d in configdata["devices"]:
+            device = Device( d.get("name"),
+                d.get("ip"),
+                d.get("type"),
+                d.get("make"),
+                d.get("id"),
+                d.get("key"))
+            
+            if(device.type == "light"):
+                    device:Device = get_device_by_ip(device.ip) 
+                    try:   
+                        if(device.ip != "0.0.0.0"):  # for testing purposes
+                            print('Connecting to bulb %r ...' % device.ip)
+                            b = tinytuya.BulbDevice(device.id,device.ip,device.key)
+                            #b.connection_timeout(1000)
+                            b.set_version(3.3) 
+                            data = b.status()                            
+
+                            #get current colour
+                            currentcolour = decode_hsv_hex_to_rgb_hex(data["dps"]["24"])
+
+                            #getcurrentbrightness
+                            brightness = get_brightness_from_hex(data["dps"]["24"])
+
+                            newBulb = Bulb(d.get("name"),
+                            d.get("ip"),
+                            d.get("type"),
+                            d.get("make"),
+                            d.get("id"),
+                            d.get("key"),
+                            data["dps"]["20"],
+                            brightness,
+                            currentcolour)
+
+                            
+                            print('colour')
+                            print(currentcolour)
+
+                            deviceList.append(newBulb) 
+                            print('Connection Successful!') 
+                        else: 
+                            deviceList.append(device)
+                    except:
+                        deviceList.append(device)
+                        print('Connection Failed.')
+            else:                
+                deviceList.append(device)
+    return deviceList            
 
 def get_device_by_ip(ip):
     with open("config.json") as f:
@@ -365,9 +442,20 @@ def lightsoff():
     #Light
     deviceList= get_all_devices()
     for d in deviceList:
-        b = tinytuya.BulbDevice(d.id, d.ip, d.key)
-        b.set_version(3.3)
-        b.turn_off()
+        if (d.type == "light"):
+            b = tinytuya.BulbDevice(d.id, d.ip, d.key)
+            b.set_version(3.3)
+            b.turn_off()
+
+@views.route('/lightson', methods=['GET','POST'])
+def lightson():
+    #Light
+    deviceList= get_all_devices()
+    for d in deviceList:
+        if (d.type == "light"):
+            b = tinytuya.BulbDevice(d.id, d.ip, d.key)
+            b.set_version(3.3)
+            b.turn_on()
 
 ### Control Firestick ###
 
