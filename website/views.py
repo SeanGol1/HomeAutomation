@@ -285,10 +285,6 @@ def send_key(device, key_name):
 ### Functions ###
 
 def connect_to_firestick(ip):
-
-        # command = 'adb connect %r' % ip 
-        # working_directory = os.path.dirname(os.path.abspath(__file__))
-        # working_directory = working_directory + '\\adb'
         
         base_path = os.path.dirname(os.path.abspath(__file__))
         run_path = os.path.join(base_path, "adb")
@@ -296,7 +292,7 @@ def connect_to_firestick(ip):
 
         try:
             # result = subprocess.run(
-            #     ["cmd.exe", "/d", bat_file, ip],
+            #     ["cmd.exe", "/c", bat_file, ip],
             #     cwd=run_path,
             #     capture_output=True,
             #     text=True,
