@@ -3,9 +3,10 @@ from multiprocessing.connection import wait
 from turtle import update
 from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect
 from . import fireStickController
-import json , time , tinytuya , cv2, numpy as np , requests , speedtest, psutil , spotipy
+import json , time , tinytuya , cv2, numpy as np , requests , speedtest, psutil , spotipy, subprocess, os
 from .spotify_api import sp_oauth, get_current_track
 from spotipy.oauth2 import SpotifyOAuth
+from ppadb.client import Client as AdbClient
 from datetime import datetime
 
 views = Blueprint('views', __name__)
@@ -232,7 +233,86 @@ def get_device_status():
         })
     return jsonify(devices)
 
+@views.route("/remote/<ip>", methods=["GET", "POST"])
+def remote(ip):
+    if request.method == "POST":
+        action = request.form.get("action")
+        device = get_device(ip)
+        if device and action:
+            send_key(device, action)
+    return render_template("remote.html")
+
+KEYS = {
+    "up": 19,
+    "down": 20,
+    "left": 21,
+    "right": 22,
+    "ok": 23,
+    "back": 4,
+    "home": 3,
+    "menu": 82,
+    "play_pause": 85,
+    "rewind": 89,
+    "fast_forward": 90,
+    "power": 26,
+}
+
+def get_device(ip):
+    config = ''
+    with open("config.json", "r") as jsonfile:
+        config = json.load(jsonfile)
+    finalip = ip + ':5555'
+    try:
+        client = AdbClient(host=config["firestick"]["adbclient_host"], port=int(config["firestick"]["adbclient_port"]))
+        device = client.device(finalip)
+        if not device:
+            connect_to_firestick(ip)
+    except:
+        connect_to_firestick(ip)
+    finally: 
+        if not client:
+            client = AdbClient(host=config["firestick"]["adbclient_host"], port=int(config["firestick"]["adbclient_port"]))  
+        if not device:
+            device = client.device(finalip)
+    
+    return device
+
+def send_key(device, key_name):
+    keycode = KEYS.get(key_name.lower())
+    if keycode:
+        device.shell(f"input keyevent {keycode}")
+
 ### Functions ###
+
+def connect_to_firestick(ip):
+
+        # command = 'adb connect %r' % ip 
+        # working_directory = os.path.dirname(os.path.abspath(__file__))
+        # working_directory = working_directory + '\\adb'
+        
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        run_path = os.path.join(base_path, "adb")
+        bat_file = os.path.join(base_path, "adb", "adbconnect.bat") 
+
+        try:
+            # result = subprocess.run(
+            #     ["cmd.exe", "/d", bat_file, ip],
+            #     cwd=run_path,
+            #     capture_output=True,
+            #     text=True,
+            #     check=True
+            # )
+                # Launches visible command prompt
+            result = subprocess.Popen(
+                ["cmd.exe", "/k", bat_file, ip],  # /k keeps the window open
+                cwd=run_path
+            )
+            print("Output:", result.stdout)
+            return result.stdout
+        except subprocess.CalledProcessError as e:
+            print("Error:", e.stderr)
+        return e.stderr
+    
 
 def get_all_device_objs():
      # Load config from file

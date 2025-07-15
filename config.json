@@ -19,8 +19,8 @@
             "key": "Sl[*~Lu7{Oa8(m[T"
         },
         {
-            "name": "Living Room Firestick ",
-            "ip": "192.168.0.0",
+            "name": "Living Room Firestick",
+            "ip": "192.168.0.27",
             "type": "firestick"
         }
     ],
@@ -30,5 +30,9 @@
     "spotify" : {
         "client_id":"333b0830b95448658e6ef512b7322a52",
         "client_secret": "b87375d6cd0c4bc3b8a57d325e957d69"
+    },
+    "firestick":{
+        "adbclient_host":"127.0.0.1",
+        "adbclient_port":"5037"
     }
 }
