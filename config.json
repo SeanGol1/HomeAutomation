@@ -25,5 +25,6 @@
         }
     ],
     "weather_api_key": "292ece52c9b4473faca93924251207",
-    "city": "Vancouver"
+    "city": "Vancouver",
+    "pip_env_install_command" : "py -m pip install"
 }

@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <title>Smart Home Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Bootstrap & Icons -->
@@ -206,6 +207,7 @@
                             </div>
                             <div class="card-body text-center">
                                 {% if d.type == 'light' %}
+                                <!-- Light -->
                                 <div class="row">
                                     <div class="col-md-6 text-center">
                                         {% if d.state == true %}
@@ -230,13 +232,16 @@
                                     value="{{ d.brightness }}" data-ip="{{ d.ip }}">
 
                                 {% elif d.type == 'firestick' %}
+
+                                <!-- Firestick -->
                                 <button class="btn btn-warning w-100 mb-2"
                                     onclick="firestickCommand('next_episode')">Next
                                     Episode</button>
                                 <button class="btn btn-info w-100 mb-2"
                                     onclick="firestickCommand('playpause')">Play/Pause</button>
-                                <button class="btn btn-danger w-100" onclick="firestickCommand('poweroff')">Power
-                                    Off</button>
+                                <!-- <button class="btn btn-danger w-100" onclick="firestickCommand('poweroff')">Power
+                                    Off</button> -->
+                                <a class="btn btn-success w-100" href="/">Open Controller</a>
                                 {% else %}
                                 <p class="text-muted">Unknown device type.</p>
                                 {% endif %}
@@ -301,6 +306,34 @@
         updateBatteryStatus();
         setInterval(fetchSystemStatus, 30000);
         setInterval(updateBatteryStatus, 60000);
+
+
+        function refreshDeviceStatus() {
+            fetch('/get_device_status')
+                .then(res => res.json())
+                .then(devices => {
+                    devices.forEach(d => {
+                        const button = document.querySelector(`.lampswitch[data-ip="${d.ip}"]`);
+                        if (button) {
+                            button.classList.toggle('btn-success', d.state);
+                            button.classList.toggle('btn-danger', !d.state);
+                        }
+
+                        const slider = document.querySelector(`.brightnessSlider[data-ip="${d.ip}"]`);
+                        if (slider && d.brightness !== null) {
+                            slider.value = d.brightness;
+                        }
+
+                        const color = document.querySelector(`.lightcolour[data-ip="${d.ip}"]`);
+                        if (color && d.colour) {
+                            color.value = d.colour;
+                        }
+                    });
+                });
+        }
+
+        setInterval(refreshDeviceStatus, 10000);  // every 10 seconds
+        refreshDeviceStatus();  // on load
 
         function toggleAllLights() {
             fetch('/lightson', { method: 'POST' });

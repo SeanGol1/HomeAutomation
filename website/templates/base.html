@@ -5,13 +5,14 @@
 
 
   <meta charset="utf-8" />
-  <!-- <meta name="viewport" content="width=device=width, initial-scale=1" /> -->
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
     integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
     crossorigin="anonymous" />
+  
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <title>{% block title %}Home{% endblock %}</title>
   <style>
@@ -28,43 +29,6 @@
       color: rgb(239, 239, 243)
     }
 
-    #idname {}
-
-    .noteitem {
-      color: red;
-      /* }
-          .rating {
-            float:left;
-            width:300px;
-          }
-          .rating span { float:right; position:relative; }
-          .rating span input {
-              position:absolute;
-              top:0px;
-              left:0px;
-              opacity:0;
-          }
-          .rating span label {
-              display:inline-block;
-              width:30px;
-              height:30px;
-              text-align:center;
-              color:#FFF;
-              background:#ccc;
-              font-size:30px;
-              margin-right:2px;
-              line-height:30px;
-              border-radius:50%;
-              -webkit-border-radius:50%;
-          }
-          .rating span:hover ~ span label,
-          .rating span:hover label,
-          .rating span.checked label,
-          .rating span.checked ~ span label {
-              background:#F90;
-              color:#FFF; */
-    }
-
     .txt-center {
       text-align: center;
     }
@@ -76,76 +40,6 @@
     .clear {
       float: none;
       clear: both;
-    }
-
-    .rating {
-      width: 90px;
-      unicode-bidi: bidi-override;
-      direction: rtl;
-      text-align: center;
-      position: relative;
-    }
-
-    .rating>label {
-      float: right;
-      display: inline;
-      padding: 0;
-      margin: 0;
-      position: relative;
-      width: 1.1em;
-      cursor: pointer;
-      color: #000;
-    }
-
-    .rating>label:hover,
-    .rating>label:hover~label,
-    .rating>input.radio-btn:checked~label {
-      color: transparent;
-    }
-
-    .rating>label:hover:before,
-    .rating>label:hover~label:before,
-    .rating>input.radio-btn:checked~label:before,
-    .rating>input.radio-btn:checked~label:before {
-      content: "\2605";
-      position: absolute;
-      left: 0;
-      color: #FFD700;
-    }
-
-    .slidecontainer {
-      width: 100%;
-    }
-
-    .slider {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 25px;
-      background: #d3d3d3;
-      outline: none;
-      opacity: 0.7;
-      -webkit-transition: .2s;
-      transition: opacity .2s;
-    }
-
-    .slider:hover {
-      opacity: 1;
-    }
-
-    .slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 25px;
-      height: 25px;
-      background: #04AA6D;
-      cursor: pointer;
-    }
-
-    .slider::-moz-range-thumb {
-      width: 25px;
-      height: 25px;
-      background: #04AA6D;
-      cursor: pointer;
     }
 
     .card .close {

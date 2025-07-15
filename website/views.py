@@ -2,7 +2,7 @@
 from multiprocessing.connection import wait
 from turtle import update
 from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect
-#from . import fireStickController
+from . import fireStickController
 import json , time , tinytuya , cv2, numpy as np , colorsys, re, requests , speedtest
 import psutil 
 
@@ -196,6 +196,21 @@ def system_status():
         'upload': upload
     })
 
+@views.route('/get_device_status')
+def get_device_status():
+    deviceList = get_all_device_objs()
+    devices = []
+    for d in deviceList:
+        devices.append({
+            'name': d.name,
+            'ip': d.ip,
+            'type': d.type,
+            'state': d.state if hasattr(d, 'state') else None,
+            'brightness': d.brightness if hasattr(d, 'brightness') else None,
+            'colour': d.colour if hasattr(d, 'colour') else None,
+        })
+    return jsonify(devices)
+
 ### Functions ###
 
 def get_all_device_objs():
@@ -222,8 +237,11 @@ def get_all_device_objs():
                             b.set_version(3.3) 
                             data = b.status()                            
 
-                            #get current colour
-                            currentcolour = decode_hsv_hex_to_rgb_hex(data["dps"]["24"])
+                            if(data['dps']['21'] == 'white'):
+                                currentcolour = '#ffffff'
+                            else:
+                                #get current colour
+                                currentcolour = decode_hsv_hex_to_rgb_hex(data["dps"]["24"])
 
                             #getcurrentbrightness
                             brightness = get_brightness_from_hex(data["dps"]["24"])
