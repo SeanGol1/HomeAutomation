@@ -3,10 +3,13 @@ from multiprocessing.connection import wait
 from turtle import update
 from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect
 from . import fireStickController
-import json , time , tinytuya , cv2, numpy as np , colorsys, re, requests , speedtest
-import psutil 
+import json , time , tinytuya , cv2, numpy as np , requests , speedtest, psutil , spotipy
+from .spotify_api import sp_oauth, get_current_track
+from spotipy.oauth2 import SpotifyOAuth
 
 views = Blueprint('views', __name__)
+spotify = Blueprint('spotify', __name__)
+
 configdata = ''
 with open("config.json", "r") as jsonfile:
     configdata = json.load(jsonfile)
@@ -159,7 +162,21 @@ def dashboard():
     with open("config.json", 'r') as f:
         configdata = json.load(f)
 
-    
+    sp_oauth = SpotifyOAuth(
+        client_id= configdata["spotify"]["client_id"],
+        client_secret= configdata["spotify"]["client_secret"],
+        redirect_uri="http://localhost:5000/spotify/callback",
+        scope="user-read-playback-state,user-modify-playback-state,user-read-currently-playing"
+    )
+    token_info = sp_oauth.get_cached_token()
+
+    if not token_info:
+        return redirect('/spotify/login_spotify')  # No token? Login first.
+
+    sp = spotipy.Spotify(auth=token_info['access_token'])
+    current_track = sp.current_playback()
+
+
     api_key = configdata['weather_api_key']
     location = configdata['city']  
     url = f'http://api.weatherapi.com/v1/current.json?key={api_key}&q={location}&aqi=no'
@@ -609,3 +626,28 @@ def moodlight():
         #print('r'+str(r),'g'+str(g), 'b'+ str(b))
         print('R'+str(r_mean),'G'+str(g_mean),'B'+str(b_mean))
         #print('set_status() result %r' % data)
+
+# Spotify
+@views.route('/spotify/login_spotify')
+def login_spotify():
+    auth_url = sp_oauth.get_authorize_url()
+    return redirect(auth_url)
+
+@views.route('/spotify/callback')
+def spotify_callback():
+    code = request.args.get('code')
+    token_info = sp_oauth.get_access_token(code)
+
+    if not token_info:
+        return "Authorization failed.", 400
+
+    access_token = token_info['access_token']
+    # Store token or use immediately to make an API call
+    return "Spotify authorized successfully!"
+
+@views.route('spotify/spotify_status', methods=['GET','POST'])
+def spotify_status():
+    track = get_current_track()
+    if track:
+        return jsonify(track)
+    return jsonify({"error": "No track playing or not authenticated."})

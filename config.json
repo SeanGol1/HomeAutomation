@@ -26,5 +26,9 @@
     ],
     "weather_api_key": "292ece52c9b4473faca93924251207",
     "city": "Vancouver",
-    "pip_env_install_command" : "py -m pip install"
+    "pip_env_install_command" : "py -m pip install",
+    "spotify" : {
+        "client_id":"333b0830b95448658e6ef512b7322a52",
+        "client_secret": "b87375d6cd0c4bc3b8a57d325e957d69"
+    }
 }
