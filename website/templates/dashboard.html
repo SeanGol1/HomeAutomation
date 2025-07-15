@@ -11,7 +11,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/a2e0d4b308.js" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    
+    <!-- FlipClock CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flipclock/0.7.8/flipclock.min.css">
+    <!-- FlipClock JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flipclock/0.7.8/flipclock.min.js"></script>
+
 
     <style>
         body {
@@ -19,7 +23,7 @@
 
             background: url('/static/tech_background.jpg') no-repeat center center fixed;
             background-size: cover;
-            color: #f8f9fa; 
+            color: #f8f9fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
@@ -103,56 +107,79 @@
         }
 
         .spotify-btn {
-    background-color: #1DB954;
-    border: none;
-    color: white;
-    font-size: 1.25rem;
-    border-radius: 50%;
-    padding: 10px 14px;
-    width: 48px;
-    height: 48px;
-    transition: background-color 0.2s ease;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
+            background-color: #1DB954;
+            border: none;
+            color: white;
+            font-size: 1.25rem;
+            border-radius: 50%;
+            padding: 10px 14px;
+            width: 48px;
+            height: 48px;
+            transition: background-color 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
 
-.spotify-btn:hover {
-    background-color: #1ed760;
-}
+        .spotify-btn:hover {
+            background-color: #1ed760;
+        }
 
-#spotify-controls .spotify-btn i {
-    pointer-events: none; /* Prevent click issues on icon */
-}
+        #spotify-controls .spotify-btn i {
+            pointer-events: none;
+            /* Prevent click issues on icon */
+        }
+
+        #flip-clock {
+            transform: scale(0.8);
+            margin-top: 10px;
+        }
+
+        .forecast-list img {
+            vertical-align: middle;
+        }
+
+        /* 
+                    width: 32px;
+            height: 32px;
+            vertical-align: middle;
+            margin-right: 6px;
+        .forecast-list div {
+            font-size: 0.9rem;
+        } */
     </style>
 </head>
 
 <body>
-    <div class="container">
+    <div class=""><!--container-->
         <p></p>
         <div class="row g-1 mb-2">
-            <!-- Clock -->
-            <div class="col-md-4">
-                <div class="card p-1 text-center">
-                    <div class="clock" id="local-time">--:--:--</div>
-                    <div class="timezone">Local Time</div>
-                    <div class="timezone mt-1">
-                        EST: <span id="est-time">--:--</span><br>
-                        GMT: <span id="gmt-time">--:--</span>
-                    </div>
-                </div>
-            </div>
 
             <!-- Weather -->
-            <div class="col-md-4">
-                <div class="card bg-dark text-light mb-3" style="max-width: 300px;">
+            <div class="col-sm-3">
+                <div class="card bg-dark text-light mb-3" style="max-width: 100%;">
                     <div class="card-header">Weather</div>
-                    <div class="card-body">
+                    <div class="card-body d-flex">
                         {% if weather and weather.current %}
-                        <h5 class="card-title">{{ weather.location.name }}, {{ weather.location.country }}</h5>
-                        <p class="card-text">
-                            <strong>{{ weather.current.temp_c }}°C</strong><br>
-                            {{ weather.current.condition.text }}<br>
-                            <img src="{{ weather.current.condition.icon }}" alt="Weather icon">
-                        </p>
+                        <!-- Left: Current weather -->
+                        <div class="me-3 text-center">
+                            <h5 class="card-title">{{ weather.location.name }}, {{ weather.location.country }}</h5>
+                            <p class="card-text mb-1">
+                                <strong>{{ weather.current.temp_c }}°C</strong><br>
+                                {{ weather.current.condition.text }}
+                            </p>
+                            <img src="{{ weather.current.condition.icon }}" alt="Current weather icon">
+                        </div>
+
+                        <!-- Right: Compact forecast -->
+                        <div class="forecast-list d-flex flex-column justify-content-start align-items-start ms-auto">
+                            {% for day in weather.forecast.forecastday %}
+                            <div class="d-flex align-items-center mb-1" style="font-size: 0.8rem;">
+                                <span class="me-1">{{ day.weekday }}</span>
+                                <img src="{{ day.day.condition.icon }}" alt="Icon" width="24" height="24" class="me-1">
+                                <span>{{ day.day.avgtemp_c }}°C</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+
                         {% else %}
                         <p>Weather data not available.</p>
                         {% endif %}
@@ -160,27 +187,35 @@
                 </div>
             </div>
 
-            <!-- System Details -->
-            <div class="col-md-4">
-                <div class="card bg-secondary text-light mb-1" id="system-status-card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span><i class="fa fa-cogs"></i> System Status</span>
-                        <small id="battery-status">Battery: --%</small>
-                    </div>
-                    <div class="card-body">
-                        <p>CPU Usage: <span id="cpu-usage">--%</span></p>
-                        <p>RAM Usage: <span id="ram-usage">--%</span></p>
-                        <p>Download Speed: <span id="download-speed">-- Mbps</span></p>
-                        <p>Upload Speed: <span id="upload-speed">-- Mbps</span></p>
+
+
+
+
+
+            <!-- Spotify controls -->
+            <div class="col-sm-3">
+                <div class="card text-light bg-dark p-3">
+                    <h5 class="card-title">🎵 Now Playing</h5>
+                    <div id="spotify-art" class="mb-2 text-center">Loading...</div>
+                    <div id="spotify-track">Loading...</div>
+                    <div id="spotify-controls">
+                        <button class="spotify-btn me-2" onclick="spotifyControl('previous')"><i
+                                class="fas fa-step-backward"></i></button>
+                        <button class="spotify-btn me-2" onclick="spotifyControl('playpause')"><i
+                                class="fas fa-play"></i></button>
+                        <button class="spotify-btn" onclick="spotifyControl('next')"><i
+                                class="fas fa-step-forward"></i></button>
                     </div>
                 </div>
             </div>
 
+        </div>
+        <div class="row g-1 mb-2">
             <!-- General Controls -->
             <div class="col-sm-2">
                 <div class="card bg-dark text-light mb-2">
                     <div class="card-body text-center">
-                        <h5 class="card-title"><i class="fas fa-bolt mr-2"></i> Quick Controls</h5>
+                        <h5 class="card-title"><i class="fas fa-bolt mr-2"></i> Device Quick Controls</h5>
                         <button class="btn btn-custom w-100 mb-2" onclick="toggleAllLights()"><i
                                 class="fas fa-lightbulb"></i> Toggle Lights</button>
                         <button class="btn btn-panel w-100 mb-2" onclick="playPause()"><i
@@ -206,29 +241,46 @@
                 </div>
             </div>
 
-            <!-- Spotify controls -->
-            <div class="col-sm-3">
-                <div class="card text-light bg-dark p-3">
-                    <h5>🎵 Now Playing</h5>
-                    <div id="spotify-art" class="mb-2 text-center">Loading...</div>
-                    <div id="spotify-track">Loading...</div>
-                    <div id="spotify-controls">
-                        <button class="spotify-btn me-2" onclick="spotifyControl('previous')"><i class="fas fa-step-backward"></i></button>
-                        <button class="spotify-btn me-2" onclick="spotifyControl('playpause')"><i class="fas fa-play"></i></button>
-                        <button class="spotify-btn" onclick="spotifyControl('next')"><i class="fas fa-step-forward"></i></button>
+            <!-- Clock -->
+            <div class="col-md-4">
+                <div class="card bg-secondary text-light p-3 text-center mb-4">
+                    <div id="flip-clock" class="d-flex justify-content-center"></div>
+                    <div class="timezone mt-1">
+                        EST: <span id="est-time">--:--</span><br>
+                        GMT: <span id="gmt-time">--:--</span>
                     </div>
                 </div>
             </div>
+
+            <!-- System Details -->
+            <div class="col-md-3">
+                <div class="card bg-dark text-light mb-1" id="system-status-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fa fa-cogs"></i> System Status</span>
+                        <small id="battery-status">Battery: --%</small>
+                    </div>
+                    <div class="card-body row">
+                        <div class="col-sm-6">
+                            <p>CPU: <span id="cpu-usage">--%</span></p>
+                            <p>RAM: <span id="ram-usage">--%</span></p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p>Down: <span id="down-speed">-- Mbps</span></p>
+                            <p>Up: <span id="up-speed">-- Mbps</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
         </div>
 
-
-
-
         <!-- Device Cards -->
-        <div class="row">
-            <div class="devices-section text-light my-4">
-                <h3 class="mb-4">Devices</h3>
-                <div class="row g-4">
+        <!-- <div class="row g-1 mb-2">
+            <div class="devices-section text-light">
+                <h3 class="mb-4">Devices</h3> -->
+                <div class="row g-1 mb-2">
                     {% for d in deviceList %}
                     <div class="col-md-4 col-lg-3 col-sm-6">
                         <div class="card bg-dark text-white shadow">
@@ -250,13 +302,13 @@
                                 <div class="row">
                                     <div class="col-md-6 text-center">
                                         {% if d.state == true %}
-                                        <button class="btn btn-success mb-3 lampswitch " id="lampswitch-{{d.ip}}" data-ip="{{ d.ip }}"
-                                            title="Toggle Light">
+                                        <button class="btn btn-success mb-3 lampswitch " id="lampswitch-{{d.ip}}"
+                                            data-ip="{{ d.ip }}" title="Toggle Light">
                                             <i class="fas fa-power-off"></i>
                                         </button>
                                         {% else %}
-                                        <button class="btn btn-danger mb-3 lampswitch " id="lampswitch-{{d.ip}}" data-ip="{{ d.ip }}"
-                                            title="Toggle Light">
+                                        <button class="btn btn-danger mb-3 lampswitch " id="lampswitch-{{d.ip}}"
+                                            data-ip="{{ d.ip }}" title="Toggle Light">
                                             <i class="fas fa-power-off"></i>
                                         </button>
                                         {% endif %}
@@ -289,8 +341,8 @@
                     </div>
                     {% endfor %}
                 </div>
-            </div>
-        </div>
+            <!-- </div>
+        </div> -->
 
 
     </div>
@@ -307,9 +359,15 @@
         crossorigin="anonymous"></script>
     <script>
 
+        document.addEventListener("DOMContentLoaded", function () {
+            const clock = new FlipClock(document.getElementById('flip-clock'), {
+                clockFace: 'TwentyFourHourClock',
+                showSeconds: true
+            });
+        });
+
         function updateClock() {
             const now = new Date();
-            document.getElementById("local-time").textContent = now.toLocaleTimeString();
 
             const est = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
             const gmt = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Dublin" }));
@@ -317,7 +375,7 @@
             document.getElementById("est-time").textContent = est.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             document.getElementById("gmt-time").textContent = gmt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
-        setInterval(updateClock, 1000);
+        setInterval(updateClock, 30000);
         updateClock();
 
         function fetchSystemStatus() {
@@ -326,8 +384,8 @@
                 .then(data => {
                     document.getElementById("cpu-usage").textContent = `${data.cpu}%`;
                     document.getElementById("ram-usage").textContent = `${data.ram}%`;
-                    document.getElementById("download-speed").textContent = data.download ? `${data.download} Mbps` : "N/A";
-                    document.getElementById("upload-speed").textContent = data.upload ? `${data.upload} Mbps` : "N/A";
+                    document.getElementById("down-speed").textContent = data.download ? `${data.download} Mbps` : "N/A";
+                    document.getElementById("up-speed").textContent = data.upload ? `${data.upload} Mbps` : "N/A";
                 });
         }
 
@@ -375,68 +433,32 @@
         refreshDeviceStatus();  // on load
 
         $(document).ready(function () {
-        function loadSpotifyTrack() {
-            fetch('/spotify/spotify_status')
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.item) {
-                        document.getElementById('spotify-track').innerHTML = `
+            function loadSpotifyTrack() {
+                fetch('/spotify/spotify_status')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.item) {
+                            document.getElementById('spotify-track').innerHTML = `
                             <strong>${data.item.name}</strong><br>
                             ${data.item.artists.map(a => a.name).join(', ')}
                         `;
 
-                        document.getElementById('spotify-art').innerHTML = `<img src="${data.item.album.images[0].url}" alt="Album Art" style="width:100px;border-radius:8px;">`;
-                    } else {
-                        document.getElementById('spotify-track').innerText = 'Not playing';
+                            document.getElementById('spotify-art').innerHTML = `<img src="${data.item.album.images[0].url}" alt="Album Art" style="width:100px;border-radius:8px;">`;
+                        } else {
+                            document.getElementById('spotify-track').innerText = 'Not playing';
+                            document.getElementById('spotify-art').innerText = 'Not playing';
 
-                    }
-                });
-        }
-        setInterval(loadSpotifyTrack, 10000); // refresh every 10s
-        loadSpotifyTrack();
+                        }
+                    });
+            }
+            setInterval(loadSpotifyTrack, 10000); // refresh every 10s
+            loadSpotifyTrack();
 
-        function spotifyControl(action) {
-            fetch(`/spotify/${action}`, { method: 'POST' });
-        }
+            function spotifyControl(action) {
+                fetch(`/spotify/${action}`, { method: 'POST' });
+            }
 
-    });
-
-        //  window.onSpotifyWebPlaybackSDKReady = () => {
-        //     const token = 'BQDADTy1r5nSv9VxZDPJbIsTLBqNx6gz-CvLT6k5oXt45SAmmhmHIggBbMTxrVCn9NGJ_mApWVXhocR7q3nxwx2yi6gQxpWTbiyA3iVAIAtIZkYgY8qS2DX6JCd6rOGczQaXx5EdR45w1Sc1UgFR3HpfSz2owpxj00xZiuFh3h9yTd5hwAmIbYB8EGCTp0i0XVQlyO1wFyFR0_UPCXufG30_0w0FkVefIdF0Vly17-OOrehtWitocMoMdc_8IXLOT1r32fku9XmO-Ujj59EpnB-Iwqs_GYoQxnwTRvzJ3-nTqLZaTWCFup9-7KeQ9Xk8P-1jrhY_SZUf2uV7DofiQPfydElaUdVBMmg12jb1d0AfVwxXvvGD5jjnXQ';
-        //     const player = new Spotify.Player({
-        //         name: 'Web Playback SDK Quick Start Player',
-        //         getOAuthToken: cb => { cb(token); },
-        //         volume: 0.5
-        //     });
-
-        //     // Ready
-        //     player.addListener('ready', ({ device_id }) => {
-        //         console.log('Ready with Device ID', device_id);
-        //     });
-
-        //     // Not Ready
-        //     player.addListener('not_ready', ({ device_id }) => {
-        //         console.log('Device ID has gone offline', device_id);
-        //     });
-
-        //     player.addListener('initialization_error', ({ message }) => {
-        //         console.error(message);
-        //     });
-
-        //     player.addListener('authentication_error', ({ message }) => {
-        //         console.error(message);
-        //     });
-
-        //     player.addListener('account_error', ({ message }) => {
-        //         console.error(message);
-        //     });
-
-        //     document.getElementById('togglePlay').onclick = function() {
-        //       player.togglePlay();
-        //     };
-
-        //     player.connect();
-        // }
+        });
 
         function toggleAllLights() {
             fetch('/lightson', { method: 'POST' });
@@ -462,56 +484,22 @@
                 fetch(`/lampswitch/${ip}`, {
                     method: "POST",
                 })
-                .then(response => {
-                    console.log(response);
-                    return response.json();
-                })
-                .then(data => {
-                    console.log("Response from /lampswitch:", data);
-                    console.log(`#lampswitch-${ip}`)
-                    //id = `lampswitch-${ip}`
-                    const id = `lampswitch-${ip}`;
-                    const safeId = CSS.escape(id);
-                    if (data.isOn === true) {
-                        $(`#${safeId}`).removeClass('btn-danger').addClass('btn-success');
-                    } else {
-                        $(`#${safeId}`).removeClass('btn-success').addClass('btn-danger');
-                    }
-                });
+                    .then(response => {
+                        return response.json();
+                    })
+                    .then(data => {
+                        const id = `lampswitch-${ip}`;
+                        const safeId = CSS.escape(id);
+                        if (data.isOn === true) {
+                            $(`#${safeId}`).removeClass('btn-danger').addClass('btn-success');
+                        } else {
+                            $(`#${safeId}`).removeClass('btn-success').addClass('btn-danger');
+                        }
+                    });
 
                 return false;
             });
         });
-
-        // document.querySelectorAll('.lampswitch').forEach(button => {
-        //     button.addEventListener('click', function (e) {
-        //         e.preventDefault();
-
-        //         const ip = this.dataset.ip;
-        //         const id = `lampswitch-${ip}`;
-        //         const targetBtn = document.getElementById(id);
-
-        //         fetch(`/lampswitch/${ip}`, {
-        //             method: "POST",
-        //         })
-        //         .then(response => response.json())
-        //         .then(data => {
-        //             console.log("Response from /lampswitch:", data);
-
-        //             if (!targetBtn) return;
-
-        //             if (data.isOn === true) {
-        //                 targetBtn.classList.remove('btn-danger');
-        //                 targetBtn.classList.add('btn-success');
-        //             } else {
-        //                 targetBtn.classList.remove('btn-success');
-        //                 targetBtn.classList.add('btn-danger');
-        //             }
-        //         });
-
-        //         return false;
-        //     });
-        // });
 
         document.querySelectorAll('.brightnessSlider').forEach(slider => {
             slider.addEventListener('change', () => {

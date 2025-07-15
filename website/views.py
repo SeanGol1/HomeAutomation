@@ -6,6 +6,7 @@ from . import fireStickController
 import json , time , tinytuya , cv2, numpy as np , requests , speedtest, psutil , spotipy
 from .spotify_api import sp_oauth, get_current_track
 from spotipy.oauth2 import SpotifyOAuth
+from datetime import datetime
 
 views = Blueprint('views', __name__)
 spotify = Blueprint('spotify', __name__)
@@ -179,13 +180,16 @@ def dashboard():
 
     api_key = configdata['weather_api_key']
     location = configdata['city']  
-    url = f'http://api.weatherapi.com/v1/current.json?key={api_key}&q={location}&aqi=no'
+    url = f"http://api.weatherapi.com/v1/forecast.json?key={api_key}&q={location}&days=5&aqi=no&alerts=no"
     
     weather_data = {}
     try:
         response = requests.get(url)
         if response.status_code == 200:
             weather_data = response.json()
+            for day in weather_data['forecast']['forecastday']:
+                date_obj = datetime.strptime(day['date'], '%Y-%m-%d')
+                day['weekday'] = date_obj.strftime('%a')
     except Exception as e:
         print("Error fetching weather:", e)
 
