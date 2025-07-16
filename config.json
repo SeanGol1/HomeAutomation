@@ -1,6 +1,7 @@
 {
     "Pi_IP": "192.168.0.21",
     "Pi_port": "5000",
+    "secretkey":"avieb495vha5o49g4",
     "devices": [
         {
             "name": "Living Room Lamp",

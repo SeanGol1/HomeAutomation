@@ -172,51 +172,53 @@
             cursor: pointer;
         }
 
-          .spotify-card {
-    position: relative;
-    padding: 1rem;
-    background-color: #222;
-    color: #fff;
-  }
+        .spotify-card {
+            position: relative;
+            padding: 1rem;
+            background-color: #222;
+            color: #fff;
+        }
 
-  #spotify-art-container {
-    position: relative;
-    width: 100%;
-    padding-bottom: 100%; /* Square container */
-    overflow: hidden;
-  }
+        #spotify-art-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 100%;
+            /* Square container */
+            overflow: hidden;
+        }
 
-  #spotify-art-container img {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 8px;
-  }
+        #spotify-art-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
 
-  #spotify-controls {
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 12px;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 6px 12px;
-    border-radius: 20px;
-  }
+        #spotify-controls {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
 
-  .spotify-btn {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 1.2rem;
-  }
+        .spotify-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+        }
 
-  .spotify-btn:hover {
-    color: #1DB954;
-  }
+        .spotify-btn:hover {
+            color: #1DB954;
+        }
     </style>
 </head>
 
@@ -280,29 +282,57 @@
                     </div>
                 </div>
             </div> -->
-<div class="col-sm-3">
-            <div class="card spotify-card">
-                <h5 class="card-title">🎵 Now Playing</h5>
+            <div class="col-sm-3">
+                <div class="card spotify-card">
+                    <h5 class="card-title">🎵 Now Playing</h5>
 
-                <div id="spotify-art-container" class="mb-2 text-center">
-                    <img id="spotify-art-img" src="/static/default_album.png" alt="Album Art">
-                    <div id="spotify-controls">
-                    <button class="spotify-btn" onclick="spotifyControl('previous')">
-                        <i class="fas fa-step-backward"></i>
-                    </button>
-                    <button class="spotify-btn" onclick="spotifyControl('playpause')">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <button class="spotify-btn" onclick="spotifyControl('next')">
-                        <i class="fas fa-step-forward"></i>
-                    </button>
+                    <div id="spotify-art-container" class="mb-2 text-center">
+                        <img id="spotify-art-img" src="/static/default_album.jpg" alt="Album Art">
+                        <div id="spotify-controls">
+                            <button class="spotify-btn" onclick="spotifyControl('previous')">
+                                <i class="fas fa-step-backward"></i>
+                            </button>
+                            <button class="spotify-btn" onclick="spotifyControl('playpause')">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="spotify-btn" onclick="spotifyControl('next')">
+                                <i class="fas fa-step-forward"></i>
+                            </button>
+                        </div>
                     </div>
+
+                    <div id="spotify-track" class="text-center mt-2">Loading...</div>
                 </div>
-
-                <div id="spotify-track" class="text-center mt-2">Loading...</div>
             </div>
-            </div>
+            <div class="col-sm-3">
+                <div class="card bg-dark text-light p-3 mb-3" style="max-width: 400px;">
+                    {% if not session.get('credentials') %}
+                        <a href="{{ url_for('views.authorize') }}" class="btn btn-primary">Connect Google Calendar</a>
+                    {% else %}
+                    
+                       
 
+                        <div class="card-header">📅 Upcoming Events</div>
+                        <div class="card-body">
+                             {% if events %}
+                            <ul class="list-unstyled">
+                                {% for event in events %}
+                                <li>
+                                    <strong>{{ event.start.dateTime[:16]|default(event.start.date) }}</strong><br>
+                                    {{ event.summary }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p>No upcoming events.</p>
+                            {% endif %}
+                        </div>
+
+                    {% endif %}
+               
+
+                </div>
+            </div>
         </div>
 
         <div class="row g-1 mb-2">

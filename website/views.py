@@ -1,20 +1,26 @@
 #from distutils.command.config import config
 from multiprocessing.connection import wait
 from turtle import update
-from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect
+from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect,url_for, session
 from . import fireStickController
-import json , time , tinytuya , cv2, numpy as np , requests , speedtest, psutil , spotipy, subprocess, os
+import json , time , tinytuya , cv2, numpy as np , requests , speedtest, psutil , spotipy, subprocess, os, platform
 from .spotify_api import sp_oauth, get_current_track
 from spotipy.oauth2 import SpotifyOAuth
-from ppadb.client import Client as AdbClient
+from ppadb.client import Client as AdbClient #pip install pure-python-adb
 from datetime import datetime
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import Flow
+from googleapiclient.discovery import build
 
 views = Blueprint('views', __name__)
+
 spotify = Blueprint('spotify', __name__)
 
 configdata = ''
 with open("config.json", "r") as jsonfile:
     configdata = json.load(jsonfile)
+
+views.secret_key = configdata["secretkey"] 
 
 class Device:
   def __init__(self, name, ip, type,make,id,key):
@@ -288,7 +294,7 @@ def connect_to_firestick(ip):
         
         base_path = os.path.dirname(os.path.abspath(__file__))
         run_path = os.path.join(base_path, "adb")
-        bat_file = os.path.join(base_path, "adb", "adbconnect.bat") 
+        script_path = os.path.join(base_path, "adb", "adbconnect") 
 
         try:
             # result = subprocess.run(
@@ -299,10 +305,17 @@ def connect_to_firestick(ip):
             #     check=True
             # )
                 # Launches visible command prompt
-            result = subprocess.Popen(
-                ["cmd.exe", "/k", bat_file, ip],  # /k keeps the window open
-                cwd=run_path
-            )
+            # result = subprocess.Popen(
+            #     ["cmd.exe", "/k", bat_file, ip],  # /k keeps the window open
+            #     cwd=run_path
+            # )
+
+            if platform.system() == "Windows":
+                script_path += ".bat"
+                result = subprocess.Popen(["cmd.exe", "/k", script_path, ip], cwd=run_path)
+            else:
+                script_path += ".sh"
+                result = subprocess.run(["x-terminal-emulator", "-e", f"{script_path} {ip}"], cwd=run_path)
             print("Output:", result.stdout)
             return result.stdout
         except subprocess.CalledProcessError as e:
@@ -731,3 +744,53 @@ def spotify_status():
     if track:
         return jsonify(track)
     return jsonify({"error": "No track playing or not authenticated."})
+
+# Google
+
+SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+CLIENT_SECRETS_FILE = "google.json"
+
+@views.route('/authorize' , methods=['GET','POST'])
+def authorize():
+    flow = Flow.from_client_secrets_file(
+        CLIENT_SECRETS_FILE,
+        scopes=SCOPES,
+        redirect_uri=url_for('views.oauth2callback', _external=True))
+    auth_url, state = flow.authorization_url(access_type='offline', include_granted_scopes='true')
+    session['state'] = state
+    return redirect(auth_url)
+
+@views.route('google/callback', methods=['GET','POST'])
+def oauth2callback():
+    state = session['state']
+    flow = Flow.from_client_secrets_file(
+        CLIENT_SECRETS_FILE,
+        scopes=SCOPES,
+        state=state,
+        redirect_uri=url_for('views.oauth2callback', _external=True))
+    flow.fetch_token(authorization_response=request.url)
+
+    credentials = flow.credentials
+    session['credentials'] = {
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes
+    }
+    return redirect('/calendar')
+
+@views.route('/calendar', methods=['GET','POST'])
+def calendar():
+    creds = Credentials(**session['credentials'])
+    service = build('calendar', 'v3', credentials=creds)
+
+    now = datetime.datetime.utcnow().isoformat() + 'Z'
+    events_result = service.events().list(
+        calendarId='primary', timeMin=now,
+        maxResults=5, singleEvents=True,
+        orderBy='startTime').execute()
+    events = events_result.get('items', [])
+
+    return render_template('calendar.html', events=events)
