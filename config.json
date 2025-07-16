@@ -1,7 +1,7 @@
 {
     "Pi_IP": "192.168.0.21",
     "Pi_port": "5000",
-    "secretkey":"avieb495vha5o49g4",
+    "secretkey": "avieb495vha5o49g4",
     "devices": [
         {
             "name": "Living Room Lamp",
@@ -23,17 +23,27 @@
             "name": "Living Room Firestick",
             "ip": "192.168.0.27",
             "type": "firestick"
+        },
+        {
+            "name": "Test",
+            "ip": "0.0.0.0",
+            "type": "light",
+            "make": "tuya",
+            "id": "Wiw",
+            "key": "Eis"
         }
     ],
-    "weather_api_key": "292ece52c9b4473faca93924251207",
-    "city": "Vancouver",
-    "pip_env_install_command" : "py -m pip install",
-    "spotify" : {
-        "client_id":"333b0830b95448658e6ef512b7322a52",
+    "weather": {
+        "weather_api_key": "292ece52c9b4473faca93924251207",
+        "city": "Vancouver"
+    },
+    "pip_env_install_command": "py -m pip install",
+    "spotify": {
+        "client_id": "333b0830b95448658e6ef512b7322a52",
         "client_secret": "b87375d6cd0c4bc3b8a57d325e957d69"
     },
-    "firestick":{
-        "adbclient_host":"127.0.0.1",
-        "adbclient_port":"5037"
+    "firestick": {
+        "adbclient_host": "127.0.0.1",
+        "adbclient_port": "5037"
     }
 }

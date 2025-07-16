@@ -185,8 +185,8 @@ def dashboard():
     current_track = sp.current_playback()
 
 
-    api_key = configdata['weather_api_key']
-    location = configdata['city']  
+    api_key = configdata['weather']['weather_api_key']
+    location = configdata['weather']['city']  
     url = f"http://api.weatherapi.com/v1/forecast.json?key={api_key}&q={location}&days=5&aqi=no&alerts=no"
     
     weather_data = {}
@@ -238,6 +238,41 @@ def get_device_status():
             'colour': d.colour if hasattr(d, 'colour') else None,
         })
     return jsonify(devices)
+
+@views.route('/settings', methods=['GET', 'POST'])
+def settings():
+    CONFIG_PATH = os.path.join(os.getcwd(), 'config.json')
+    with open(CONFIG_PATH, 'r') as f:
+        config = json.load(f)
+
+    if request.method == 'POST':
+        try:
+            # Top-level values
+            config['weather']['weather_api_key'] = request.form.get('weather_api_key', config['weather']['weather_api_key'])
+            config['weather']['city'] = request.form.get('city', config['weather']['city'])
+
+            # Nested: Spotify
+            config['spotify']['client_id'] = request.form.get('spotify_client_id', config['spotify']['client_id'])
+            config['spotify']['client_secret'] = request.form.get('spotify_client_secret', config['spotify']['client_secret'])
+
+            # Nested: Firestick
+            config['firestick']['adbclient_host'] = request.form.get('adbclient_host', config['firestick']['adbclient_host'])
+            config['firestick']['adbclient_port'] = request.form.get('adbclient_port', config['firestick']['adbclient_port'])
+
+            # Save updated config
+            with open(CONFIG_PATH, 'w') as f:
+                json.dump(config, f, indent=4)
+            flash("Settings updated successfully!", "success")
+            return redirect(url_for('views.settings'))
+
+        except Exception as e:
+            flash(f"Error updating settings: {e}", "danger")
+
+    # On GET, load current config
+    with open(CONFIG_PATH, 'r') as f:
+        config = json.load(f)
+
+    return render_template('dashboardSettings.html', config=config)
 
 @views.route("/remote/<ip>", methods=["GET", "POST"])
 def remote(ip):
@@ -794,3 +829,4 @@ def calendar():
     events = events_result.get('items', [])
 
     return render_template('calendar.html', events=events)
+

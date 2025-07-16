@@ -137,3 +137,4 @@ config.json
 cert.pem
 google.json
 key.pem
+config.json
