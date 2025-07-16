@@ -1,0 +1,14 @@
+{
+  " test": [
+    {
+      "device": "192.168.0.19",
+      "action": "state",
+      "option": "false"
+    },
+    {
+      "device": "192.168.0.20",
+      "action": "brightness",
+      "option": "50"
+    }
+  ]
+}

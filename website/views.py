@@ -274,6 +274,85 @@ def settings():
 
     return render_template('dashboardSettings.html', config=config)
 
+@views.route('/addScene', methods=['POST'])
+def add_scene():
+    try:
+        # Get the posted data
+        data = request.get_json()
+        steps = data.get('steps', [])
+        name = data.get('name','')
+
+        # If scenes.config doesn't exist yet, start with empty dict
+        if not os.path.exists('scenes.json'):
+            scenes_data = {}
+        else:
+            with open('scenes.json', 'r') as f:
+                try:
+                    scenes_data = json.load(f)
+                except json.JSONDecodeError:
+                    scenes_data = {}
+
+        # Generate a new scene name (you can enhance this later to accept custom names)
+        scene_name = f" {name}"
+        scenes_data[scene_name] = steps
+
+        # Write updated data back to file
+        with open('scenes.json', 'w') as f:
+            json.dump(scenes_data, f, indent=2)
+
+        return jsonify({ "status": "success", "scene": scene_name }), 200
+
+    except Exception as e:
+        print(f"Error saving scene: {e}")
+        return jsonify({ "status": "error", "message": str(e) }), 500
+
+@views.route('/scenes', methods=['GET', 'POST'])
+def create_scene():
+    with open('config.json') as f:
+        config = json.load(f)
+    device_list = config.get("devices", []) 
+
+    if request.method == 'POST':
+        scene_name = request.form.get('scene_name')
+        devices = []
+
+        # Collect all posted devices data
+        for key in request.form:
+            if key.startswith('devices['):
+                parts = key.split('][')
+                index = parts[0][8:]  # devices[0
+                field = parts[1][:-1]  # remove trailing ]
+
+                while len(devices) <= int(index):
+                    devices.append({})
+
+                devices[int(index)][field] = request.form.get(key)
+
+        # Filter out devices with "none" action
+        scene_devices = [d for d in devices if d.get('action') != 'none']
+
+        if scene_devices:
+            # Load existing scenes
+            scenes_path = 'scenes.json'
+            scenes = []
+            if os.path.exists(scenes_path):
+                with open(scenes_path, 'r') as f:
+                    scenes = json.load(f)
+
+            # Add new scene
+            new_scene = {
+                "name": scene_name,
+                "devices": scene_devices
+            }
+            scenes.append(new_scene)
+
+            with open(scenes_path, 'w') as f:
+                json.dump(scenes, f, indent=4)
+
+        return redirect(url_for('views.dashboard'))
+
+    return render_template('dashboardScenes.html', deviceList=device_list)
+
 @views.route("/remote/<ip>", methods=["GET", "POST"])
 def remote(ip):
     if request.method == "POST":

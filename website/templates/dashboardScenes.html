@@ -1,0 +1,160 @@
+{% extends "dashboardBase.html" %} {% block title %}dashboardScenes{% endblock %} {% block content
+%}
+
+ 
+<div class="container mt-4">
+  <h2 class="mb-3">Create New Scene</h2>
+  <form action="{{ url_for('views.create_scene') }}" method="POST">
+    <div class="mb-3">
+      <label for="sceneName" class="form-label">Scene Name</label>
+      <input type="text" class="form-control" id="sceneName" name="sceneName" required>
+    </div>
+
+    <div>
+        <h4>Add Steps to the Scene</h4>
+        <label for="devices">Select Device</label>
+        <div class="dropdown mb-2">
+            <select name="devices" id="ddlDevice" onchange="deviceChanged()" required>
+                <option value="">-- Choose a Device --</option>
+                {% for device in deviceList %}
+                    <option value="{{ device.ip }}">{{ device.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <label for="actions">Select Action</label>
+        <div class="dropdown mb-2">
+            <select name="actions" id="ddlAction" onchange="actionChanged()" required>
+                <div id="lightActions" >
+                    <option value="">-- Choose an Action --</option>
+                    <option value="state">Turn On/Off</option>
+                    <option value="brightness">Set Brightness</option>
+                    <option value="colour">Set Colour</option>          
+                </div>      
+            </select>
+        </div>
+        <label for="actions">Select Option</label>
+        <div class="dropdown mb-2">
+            <select name="options" id="ddlOption">
+                <div id="lightActionsOnoff">
+                    <option value="true">Turn On</option>
+                    <option value="false">Turn Off</option>        
+                </div>      
+                <div>
+                        <input type="range" min="0" max="100" value="50" id="lightActionsBright"
+                            class=" " id="brightnessSlider" >
+                </div>     
+                <div>
+                    <input type="color" class="lightcolour" width="100px" height="100px" id="lightActionsColour"
+                                    title="Select Colour" value="#ffffff" >
+                </div>       
+            </select>
+        </div>
+        <button id="btnStep" onclick="addStep()">Add Step</button>
+    </div>
+
+    <div id="stepsContainer">
+      
+
+    </div>
+
+    <!-- <button type="button" class="btn btn-secondary mb-3" id="addStep">➕ Add Step</button> -->
+    <br />
+    <button id="btnSave" class="btn btn-success">💾 Save Scene</button> 
+  </form>
+</div>
+
+<script>
+    let selectedDevice = null;
+    
+    function deviceChanged(){
+        var value = document.getElementById("ddlDevice").value;
+        //I want to store the full device object.
+        //selectedDevice = allDevices.find(device => device.ip === selectedIp);
+        document.getElementById('lightActions').style = "visibility: visible";
+    }
+
+
+    function actionChanged(){
+        // var value = document.getElementById("ddlAction").value;
+        // if(value == "state"){
+        //     document.getElementById("lightActionsOnoff").style =  "visibility: visible";
+        //     document.getElementById("lightActionsBright").style =  "visibility: hidden";
+        //     document.getElementById("lightActionsColour").style =  "visibility: hidden";
+        // }
+        // else if(value == "brightness"){
+        //     document.getElementById("lightActionsOnoff").style =  "visibility: hidden";
+        //     document.getElementById("lightActionsBright").style =  "visibility: visible";
+        //     document.getElementById("lightActionsColour").style =  "visibility: hidden";
+        // }
+        // else if(value == "colour"){
+        //     document.getElementById("lightActionsOnoff").style =  "visibility: hidden";
+        //     document.getElementById("lightActionsBright").style =  "visibility: hidden";
+        //     document.getElementById("lightActionsColour").style =  "visibility: visible";
+        // }
+
+    }
+
+    let steps = [];
+    $(document).ready(function(){
+  
+        $('#btnStep').on('click', function(e) {
+            e.preventDefault()
+            var name = document.getElementById("sceneName").value;
+            var device = document.getElementById("ddlDevice").value;
+            var action = document.getElementById("ddlAction").value;
+            var option = null;
+            if(action == "state"){
+                option = document.getElementById("ddlOption").value;
+            }
+            else if (action == "brightness"){
+                option = document.getElementById("lightActionsBright").value;
+            }
+            else if (action == "colour"){
+                option = document.getElementById("lightActionsColour").value;
+            }
+            const step = {device:device, action:action, option: option };
+            steps.push(step);     
+            renderSteps();   
+        });
+
+         $('#btnSave').on('click', function(e) {
+            e.preventDefault()
+            var name = document.getElementById("sceneName").value;
+            var obj = {name: name , steps:steps}
+                fetch('/addScene', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name:name , steps })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        alert("Scene Saved");
+                    });
+
+         });
+    });
+
+    function renderSteps() {
+    const container = document.getElementById("stepsContainer");
+    container.innerHTML = ''; // Clear previous
+
+    steps.forEach((step, index) => {
+        const stepElement = document.createElement("div");
+        stepElement.className = "card mb-2 p-2 bg-dark text-light";
+        stepElement.innerHTML = `
+            <strong>Step ${index + 1}</strong><br>
+            <span>Device: ${step.device}</span><br>
+            <span>Action: ${step.action}</span><br>
+            <span>Option: ${step.option}</span>
+        `;
+        container.appendChild(stepElement);
+    });
+}
+
+
+</script>
+
+ {% endblock %}
+
+ 

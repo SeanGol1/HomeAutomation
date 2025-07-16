@@ -210,3 +210,60 @@
                 });
             });
         });
+
+    //     $(document).ready(function () {
+    //     let stepCount = 0;
+    //     $('#addStep').on('click', function (e) {
+    //             e.preventDefault()
+    //     const stepId = `step-${stepCount++}`;
+    //     const stepHTML = `
+    //         <div class="card bg-dark text-light mb-3 p-3" id="${stepId}">
+    //         <div class="row">
+    //             <div class="col-md-3">
+    //             <label>Device</label>
+    //             <select name="steps[${stepId}][device]" class="form-select" required>
+    //                 {% for device in deviceList %}
+    //                 <option value="{{ device.ip }}">{{ device.name }}</option>
+    //                 {% endfor %}
+    //             </select>
+    //             </div>
+    //             <div class="col-md-3">
+    //             <label>Action</label>
+    //             <select name="steps[${stepId}][action]" class="form-select" required onchange="toggleParams(this)">
+    //                 <option value="toggle">Toggle Power</option>
+    //                 <option value="set_brightness">Set Brightness</option>
+    //                 <option value="set_color">Set Color</option>
+    //             </select>
+    //             </div>
+    //             <div class="col-md-3 param brightness d-none">
+    //             <label>Brightness (%)</label>
+    //             <input type="range" min="0" max="100" name="steps[${stepId}][brightness]" class="form-range">
+    //             </div>
+    //             <div class="col-md-3 param color d-none">
+    //             <label>Color</label>
+    //             <input type="color" name="steps[${stepId}][color]" class="form-control form-control-color">
+    //             </div>
+    //         </div>
+    //         </div>
+    //     `;
+
+    //     document.getElementById('stepsContainer').insertAdjacentHTML('beforeend', stepHTML);
+    //     });
+
+
+    //     function toggleParams(select) {
+    //     const card = select.closest('.card');
+    //     const brightness = card.querySelector('.brightness');
+    //     const color = card.querySelector('.color');
+
+    //     brightness.classList.add('d-none');
+    //     color.classList.add('d-none');
+
+    //     if (select.value === 'set_brightness') {
+    //         brightness.classList.remove('d-none');
+    //     } else if (select.value === 'set_color') {
+    //         color.classList.remove('d-none');
+    //     }
+    //     }
+    // });
+
