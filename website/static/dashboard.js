@@ -211,6 +211,98 @@
             });
         });
 
+        let recognition;
+        let waitingForWakeWord = true;  // start by listening for wake word
+        let responseBox = document.getElementById("response");
+
+
+        document.getElementById("micBtn").addEventListener("click", () => {
+            if (recognition) {
+                recognition.stop(); // stop any old instance
+            }
+
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.continuous = true;
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
+                console.log("Heard:", transcript);
+
+                if (waitingForWakeWord) {
+                    // Listen for wake word only
+                    if (transcript.includes("aurora")) {
+                        responseBox.innerText = "🟢 Wake word 'Aurora' detected! Listening for your command...";
+                        const utterance = new SpeechSynthesisUtterance("How can I help you?");
+                        window.speechSynthesis.speak(utterance);
+                        waitingForWakeWord = false;
+
+                        // Switch to single-command mode
+                        recognition.stop();
+                        setTimeout(() => listenForCommand(), 1500);
+                    }
+                } else {
+                    // In command mode, process the command
+                    responseBox.innerText = "🗣️ Command received: " + transcript;
+
+                    // Send command to backend
+                    fetch("/voice", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: transcript })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        responseBox.innerText += "\n🤖 Assistant: " + data.response;
+                        const utterance = new SpeechSynthesisUtterance(data.response);
+                        window.speechSynthesis.speak(utterance);
+                    })
+                    .catch(() => {
+                        responseBox.innerText += "\n❌ Error contacting server.";
+                    });
+
+                    // After command processed, go back to wake word listening
+                    recognition.stop();
+                    setTimeout(() => startWakeWordListening(), 1000);
+                }
+            };
+
+            recognition.onerror = (event) => {
+                responseBox.innerText = "❌ Error: " + event.error;
+                if (event.error === "no-speech" || event.error === "network") {
+                    recognition.stop();
+                    setTimeout(() => recognition.start(), 1000);
+                }
+            };
+
+            recognition.onend = () => {
+                // Auto-restart only when waiting for wake word
+                if (waitingForWakeWord) {
+                    recognition.start();
+                }
+            };
+
+            // Start by listening for wake word
+            startWakeWordListening();
+
+            // Helper functions:
+
+            function startWakeWordListening() {
+                waitingForWakeWord = true;
+                responseBox.innerText = "👂 Listening for 'Aurora'...";
+                recognition.continuous = true;
+                recognition.start();
+            }
+
+            function listenForCommand() {
+                waitingForWakeWord = false;
+                responseBox.innerText = "📝 Please say your command now...";
+                recognition.continuous = false;  // listen once for command
+                recognition.start();
+            }
+        });
+
     //     $(document).ready(function () {
     //     let stepCount = 0;
     //     $('#addStep').on('click', function (e) {

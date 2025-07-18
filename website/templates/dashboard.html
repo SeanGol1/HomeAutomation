@@ -141,6 +141,19 @@
                 </div>
             </div>
 
+            <!-- Voice Command -->
+            <div class="grid-stack-item" gs-w="4" gs-h="2" gs-id="voice-card">
+                <div class="card bg-secondary text-light text-center grid-stack-item-content">
+                    <h1 class="mb-4">🎙️ Voice Assistant</h1>                        
+                    <!-- Microphone button (not a form) -->
+                    <button id="micBtn" class="btn btn-lg btn-primary rounded-circle shadow" style="width: 80px; height: 80px;">
+                        <i class="bi bi-mic-fill fs-2"></i>
+                    </button>
+                    <!-- Response output box -->
+                    <div id="response" class="alert alert-info mt-4 p-3 w-75 mx-auto shadow-sm" style="white-space: pre-wrap;"></div>
+                </div>
+            </div>
+
             <!-- System Details -->
             <div class="grid-stack-item" gs-w="3" gs-h="2" gs-id="system-card">
                 <div class="card bg-dark text-light grid-stack-item-content" id="system-status-card">

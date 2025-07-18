@@ -402,6 +402,41 @@ def send_key(device, key_name):
     if keycode:
         device.shell(f"input keyevent {keycode}")
 
+@views.route("/voice", methods=["GET", "POST"])
+def voice():
+    if request.method == "GET":
+        return render_template("voice.html")
+    
+    if request.method == "POST":
+        devices = get_all_devices()
+        data = request.get_json()
+        text = data.get("text", "")
+        response_text = ""
+        if "weather" in text:
+            response_text = "Look out the window, you lazy bastard!"
+
+        if "joke" in text:
+            response_text = "Turning on the camera so you can see yourself!"
+
+        actions = ['turn off','turn on','%','brightness','colour']
+        for a in actions:
+            if a in text:
+                for d in devices:
+                    if d.name.lower() in text: 
+                        if a == 'turn off' or a == 'turn on':
+                            lampswitch(d.ip)
+                        elif a == '%' or a == 'brightness':
+                            digits = ''.join(filter(str.isdigit, text))
+                            bdata = jsonify({'ip':d.ip, 'brightness':digits})
+                            if int(digits) < 101:
+                                setlampbright_int(d.ip,digits)
+                        elif a == 'colour':
+                            print(text)
+
+
+        return jsonify({"response": response_text})
+
+
 ### Functions ###
 
 def connect_to_firestick(ip):
@@ -629,7 +664,7 @@ def lampbright(ip):
 
 # /lampbright/{ip,brightness} - sets brightness to to a percentage value. 
 @views.route('/setlampbright', methods=['GET','POST'])
-def setlampbright():
+def setlampbright(data):
     data = request.get_json()
     ip = data['ip']
     brightness = data['brightness']
@@ -651,6 +686,32 @@ def setlampbright():
     print(data)
     
     return "Success"
+
+
+def setlampbright_int(ip,brightness):
+    # data = request.get_json()
+    # ip = data['ip']
+    # brightness = data['brightness']
+
+    device:Device = get_device_by_ip(ip)    
+    d = tinytuya.BulbDevice(device.id,device.ip,device.key)
+    d.set_version(3.3)  
+    
+    data = d.status()    
+    d.turn_on()
+    
+    print(int(brightness))
+    if(int(brightness) == 0):
+        d.turn_off()
+    else:
+        d.set_brightness_percentage(int(brightness))
+
+    data = d.status()
+    print(data)
+    
+    return "Success"
+
+
 
 # /lampbright/{ip,colour(hex)} - Sets colour of the light
 @views.route('/setcolour', methods=['GET','POST'])
