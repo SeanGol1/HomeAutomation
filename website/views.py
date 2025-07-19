@@ -115,6 +115,7 @@ def dashboard():
     with open("config.json", 'r') as f:
         configdata = json.load(f)
 
+    maps_api_key = configdata["google"]["maps_api_key"]
     # Load selected tiles from the config
     try:
         with open('tiles.json') as t:
@@ -153,7 +154,7 @@ def dashboard():
     except Exception as e:
         print("Error fetching weather:", e)
 
-    return render_template("dashboard.html", deviceList=functions.get_all_device_objs(), weather=weather_data, selected_tiles=selected_tiles, scenes=functions.get_all_scenes())
+    return render_template("dashboard.html", deviceList=functions.get_all_device_objs(), weather=weather_data,maps_api_key=maps_api_key, selected_tiles=selected_tiles, scenes=functions.get_all_scenes())
 
 
 @views.route('/devicesDashboard', methods=['GET','POST'])
@@ -197,11 +198,18 @@ def get_device_status():
         })
     return jsonify(devices)
 
+
+
+
+### Settings
+
 @views.route('/settings', methods=['GET', 'POST'])
 def settings():
     CONFIG_PATH = os.path.join(os.getcwd(), 'config.json')
     with open(CONFIG_PATH, 'r') as f:
         config = json.load(f)
+
+
      # Load selected tiles from the config
     try:
         with open('tiles.json') as f:
@@ -209,6 +217,7 @@ def settings():
         selected_tiles = tile_config.get('selected_tiles', [])
     except FileNotFoundError:
         selected_tiles = []
+
     if request.method == 'POST':
         try:
             # Top-level values
@@ -218,6 +227,17 @@ def settings():
             # Nested: Spotify
             config['spotify']['client_id'] = request.form.get('spotify_client_id', config['spotify']['client_id'])
             config['spotify']['client_secret'] = request.form.get('spotify_client_secret', config['spotify']['client_secret'])
+
+            # Nested: Google
+            if 'google' not in config:
+                config['google'] = {}
+            if 'maps_api_key' not in config['google']:
+                config['google']['maps_api_key'] = ""
+            config['google']['maps_api_key'] = request.form.get('maps_api_key', config['google']['maps_api_key'])
+            if 'home_address' not in config['google']:
+                config['google']['home_address'] = ""
+            config['google']['home_address'] = request.form.get('home_address', config['google']['home_address'])
+
 
             # Nested: Firestick
             config['firestick']['adbclient_host'] = request.form.get('adbclient_host', config['firestick']['adbclient_host'])
@@ -253,6 +273,27 @@ def save_tiles():
 
     # Save to session/database/config, etc.
     return redirect(url_for('views.dashboard'))
+
+@views.route('/addMapLocation/<address>', methods=['GET', 'POST'])
+def addMapLocation(address):
+    CONFIG_PATH = os.path.join(os.getcwd(), 'config.json')
+    with open(CONFIG_PATH, 'r') as f:
+        config = json.load(f)
+
+    # Ensure 'locations' exists and is a list
+    if 'google' not in config:
+        config['google'] = {}
+    if 'locations' not in config['google'] or not isinstance(config['google']['locations'], list):
+        config['google']['locations'] = []
+
+    config['google']['locations'].append(address)
+
+    # Save updated config
+    with open(CONFIG_PATH, 'w') as f:
+        json.dump(config, f, indent=4)
+
+    return f"Added address: {address}"
+
 
 
 ### Scenes

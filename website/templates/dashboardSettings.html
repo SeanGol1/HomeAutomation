@@ -1,5 +1,10 @@
 {% extends "dashboardBase.html" %} {% block title %}dashboardSettings{% endblock %} {% block content
 %}
+<style>
+    .tabcontent {
+        display: none;
+    }
+</style>
 
 <div class="container mt-4">
     <h2>⚙️ Settings</h2>
@@ -30,43 +35,87 @@
         <!-- Create Scene Tab -->
         <div class="tabcontent active" id="generalSettings">
             <form method="POST">
-                <h4 class="mt-4">Weather</h4>
-                <div class="mb-3">
-                    <label for="weather_api_key" class="form-label">Weather API Key</label>
-                    <input type="text" class="form-control" id="weather_api_key" name="weather_api_key"
-                        value="{{ config.weather.weather_api_key }}">
-                </div>
+                <div class="row">
+                    <div class="col-sm-6 card">
+                        <h4 class="card-header">Weather</h4>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="weather_api_key" class="form-label">Weather API Key</label>
+                                <input type="text" class="form-control" id="weather_api_key" name="weather_api_key"
+                                    value="{{ config.weather.weather_api_key }}">
+                            </div>
 
-                <div class="mb-3">
-                    <label for="city" class="form-label">City</label>
-                    <input type="text" class="form-control" id="city" name="city" value="{{ config.weather.city }}">
-                </div>
+                            <div class="mb-3">
+                                <label for="city" class="form-label">City</label>
+                                <input type="text" class="form-control" id="city" name="city"
+                                    value="{{ config.weather.city }}">
+                            </div>
+                        </div>
+                    </div>
 
-                <h4 class="mt-4">Spotify</h4>
-                <div class="mb-3">
-                    <label for="spotify_client_id" class="form-label">Client ID</label>
-                    <input type="text" class="form-control" id="spotify_client_id" name="spotify_client_id"
-                        value="{{ config.spotify.client_id }}">
-                </div>
-                <div class="mb-3">
-                    <label for="spotify_client_secret" class="form-label">Client Secret</label>
-                    <input type="text" class="form-control" id="spotify_client_secret" name="spotify_client_secret"
-                        value="{{ config.spotify.client_secret }}">
-                </div>
+                    <div class="col-sm-6 card">
+                        <h4 class="card-header">Spotify</h4>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="spotify_client_id" class="form-label">Client ID</label>
+                                <input type="text" class="form-control" id="spotify_client_id" name="spotify_client_id"
+                                    value="{{ config.spotify.client_id }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="spotify_client_secret" class="form-label">Client Secret</label>
+                                <input type="text" class="form-control" id="spotify_client_secret"
+                                    name="spotify_client_secret" value="{{ config.spotify.client_secret }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 card">
+                        <h4 class="card-header">Google</h4>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="google_api_id" class="form-label">Maps API Key</label>
+                                <input type="text" class="form-control" id="google_api_id" name="google_api_id"
+                                    value="{{ config.google.maps_api_key }}">
+                            </div>
+                            <div class="mb-3" >
+                                <label for="home_address" class="form-label">Enter Home Address</label>
+                                <input type="text" class="form-control" id="home_address" name="home_address"
+                                value="{{ config.google.home_address }}">
+                            </div>
+                            
+                            <div class="mb-3" >
+                                <label for="new_location" class="form-label">Enter New Location Address</label>
+                                <input type="text" class="form-control" id="new_location" name="new_location">
+                            </div>
 
-                <h4 class="mt-4">Firestick</h4>
-                <div class="mb-3">
-                    <label for="adbclient_host" class="form-label">ADB Client Host</label>
-                    <input type="text" class="form-control" id="adbclient_host" name="adbclient_host"
-                        value="{{ config.firestick.adbclient_host }}">
-                </div>
-                <div class="mb-3">
-                    <label for="adbclient_port" class="form-label">ADB Client Port</label>
-                    <input type="text" class="form-control" id="adbclient_port" name="adbclient_port"
-                        value="{{ config.firestick.adbclient_port }}">
-                </div>
+                            <button id="btnAddLocal">Add Location</button>
+                            {% for l in config.google.locations %}
+                            <div class="mb-3">
+                                <label for="spotify_client_secret" class="form-label">l</label>
+                                <input type="text" class="form-control" id="spotify_client_secret"
+                                    name="spotify_client_secret" value="{{ l }}">
+                            </div>
+                            {% endfor %}
 
-                <button type="submit" class="btn btn-success">Save Changes</button>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 card">
+                        <h4 class="card-header">Firestick</h4>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="adbclient_host" class="form-label">ADB Client Host</label>
+                                <input type="text" class="form-control" id="adbclient_host" name="adbclient_host"
+                                    value="{{ config.firestick.adbclient_host }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="adbclient_port" class="form-label">ADB Client Port</label>
+                                <input type="text" class="form-control" id="adbclient_port" name="adbclient_port"
+                                    value="{{ config.firestick.adbclient_port }}">
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                </div>
             </form>
         </div>
 
@@ -91,7 +140,7 @@
                         {% endfor %}
                     </div>
                 </div>
-
+                <br>
                 <button class="btn btn-success" type="submit">Submit</button>
             </form>
         </div>
@@ -122,5 +171,25 @@
             });
         }
     });
+
+
+            $(document).ready(function () {
+            $('#btnAddLocal').on('click', function (e) {
+                e.preventDefault()
+                const address = $('#new_location').val();
+                fetch(`/addMapLocation/${address}`, {
+                    method: "POST",
+                })
+                    .then(response => {
+                        return response.json();
+                    })
+                    .then(data => {
+                        //add location to the screen or refresh
+                    });
+
+                return false;
+            });
+        });
+
 </script>
 {% endblock %}
