@@ -145,6 +145,12 @@ def dashboard():
 
     return render_template("dashboard.html", deviceList=functions.get_all_device_objs(), weather=weather_data, scenes=functions.get_all_scenes())
 
+
+@views.route('/devicesDashboard', methods=['GET','POST'])
+def dashboardDevices():
+    return render_template("dashboardDevices.html",deviceList=functions.get_all_device_objs())
+
+
 @views.route('/system_status')
 def system_status():
     # CPU and RAM usage

@@ -158,10 +158,18 @@
                             ${data.item.artists.map(a => a.name).join(', ')}
                         `;
 
+                        const icon = document.getElementById('spotify-icon');
+                        if (data.is_playing) {
+                            icon.classList.remove('fa-play');
+                            icon.classList.add('fa-pause');
+                        } else {
+                            icon.classList.remove('fa-pause');
+                            icon.classList.add('fa-play');
+                        }
+
                             document.getElementById('spotify-art-img').src = data.item.album.images[0].url;
                         } else {
                             document.getElementById('spotify-track').innerText = 'Not playing';
-                            //document.getElementById('spotify-art-img').innerText = 'Not playing';
 
                         }
                     });
