@@ -358,3 +358,47 @@
     }
 
 
+
+    let map;
+let directionsService;
+let directionsRenderer;
+
+function initMap() {
+  map = new google.maps.Map(document.getElementById("map"), {
+    zoom: 7,
+    center: { lat: 40.7128, lng: -74.0060 }
+  });
+
+  directionsService = new google.maps.DirectionsService();
+  directionsRenderer = new google.maps.DirectionsRenderer();
+  directionsRenderer.setMap(map);
+
+   // Autocomplete for home and work
+  const homeInput = document.getElementById("home");
+  const workInput = document.getElementById("work");
+
+  new google.maps.places.Autocomplete(homeInput, {
+    types: ["geocode"],
+    componentRestrictions: { country: "ca" }
+  });
+
+  new google.maps.places.Autocomplete(workInput, {
+    types: ["geocode"],
+    componentRestrictions: { country: "ca" }
+  });
+
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const userLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        map.setCenter(userLocation);
+        map.setZoom(12);
+      },
+      () => console.warn("Geolocation failed or denied.")
+    );
+  }
+}

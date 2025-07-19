@@ -5,46 +5,122 @@
     <h2>⚙️ Settings</h2>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
     {% endwith %}
 
-    <form method="POST">
-        <h4 class="mt-4">Weather</h4>
-        <div class="mb-3">
-            <label for="weather_api_key" class="form-label">Weather API Key</label>
-            <input type="text" class="form-control" id="weather_api_key" name="weather_api_key" value="{{ config.weather.weather_api_key }}">
+    <ul class="nav nav-tabs tab" id="settingsTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link  tablinks active" id="general-tab" type="button"
+                onclick="openTab(event, 'generalSettings')">
+                General Settings
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link tablinks" id="view-tab" type="button" onclick="openTab(event, 'dashboardTiles')">
+                Dashboard Tiles
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+        <!-- Create Scene Tab -->
+        <div class="tabcontent active" id="generalSettings">
+            <form method="POST">
+                <h4 class="mt-4">Weather</h4>
+                <div class="mb-3">
+                    <label for="weather_api_key" class="form-label">Weather API Key</label>
+                    <input type="text" class="form-control" id="weather_api_key" name="weather_api_key"
+                        value="{{ config.weather.weather_api_key }}">
+                </div>
+
+                <div class="mb-3">
+                    <label for="city" class="form-label">City</label>
+                    <input type="text" class="form-control" id="city" name="city" value="{{ config.weather.city }}">
+                </div>
+
+                <h4 class="mt-4">Spotify</h4>
+                <div class="mb-3">
+                    <label for="spotify_client_id" class="form-label">Client ID</label>
+                    <input type="text" class="form-control" id="spotify_client_id" name="spotify_client_id"
+                        value="{{ config.spotify.client_id }}">
+                </div>
+                <div class="mb-3">
+                    <label for="spotify_client_secret" class="form-label">Client Secret</label>
+                    <input type="text" class="form-control" id="spotify_client_secret" name="spotify_client_secret"
+                        value="{{ config.spotify.client_secret }}">
+                </div>
+
+                <h4 class="mt-4">Firestick</h4>
+                <div class="mb-3">
+                    <label for="adbclient_host" class="form-label">ADB Client Host</label>
+                    <input type="text" class="form-control" id="adbclient_host" name="adbclient_host"
+                        value="{{ config.firestick.adbclient_host }}">
+                </div>
+                <div class="mb-3">
+                    <label for="adbclient_port" class="form-label">ADB Client Port</label>
+                    <input type="text" class="form-control" id="adbclient_port" name="adbclient_port"
+                        value="{{ config.firestick.adbclient_port }}">
+                </div>
+
+                <button type="submit" class="btn btn-success">Save Changes</button>
+            </form>
         </div>
 
-        <div class="mb-3">
-            <label for="city" class="form-label">City</label>
-            <input type="text" class="form-control" id="city" name="city" value="{{ config.weather.city }}">
-        </div>
+        <div class="tabcontent" id="dashboardTiles">
+            <h3>Choose tiles you want displayed</h3>
+            <form method="POST" action="/save-tiles">
+                <div class="row tile-checkbox">
+                    <div class="col-md-6">
+                        <h5>Choose from Tile List</h5>
+                        {% for t in staticTiles %}
+                        <input type="checkbox" id="tile-{{t}}" name="tiles[]" value="{{t}}" {% if t in selected_tiles
+                            %}checked{% endif %}>
+                        <label for="tile-{{t}}">{{t}}</label><br>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Choose from Device List</h5>
+                        {% for d in deviceList %}
+                        <input type="checkbox" id="tile-{{d.ip}}" name="tiles[]" value="{{d.ip}}" {% if d.ip in
+                            selected_tiles %}checked{% endif %}>
+                        <label for="tile-{{d.ip}}">{{d.name}}</label><br>
+                        {% endfor %}
+                    </div>
+                </div>
 
-        <h4 class="mt-4">Spotify</h4>
-        <div class="mb-3">
-            <label for="spotify_client_id" class="form-label">Client ID</label>
-            <input type="text" class="form-control" id="spotify_client_id" name="spotify_client_id" value="{{ config.spotify.client_id }}">
+                <button class="btn btn-success" type="submit">Submit</button>
+            </form>
         </div>
-        <div class="mb-3">
-            <label for="spotify_client_secret" class="form-label">Client Secret</label>
-            <input type="text" class="form-control" id="spotify_client_secret" name="spotify_client_secret" value="{{ config.spotify.client_secret }}">
-        </div>
-
-        <h4 class="mt-4">Firestick</h4>
-        <div class="mb-3">
-            <label for="adbclient_host" class="form-label">ADB Client Host</label>
-            <input type="text" class="form-control" id="adbclient_host" name="adbclient_host" value="{{ config.firestick.adbclient_host }}">
-        </div>
-        <div class="mb-3">
-            <label for="adbclient_port" class="form-label">ADB Client Port</label>
-            <input type="text" class="form-control" id="adbclient_port" name="adbclient_port" value="{{ config.firestick.adbclient_port }}">
-        </div>
-
-        <button type="submit" class="btn btn-success">Save Changes</button>
-    </form>
+    </div>
 </div>
-  {% endblock %}
+
+<script>
+    function openTab(evt, type) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(type).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const tileForm = document.querySelector('#dashboardTiles form');
+
+        if (tileForm) {
+            tileForm.addEventListener('submit', function () {
+                localStorage.removeItem("gridLayout");
+            });
+        }
+    });
+</script>
+{% endblock %}

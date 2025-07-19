@@ -40,6 +40,9 @@ class Bulb(Device):
         self.brightness = brightness
         self.colour = colour
 
+staticTiles = ['weather-card','spotify-card', 'calendar-card' , 'general-controls-card' , 'website-controls-card', 
+                  'clock-card', 'voice-card', 'maps-card' , 'system-card', 'scenes-card', ]
+
 ### WEBSITE ROUTES ###
 @views.route('/')
 def home():    
@@ -108,10 +111,17 @@ def delete_device():
 
 @views.route('/dashboard', methods=['GET','POST'])
 def dashboard():
-    #deviceList = get_all_devices()
 
     with open("config.json", 'r') as f:
         configdata = json.load(f)
+
+    # Load selected tiles from the config
+    try:
+        with open('tiles.json') as t:
+            tile_config = json.load(t)
+        selected_tiles = tile_config.get('selected_tiles', [])
+    except FileNotFoundError:
+        selected_tiles = []
 
     sp_oauth = SpotifyOAuth(
         client_id= configdata["spotify"]["client_id"],
@@ -143,7 +153,7 @@ def dashboard():
     except Exception as e:
         print("Error fetching weather:", e)
 
-    return render_template("dashboard.html", deviceList=functions.get_all_device_objs(), weather=weather_data, scenes=functions.get_all_scenes())
+    return render_template("dashboard.html", deviceList=functions.get_all_device_objs(), weather=weather_data, selected_tiles=selected_tiles, scenes=functions.get_all_scenes())
 
 
 @views.route('/devicesDashboard', methods=['GET','POST'])
@@ -192,7 +202,13 @@ def settings():
     CONFIG_PATH = os.path.join(os.getcwd(), 'config.json')
     with open(CONFIG_PATH, 'r') as f:
         config = json.load(f)
-
+     # Load selected tiles from the config
+    try:
+        with open('tiles.json') as f:
+            tile_config = json.load(f)
+        selected_tiles = tile_config.get('selected_tiles', [])
+    except FileNotFoundError:
+        selected_tiles = []
     if request.method == 'POST':
         try:
             # Top-level values
@@ -220,7 +236,24 @@ def settings():
     with open(CONFIG_PATH, 'r') as f:
         config = json.load(f)
 
-    return render_template('dashboardSettings.html', config=config)
+    return render_template('dashboardSettings.html', config=config , staticTiles = staticTiles, selected_tiles=selected_tiles, deviceList = functions.get_all_devices())
+
+
+@views.route('/save-tiles', methods=['POST'])
+def save_tiles():
+    selected_tiles = request.form.getlist('tiles[]')
+    print("Selected tiles:", selected_tiles)
+
+    if not selected_tiles:
+        # fallback: collect everything with "tile-" prefix
+        selected_tiles = [value for key, value in request.form.items() if key.startswith('tile-')]
+
+    with open('tiles.json', 'w') as f:
+        json.dump({"selected_tiles": selected_tiles}, f, indent=2)
+
+    # Save to session/database/config, etc.
+    return redirect(url_for('views.dashboard'))
+
 
 ### Scenes
 
@@ -402,9 +435,9 @@ def get_device(ip):
         client = AdbClient(host=config["firestick"]["adbclient_host"], port=int(config["firestick"]["adbclient_port"]))
         device = client.device(finalip)
         if not device:
-            connect_to_firestick(ip)
+            functions.connect_to_firestick(ip)
     except:
-        connect_to_firestick(ip)
+        functions.connect_to_firestick(ip)
     finally: 
         if not client:
             client = AdbClient(host=config["firestick"]["adbclient_host"], port=int(config["firestick"]["adbclient_port"]))  

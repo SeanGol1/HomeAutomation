@@ -13,6 +13,7 @@
 
         <div class="grid-stack">
             <!-- Weather -->
+            {% if 'weather-card' in selected_tiles %}
             <div class="grid-stack-item" gs-w="4" gs-h="2" gs-id="weather-card">
                 <div class="card grid-stack-item-content">
                     <div class="card-header">Weather</div>
@@ -45,8 +46,10 @@
                     </div>
                 </div>
             </div>
+             {% endif %}
 
             <!-- Spotify controls -->
+             {% if 'spotify-card' in selected_tiles %}
             <div class="grid-stack-item" gs-w="3" gs-h="4" gs-id="spotify-card">
                 <div class="card spotify-card grid-stack-item-content" >
                     <div class="card-header">🎵 Now Playing</div>                    
@@ -69,8 +72,10 @@
                     <div id="spotify-track" class="text-center mt-2">Loading...</div>
                 </div>
             </div>
+             {% endif %}
 
             <!-- Google Calendar -->
+             {% if 'calendar-card' in selected_tiles %}
             <div class="grid-stack-item" gs-w="2" gs-h="3" gs-id="calendar-card">
                 <div class="card grid-stack-item-content">
                     {% if not session.get('credentials') %}
@@ -99,8 +104,10 @@
 
                 </div>
             </div>
+            {% endif %}
 
             <!-- General Controls -->
+             {% if 'general-controls-card' in selected_tiles %}
             <div class="grid-stack-item" gs-w="2" gs-h="3" gs-id="general-controls-card">
                 <div class="card grid-stack-item-content">
                     <div class=" text-center">
@@ -119,8 +126,11 @@
                     </div>
                 </div>
             </div>
-
+            {% endif %}    
+            
+            
             <!-- Website Controls -->
+             {% if 'website-controls-card' in selected_tiles %}
             <div class="grid-stack-item" gs-w="2" gs-h="3" gs-id="website-controls-card">
                 <div class="card grid-stack-item-content">
                     <div class="text-center">
@@ -136,8 +146,11 @@
                     </div>
                 </div>
             </div>
+            {% endif %} 
+
 
             <!-- Clock -->
+             {% if 'clock-card' in selected_tiles %}
             <div class="grid-stack-item" gs-w="4" gs-h="2" gs-id="clock-card">
                 <div class="card text-center grid-stack-item-content">
                     <div id="flip-clock" class="d-flex justify-content-center"></div>
@@ -155,9 +168,11 @@
                     </div>
                 </div>
             </div>
+            {% endif %} 
 
             <!-- Voice Command -->
-            <div class="grid-stack-item" gs-w="2" gs-h="2" gs-id="voice-card">
+            {% if 'voice-card' in selected_tiles %}
+            <div class="grid-stack-item" gs-w="3" gs-h="3" gs-id="voice-card">
                 <div class="card text-center grid-stack-item-content">
                     <div class="card-header mb-4">🎙️ Voice Assistant</div> 
                     <div class="card-body">                      
@@ -170,17 +185,24 @@
                 </div> 
                 </div>
             </div>
+            {% endif %} 
 
             <!-- Google Maps -->
+            {% if 'maps-card' in selected_tiles %}
             <div class="grid-stack-item" gs-w="4" gs-h="4" gs-id="maps-card">
                 <div class="card text-center grid-stack-item-content">
                     <div class="card-header"> Maps</div>
-                    <div class="card-body"></div>                       
+                    <div class="card-body">
+                        <div id="map" class="rounded-4 shadow mt-4 border" style="height: 500px;"></div>
+                    </div>                       
 
                 </div>
             </div>
+            {% endif %} 
+
 
             <!-- System Details -->
+             {% if 'system-card' in selected_tiles %}
             <div class="grid-stack-item" gs-w="3" gs-h="2" gs-id="system-card">
                 <div class="card grid-stack-item-content" id="system-status-card">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -199,8 +221,11 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
+
 
             <!-- Scenes -->
+             {% if 'scenes-card' in selected_tiles %}
             <div class="grid-stack-item" gs-w="2" gs-h="2" gs-id="scenes-card">
                 <div class="card grid-stack-item-content">
                     <div class=" text-center">
@@ -213,11 +238,12 @@
                     </div>
                 </div>
             </div>
-        
+            {% endif %}
 
 
             <!-- Device Cards -->
             {% for d in deviceList %}
+            {% if d.ip in selected_tiles %}
             <div class="grid-stack-item" gs-w="2" gs-h="2" gs-id="{{d.ip}}-card">
                 <div class="card shadow grid-stack-item-content">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -276,6 +302,8 @@
                     </div>
                 </div>
             </div>
+
+            {% endif %}
             {% endfor %}
         </div>
 
