@@ -1,31 +1,36 @@
 {
-  "Night Time": [
-    {
-      "device": "192.168.0.19",
-      "action": "brightness",
-      "option": "26"
-    },
-    {
-      "device": "192.168.0.20",
-      "action": "brightness",
-      "option": "26"
-    },
-    {
-      "device": "192.168.0.19",
-      "action": "colour",
-      "option": "#ff0000"
-    },
-    {
-      "device": "192.168.0.20",
-      "action": "colour",
-      "option": "#ff0000"
-    }
-  ],
-  "test": [
+  " test": [
     {
       "device": "192.168.0.19",
       "action": "state",
       "option": "false"
+    },
+    {
+      "device": "192.168.0.20",
+      "action": "brightness",
+      "option": "50"
+    }
+  ],
+  " Night Time": [
+    {
+      "device": "192.168.0.19",
+      "action": "brightness",
+      "option": "26"
+    },
+    {
+      "device": "192.168.0.20",
+      "action": "brightness",
+      "option": "26"
+    },
+    {
+      "device": "192.168.0.19",
+      "action": "colour",
+      "option": "#ff0000"
+    },
+    {
+      "device": "192.168.0.20",
+      "action": "colour",
+      "option": "#ff0000"
     }
   ]
 }

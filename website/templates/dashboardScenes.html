@@ -1,160 +1,321 @@
 {% extends "dashboardBase.html" %} {% block title %}dashboardScenes{% endblock %} {% block content
 %}
 
- 
+<style>
+    .tabcontent {
+  display: none;}
+</style>
+
 <div class="container mt-4">
-  <h2 class="mb-3">Create New Scene</h2>
-  <form action="{{ url_for('views.create_scene') }}" method="POST">
-    <div class="mb-3">
-      <label for="sceneName" class="form-label">Scene Name</label>
-      <input type="text" class="form-control" id="sceneName" name="sceneName" required>
-    </div>
+    <ul class="nav nav-tabs tab" id="sceneTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link  tablinks active" id="create-tab" 
+                type="button" onclick="openTab(event, 'createScene')">
+                Create Scene
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link tablinks" id="view-tab"  
+                type="button" onclick="openTab(event, 'viewScenes')">
+                View Scenes
+            </button>
+        </li>
+    </ul>
 
-    <div>
-        <h4>Add Steps to the Scene</h4>
-        <label for="devices">Select Device</label>
-        <div class="dropdown mb-2">
-            <select name="devices" id="ddlDevice" onchange="deviceChanged()" required>
-                <option value="">-- Choose a Device --</option>
-                {% for device in deviceList %}
-                    <option value="{{ device.ip }}">{{ device.name }}</option>
+    <div class="tab-content mt-3" >
+        <!-- Create Scene Tab -->
+        <div class="tabcontent active" id="createScene">
+            <div class="container mt-4">
+                <h2 class="mb-3">Create New Scene</h2>
+                <form action="{{ url_for('views.create_scene') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="sceneName" class="form-label">Scene Name</label>
+                        <input type="text" class="form-control" id="sceneName" name="sceneName" required>
+                    </div>
+
+                    <!-- <div>
+                        <h4>Add Steps to the Scene</h4>
+                        <label for="devices">Select Device</label>
+                        <div class="dropdown mb-2">
+                            <select name="devices" id="ddlDevice" onchange="deviceChanged()" required>
+                                <option value="">-- Choose a Device --</option>
+                                {% for device in deviceList %}
+                                <option value="{{ device.ip }}">{{ device.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <label for="actions">Select Action</label>
+                        <div class="dropdown mb-2">
+                            <select name="actions" id="ddlAction" onchange="actionChanged()" required>
+                                <div id="lightActions">
+                                    <option value="">-- Choose an Action --</option>
+                                    <option value="state">Turn On/Off</option>
+                                    <option value="brightness">Set Brightness</option>
+                                    <option value="colour">Set Colour</option>
+                                </div>
+                            </select>
+                        </div>
+                        <label for="actions">Select Option</label>
+                        <div class="dropdown mb-2">
+                            <select name="options" id="ddlOption">
+                                <div id="lightActionsOnoff">
+                                    <option value="true">Turn On</option>
+                                    <option value="false">Turn Off</option>
+                                </div>
+                                <div>
+                                    <input type="range" min="0" max="100" value="50" id="lightActionsBright" class=" "
+                                        id="brightnessSlider">
+                                </div>
+                                <div>
+                                    <input type="color" class="lightcolour" width="100px" height="100px"
+                                        id="lightActionsColour" title="Select Colour" value="#ffffff">
+                                </div>
+                            </select>
+                        </div>
+                        <button id="btnStep" onclick="addStep()">Add Step</button>
+                    </div> -->
+
+                    <div class="card p-4 shadow mb-4">
+                        <h4 class="mb-3">Add Steps to the Scene</h4>
+
+                        <!-- Select Device -->
+                        <div class="mb-3">
+                            <label for="ddlDevice" class="form-label fw-bold">Select Device</label>
+                            <select class="form-select" name="devices" id="ddlDevice" onchange="deviceChanged()" required>
+                            <option value="">-- Choose a Device --</option>
+                            {% for device in deviceList %}
+                            <option value="{{ device.ip }}">{{ device.name }}</option>
+                            {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Select Action -->
+                        <div class="mb-3">
+                            <label for="ddlAction" class="form-label fw-bold">Select Action</label>
+                            <select class="form-select" name="actions" id="ddlAction" onchange="actionChanged()" required>
+                            <option value="">-- Choose an Action --</option>
+                            <option value="state">Turn On/Off</option>
+                            <option value="brightness">Set Brightness</option>
+                            <option value="colour">Set Colour</option>
+                            </select>
+                        </div>
+
+                        <!-- Select Option (dynamic) -->
+                        <div class="mb-3">
+                            <label for="ddlOption" class="form-label fw-bold">Select Option</label>
+                            <!-- On/Off Dropdown -->
+                            <select class="form-select mb-2" name="options" id="ddlOption">
+                            <option value="true">Turn On</option>
+                            <option value="false">Turn Off</option>
+                            </select>
+
+                            <!-- Brightness Slider -->
+                            <div class="mb-2" id="brightnessContainer">
+                            <label for="lightActionsBright" class="form-label">Brightness</label>
+                            <input type="range" min="0" max="100" value="50" class="form-range" id="lightActionsBright">
+                            </div>
+
+                            <!-- Colour Picker -->
+                            <div id="colourContainer">
+                            <label for="lightActionsColour" class="form-label">Select Colour</label>
+                            <input type="color" class="form-control form-control-color" id="lightActionsColour" value="#ffffff" title="Choose your color">
+                            </div>
+                        </div>
+
+                        <!-- Add Step Button -->
+                        <div class="text-end">
+                            <button type="button" id="btnStep" class="btn btn-primary">
+                            ➕ Add Step
+                            </button>
+                        </div>
+                        </div>
+
+                    <div id="stepsContainer">
+
+
+                    </div>
+
+                    <!-- <button type="button" class="btn btn-secondary mb-3" id="addStep">➕ Add Step</button> -->
+                    <br />
+                    <button id="btnSave" class="btn btn-success">💾 Save Scene</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- View Scenes Tab -->
+        <div class="tabcontent" id="viewScenes">
+            <h3>Saved Scenes</h3>
+            <div id="sceneList">
+                <!-- You could render scenes from server here or use JS to fetch -->
+                {% for scene in scenes %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <!-- <h5 class="card-title">{{ scene.name }}</h5>
+                        <ul class="list-group list-group-flush">
+                            {% for step in scene.steps %}
+                            <li class="list-group-item">Device: {{ step.device }}, Action: {{ step.action }}, Option: {{
+                                step.option }}</li>
+                            {% endfor %}
+                        </ul> -->
+                        <ol class="list-group list-group-numbered">
+                            {% for step in scene.steps %}
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">{{ step.device }}</div>
+                                    {% if step.action == 'state' %}
+                                        {{ 'Turn On' if step.option == 'true' else 'Turn Off' }}
+                                    {% elif step.action == 'brightness' %}
+                                        Brightness - {{ step.option }}%
+                                    {% elif step.action == 'colour' %}
+                                        Colour - <span style="padding: 0 10px;" id="colour-span-{{loop.index}}">{{ step.option }}</span> <!--background-color: {{ step.option }};-->
+                                    {% else %}
+                                        {{ step.action }} - {{ step.option }}
+                                    {% endif %}
+                                </div>
+                                 <input type="hidden" id="color-value-{{ loop.index }}" value="{{ step.option }}">
+                                
+                            </li>
+                            {% endfor %}
+                        </ol>
+                        <button onclick="runScene('{{scene.name}}')" class="btn btn-success">▶️ Run Scene</button>
+                    </div>
+                </div>
+                {% else %}
+                <p>No scenes have been created yet.</p>
                 {% endfor %}
-            </select>
+            </div>
         </div>
-
-        <label for="actions">Select Action</label>
-        <div class="dropdown mb-2">
-            <select name="actions" id="ddlAction" onchange="actionChanged()" required>
-                <div id="lightActions" >
-                    <option value="">-- Choose an Action --</option>
-                    <option value="state">Turn On/Off</option>
-                    <option value="brightness">Set Brightness</option>
-                    <option value="colour">Set Colour</option>          
-                </div>      
-            </select>
-        </div>
-        <label for="actions">Select Option</label>
-        <div class="dropdown mb-2">
-            <select name="options" id="ddlOption">
-                <div id="lightActionsOnoff">
-                    <option value="true">Turn On</option>
-                    <option value="false">Turn Off</option>        
-                </div>      
-                <div>
-                        <input type="range" min="0" max="100" value="50" id="lightActionsBright"
-                            class=" " id="brightnessSlider" >
-                </div>     
-                <div>
-                    <input type="color" class="lightcolour" width="100px" height="100px" id="lightActionsColour"
-                                    title="Select Colour" value="#ffffff" >
-                </div>       
-            </select>
-        </div>
-        <button id="btnStep" onclick="addStep()">Add Step</button>
     </div>
-
-    <div id="stepsContainer">
-      
-
-    </div>
-
-    <!-- <button type="button" class="btn btn-secondary mb-3" id="addStep">➕ Add Step</button> -->
-    <br />
-    <button id="btnSave" class="btn btn-success">💾 Save Scene</button> 
-  </form>
 </div>
+
+
 
 <script>
     let selectedDevice = null;
-    
-    function deviceChanged(){
+
+    function runScene(sceneName) {
+        fetch(`/run_scene/${encodeURIComponent(sceneName)}`, {
+        method: 'POST'
+        })
+        .then(res => res.json())
+        .then(data => console.log("Scene executed:", data))
+        .catch(err => console.error("Error:", err));
+    }
+
+    function deviceChanged() {
         var value = document.getElementById("ddlDevice").value;
         //I want to store the full device object.
         //selectedDevice = allDevices.find(device => device.ip === selectedIp);
         document.getElementById('lightActions').style = "visibility: visible";
     }
 
-
-    function actionChanged(){
-        // var value = document.getElementById("ddlAction").value;
-        // if(value == "state"){
-        //     document.getElementById("lightActionsOnoff").style =  "visibility: visible";
-        //     document.getElementById("lightActionsBright").style =  "visibility: hidden";
-        //     document.getElementById("lightActionsColour").style =  "visibility: hidden";
-        // }
-        // else if(value == "brightness"){
-        //     document.getElementById("lightActionsOnoff").style =  "visibility: hidden";
-        //     document.getElementById("lightActionsBright").style =  "visibility: visible";
-        //     document.getElementById("lightActionsColour").style =  "visibility: hidden";
-        // }
-        // else if(value == "colour"){
-        //     document.getElementById("lightActionsOnoff").style =  "visibility: hidden";
-        //     document.getElementById("lightActionsBright").style =  "visibility: hidden";
-        //     document.getElementById("lightActionsColour").style =  "visibility: visible";
-        // }
-
+    function actionChanged() {
+        const action = $('#ddlAction').val();
+        $('#ddlOption').toggle(action === 'state');
+        $('#brightnessContainer').toggle(action === 'brightness');
+        $('#colourContainer').toggle(action === 'colour');
     }
 
+
+    // function actionChanged() {
+    //     // var value = document.getElementById("ddlAction").value;
+    //     // if(value == "state"){
+    //     //     document.getElementById("lightActionsOnoff").style =  "visibility: visible";
+    //     //     document.getElementById("lightActionsBright").style =  "visibility: hidden";
+    //     //     document.getElementById("lightActionsColour").style =  "visibility: hidden";
+    //     // }
+    //     // else if(value == "brightness"){
+    //     //     document.getElementById("lightActionsOnoff").style =  "visibility: hidden";
+    //     //     document.getElementById("lightActionsBright").style =  "visibility: visible";
+    //     //     document.getElementById("lightActionsColour").style =  "visibility: hidden";
+    //     // }
+    //     // else if(value == "colour"){
+    //     //     document.getElementById("lightActionsOnoff").style =  "visibility: hidden";
+    //     //     document.getElementById("lightActionsBright").style =  "visibility: hidden";
+    //     //     document.getElementById("lightActionsColour").style =  "visibility: visible";
+    //     // }
+
+    // }
+
     let steps = [];
-    $(document).ready(function(){
-  
-        $('#btnStep').on('click', function(e) {
+    $(document).ready(function () {
+        actionChanged(); // initialize on load  
+
+        $("[id^='color-value-']").each(function () {
+        var color = $(this).val();
+        var index = this.id.split("-")[2]; // Assuming IDs like color-value-1
+        $("#colour-span-" + index).css("background-color", color);
+    });
+
+        $('#btnStep').on('click', function (e) {
             e.preventDefault()
             var name = document.getElementById("sceneName").value;
             var device = document.getElementById("ddlDevice").value;
             var action = document.getElementById("ddlAction").value;
             var option = null;
-            if(action == "state"){
+            if (action == "state") {
                 option = document.getElementById("ddlOption").value;
             }
-            else if (action == "brightness"){
+            else if (action == "brightness") {
                 option = document.getElementById("lightActionsBright").value;
             }
-            else if (action == "colour"){
+            else if (action == "colour") {
                 option = document.getElementById("lightActionsColour").value;
             }
-            const step = {device:device, action:action, option: option };
-            steps.push(step);     
-            renderSteps();   
+            const step = { device: device, action: action, option: option };
+            steps.push(step);
+            renderSteps();
         });
 
-         $('#btnSave').on('click', function(e) {
+        $('#btnSave').on('click', function (e) {
             e.preventDefault()
             var name = document.getElementById("sceneName").value;
-            var obj = {name: name , steps:steps}
-                fetch('/addScene', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name:name , steps })
-                })
-                    .then(res => res.json())
-                    .then(data => {
-                        alert("Scene Saved");
-                    });
+            var obj = { name: name, steps: steps }
+            fetch('/addScene', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: name, steps })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    alert("Scene Saved");
+                });
 
-         });
+        });
     });
 
     function renderSteps() {
-    const container = document.getElementById("stepsContainer");
-    container.innerHTML = ''; // Clear previous
+        const container = document.getElementById("stepsContainer");
+        container.innerHTML = ''; // Clear previous
 
-    steps.forEach((step, index) => {
-        const stepElement = document.createElement("div");
-        stepElement.className = "card mb-2 p-2 bg-dark text-light";
-        stepElement.innerHTML = `
+        steps.forEach((step, index) => {
+            const stepElement = document.createElement("div");
+            stepElement.className = "card mb-2 p-2 bg-dark text-light";
+            stepElement.innerHTML = `
             <strong>Step ${index + 1}</strong><br>
             <span>Device: ${step.device}</span><br>
             <span>Action: ${step.action}</span><br>
             <span>Option: ${step.option}</span>
         `;
-        container.appendChild(stepElement);
-    });
-}
+            container.appendChild(stepElement);
+        });
+    }
 
+    function openTab(evt, type) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(type).style.display = "block";
+  evt.currentTarget.className += " active";
+}
 
 </script>
 
- {% endblock %}
-
- 
+{% endblock %}

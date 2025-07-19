@@ -174,7 +174,35 @@
                 </div>
             </div>
 
+            <!-- Website Controls -->
+            
+            <div class="grid-stack-item" gs-w="2" gs-h="2" gs-id="scenes-card">
+                <div class="card bg-dark text-light mb-2 grid-stack-item-content">
+                    <div class="card-body text-center">
+                        <h5 class="card-title"><i class="fas fa-clapperboard"></i> Scenes</h5>
 
+                        {% for scene in scenes %}
+                        <!-- <ul class="list-group list-group-flush mb-3">
+                            {% for step in scene.steps %}
+                            <li class="list-group-item">
+                                {{ loop.index }}. {{ step.device_name }} - {{ step.action }}
+                                {% if step.action == 'brightness' %}
+                                - {{ step.option }}%
+                                {% elif step.action == 'colour' %}
+                                - <span style=" padding: 2px 10px; border-radius: 4px;">{{ step.option }}</span> <!--background-color: {{ step.option }};-->
+                            <!-- {% elif step.action == 'state' %}
+                                - {{ 'On' if step.option == 'true' else 'Off' }}
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul> -->
+
+                        <button class="btn btn-primary w-100 mb-2" onclick="runScene('{{ scene.name }}')">▶ Run {{ scene.name }}</button>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        
 
 
             <!-- Device Cards -->

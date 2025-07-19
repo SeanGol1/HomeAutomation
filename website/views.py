@@ -1,6 +1,7 @@
 #from distutils.command.config import config
 from multiprocessing.connection import wait
 from turtle import update
+from urllib.parse import quote, unquote
 from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect,url_for, session
 from . import fireStickController
 import json , time , tinytuya , cv2, numpy as np , requests , speedtest, psutil , spotipy, subprocess, os, platform
@@ -11,6 +12,7 @@ from datetime import datetime
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
+import website.functions as functions 
 
 views = Blueprint('views', __name__)
 
@@ -45,66 +47,7 @@ def home():
 
 @views.route('/devices', methods=['GET','POST'])
 def devices():
-    #  # Load config from file
-    # with open("config.json") as f:
-    #     configdata = json.load(f)
-    
-    #     deviceList = []
-    #     for d in configdata["devices"]:
-    #         device = Device( d.get("name"),
-    #             d.get("ip"),
-    #             d.get("type"),
-    #             d.get("make"),
-    #             d.get("id"),
-    #             d.get("key"))
-            
-    #         if(device.type == "light"):
-    #                 device:Device = get_device_by_ip(device.ip) 
-    #                 try:   
-    #                     if(device.ip != "0.0.0.0"):  # for testing purposes
-    #                         print('Connecting to bulb %r ...' % device.ip)
-    #                         b = tinytuya.BulbDevice(device.id,device.ip,device.key)
-    #                         #b.connection_timeout(1000)
-    #                         b.set_version(3.3) 
-    #                         data = b.status()                            
-
-    #                         #get current colour
-    #                         currentcolour = decode_hsv_hex_to_rgb_hex(data["dps"]["24"])
-
-    #                         #getcurrentbrightness
-    #                         brightness = get_brightness_from_hex(data["dps"]["24"])
-
-    #                         newBulb = Bulb(d.get("name"),
-    #                         d.get("ip"),
-    #                         d.get("type"),
-    #                         d.get("make"),
-    #                         d.get("id"),
-    #                         d.get("key"),
-    #                         data["dps"]["20"],
-    #                         brightness,
-    #                         currentcolour)
-
-                            
-    #                         print('colour')
-    #                         print(currentcolour)
-
-    #                         deviceList.append(newBulb) 
-    #                         print('Connection Successful!') 
-    #                     else: 
-    #                         deviceList.append(device)
-    #                 except:
-    #                     deviceList.append(device)
-    #                     print('Connection Failed.')
-    #         else:                
-    #             deviceList.append(device)
-
-            
-
-        
-
-        
-
-    return render_template("devices.html",deviceList=get_all_device_objs())
+    return render_template("devices.html",deviceList=functions.get_all_device_objs())
 
 @views.route('/addDevice', methods=['GET'])
 def addDevice():
@@ -200,7 +143,7 @@ def dashboard():
     except Exception as e:
         print("Error fetching weather:", e)
 
-    return render_template("dashboard.html", deviceList=get_all_device_objs(), weather=weather_data)
+    return render_template("dashboard.html", deviceList=functions.get_all_device_objs(), weather=weather_data, scenes=functions.get_all_scenes())
 
 
 @views.route('/system_status')
@@ -274,6 +217,8 @@ def settings():
 
     return render_template('dashboardSettings.html', config=config)
 
+### Scenes
+
 @views.route('/addScene', methods=['POST'])
 def add_scene():
     try:
@@ -293,7 +238,7 @@ def add_scene():
                     scenes_data = {}
 
         # Generate a new scene name (you can enhance this later to accept custom names)
-        scene_name = f" {name}"
+        scene_name = f"{name}"
         scenes_data[scene_name] = steps
 
         # Write updated data back to file
@@ -308,9 +253,11 @@ def add_scene():
 
 @views.route('/scenes', methods=['GET', 'POST'])
 def create_scene():
-    with open('config.json') as f:
-        config = json.load(f)
-    device_list = config.get("devices", []) 
+    # with open('config.json') as f:
+    #     config = json.load(f)
+    # device_list = config.get("devices", []) 
+    device_list = functions.get_all_devices()
+    scenes = functions.get_all_scenes_names()
 
     if request.method == 'POST':
         scene_name = request.form.get('scene_name')
@@ -351,7 +298,53 @@ def create_scene():
 
         return redirect(url_for('views.dashboard'))
 
-    return render_template('dashboardScenes.html', deviceList=device_list)
+    return render_template('dashboardScenes.html', deviceList=device_list, scenes=scenes)
+
+def send_device_command(ip, action, option):
+
+    if(action == 'state'):
+        lampswitch_int(ip,option)
+    elif(action == 'brightness'):
+        setlampbright_int(ip,option)
+    elif(action == 'colour'):
+        setcolour_int(ip,option)
+    
+
+@views.route('/run_scene/<scene_name>', methods=['POST'])
+def run_scene(scene_name):
+    try:
+        with open('scenes.json') as f:
+            sceneconfig = json.load(f)
+
+        steps = sceneconfig.get(scene_name)
+        if not steps:
+            return jsonify({"error": "Scene not found"}), 404
+
+        results = []
+        # Define action priority
+        priority = {"state": 0, "colour": 1, "brightness": 2}
+
+        # Sort steps based on priority
+        steps.sort(key=lambda s: priority.get(s["action"], 99))
+        
+        for step in steps:
+            success = send_device_command(step['device'], step['action'], step['option'])
+            results.append({
+                "device": step["device"],
+                "action": step["action"],
+                "option": step["option"],
+                "status": "success" if success else "failed"
+            })
+
+        return jsonify({"scene": scene_name, "results": results})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+####
+
+
+
 
 @views.route("/remote/<ip>", methods=["GET", "POST"])
 def remote(ip):
@@ -408,7 +401,7 @@ def voice():
         return render_template("voice.html")
     
     if request.method == "POST":
-        devices = get_all_devices()
+        #devices = get_all_devices()
         data = request.get_json()
         text = data.get("text", "")
         response_text = ""
@@ -418,204 +411,16 @@ def voice():
         if "joke" in text:
             response_text = "Turning on the camera so you can see yourself!"
 
-        actions = ['turn off','turn on','%','brightness','colour']
-        for a in actions:
-            if a in text:
-                for d in devices:
-                    if d.name.lower() in text: 
-                        if a == 'turn off' or a == 'turn on':
-                            lampswitch(d.ip)
-                        elif a == '%' or a == 'brightness':
-                            digits = ''.join(filter(str.isdigit, text))
-                            bdata = jsonify({'ip':d.ip, 'brightness':digits})
-                            if int(digits) < 101:
-                                setlampbright_int(d.ip,digits)
-                        elif a == 'colour':
-                            print(text)
-
+        result = functions.getAction(text)
 
         return jsonify({"response": response_text})
 
-
-### Functions ###
-
-def connect_to_firestick(ip):
-        
-        base_path = os.path.dirname(os.path.abspath(__file__))
-        run_path = os.path.join(base_path, "adb")
-        script_path = os.path.join(base_path, "adb", "adbconnect") 
-
-        try:
-            # result = subprocess.run(
-            #     ["cmd.exe", "/c", bat_file, ip],
-            #     cwd=run_path,
-            #     capture_output=True,
-            #     text=True,
-            #     check=True
-            # )
-                # Launches visible command prompt
-            # result = subprocess.Popen(
-            #     ["cmd.exe", "/k", bat_file, ip],  # /k keeps the window open
-            #     cwd=run_path
-            # )
-
-            if platform.system() == "Windows":
-                script_path += ".bat"
-                result = subprocess.Popen(["cmd.exe", "/k", script_path, ip], cwd=run_path)
-            else:
-                script_path += ".sh"
-                result = subprocess.run(["x-terminal-emulator", "-e", f"{script_path} {ip}"], cwd=run_path)
-            print("Output:", result.stdout)
-            return result.stdout
-        except subprocess.CalledProcessError as e:
-            print("Error:", e.stderr)
-        return e.stderr
-    
-
-def get_all_device_objs():
-     # Load config from file
-    with open("config.json") as f:
-        configdata = json.load(f)
-    
-        deviceList = []
-        for d in configdata["devices"]:
-            device = Device( d.get("name"),
-                d.get("ip"),
-                d.get("type"),
-                d.get("make"),
-                d.get("id"),
-                d.get("key"))
-            
-            if(device.type == "light"):
-                    device:Device = get_device_by_ip(device.ip) 
-                    try:   
-                        if(device.ip != "0.0.0.0"):  # for testing purposes
-                            print('Connecting to bulb %r ...' % device.ip)
-                            b = tinytuya.BulbDevice(device.id,device.ip,device.key)
-                            #b.connection_timeout(1000)
-                            b.set_version(3.3) 
-                            data = b.status()                            
-
-                            if(data['dps']['21'] == 'white'):
-                                currentcolour = '#ffffff'
-                            else:
-                                #get current colour
-                                currentcolour = decode_hsv_hex_to_rgb_hex(data["dps"]["24"])
-
-                            #getcurrentbrightness
-                            brightness = get_brightness_from_hex(data["dps"]["24"])
-
-                            newBulb = Bulb(d.get("name"),
-                            d.get("ip"),
-                            d.get("type"),
-                            d.get("make"),
-                            d.get("id"),
-                            d.get("key"),
-                            data["dps"]["20"],
-                            brightness,
-                            currentcolour)
-
-                            
-                            print('colour')
-                            print(currentcolour)
-
-                            deviceList.append(newBulb) 
-                            print('Connection Successful!') 
-                        else: 
-                            deviceList.append(device)
-                    except:
-                        deviceList.append(device)
-                        print('Connection Failed.')
-            else:                
-                deviceList.append(device)
-    return deviceList            
-
-def get_device_by_ip(ip):
-    with open("config.json") as f:
-        config = json.load(f)
-    
-    for device in config.get("devices", []):
-        if device.get("ip") == ip:
-            return Device(
-            device.get("name"),
-            device.get("ip"),
-            device.get("type"),
-            device.get("make"),
-            device.get("id"),
-            device.get("key")
-            )
-
-    return None 
-
-def get_all_devices():
-    with open("config.json") as f:
-        config = json.load(f)
-    
-    deviceList = []
-    for device in config.get("devices", []):
-        deviceList.append(Device(
-            device.get("name"),
-            device.get("ip"),
-            device.get("type"),
-            device.get("make"),
-            device.get("id"),
-            device.get("key")
-            ))
-    
-    return deviceList  
-
-def decode_hsv_hex_to_rgb_hex(hsv_hex):
-    if len(hsv_hex) != 12:
-        raise ValueError("HSV hex must be exactly 12 characters")
-
-    # Step 1: Extract HSV values from hex
-    h = int(hsv_hex[0:4], 16)
-    s = int(hsv_hex[4:8], 16)
-    v = int(hsv_hex[8:12], 16)
-
-    # Step 2: Convert HSV to RGB
-    s /= 1000.0
-    v /= 1000.0
-
-    c = v * s
-    x = c * (1 - abs((h / 60.0) % 2 - 1))
-    m = v - c
-
-    if 0 <= h < 60:
-        r1, g1, b1 = c, x, 0
-    elif 60 <= h < 120:
-        r1, g1, b1 = x, c, 0
-    elif 120 <= h < 180:
-        r1, g1, b1 = 0, c, x
-    elif 180 <= h < 240:
-        r1, g1, b1 = 0, x, c
-    elif 240 <= h < 300:
-        r1, g1, b1 = x, 0, c
-    else:
-        r1, g1, b1 = c, 0, x
-
-    r = int((r1 + m) * 255)
-    g = int((g1 + m) * 255)
-    b = int((b1 + m) * 255)
-
-    # Step 3: Convert RGB to hex
-    return "#{:02x}{:02x}{:02x}".format(r, g, b)
-
-def get_brightness_from_hex(code):
-    if len(code) != 12:
-        raise ValueError("Hex string must be 12 characters (6 bytes).")
-    
-    brightness_hex = code[-4:]  # last 4 hex chars = brightness
-    brightness = int(brightness_hex, 16)  # convert to int
-    brightness_percent = (brightness / 1000) * 100
-
-    return round(brightness_percent)
 
 ### Control Devices Endpoints ###
 
 @views.route('/lampswitch/<ip>', methods=['POST'])
 def lampswitch(ip):
-    device:Device = get_device_by_ip(ip)    
+    device:Device = functions.get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
     d.set_version(3.3) 
     
@@ -634,17 +439,37 @@ def lampswitch(ip):
     response.headers['Content-Type'] = 'application/json'
     return response
 
+
+def lampswitch_int(ip,on):
+    device:Device = functions.get_device_by_ip(ip)    
+    d = tinytuya.BulbDevice(device.id,device.ip,device.key)
+    d.set_version(3.3) 
+
+    isOn = False
+    if on == True:
+        d.turn_on()
+        isOn = True
+    else:
+        d.turn_off()
+        isOn = False
+    print(jsonify(isOn))
+
+    response = make_response("Success", 200)
+    response.headers['Content-Type'] = 'application/json'
+    return response
+
+
 # /lampbright/<ip> - Toggles brightness between 25 , 100 , 255
 @views.route('/lampbright/<ip>', methods=['GET','POST'])
 def lampbright(ip):
-    device:Device = get_device_by_ip(ip)    
+    device:Device = functions.get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
     d.set_version(3.3)  
     
     data = d.status()
     d.turn_on()
     if data['dps']['21'] == 'colour':
-        brightness = get_brightness_from_hex(data["dps"]["24"])
+        brightness = functions.get_brightness_from_hex(data["dps"]["24"])
         if brightness > 67:
             d.set_brightness_percentage(25)
         elif brightness < 67 and brightness > 26:
@@ -669,7 +494,7 @@ def setlampbright(data):
     ip = data['ip']
     brightness = data['brightness']
 
-    device:Device = get_device_by_ip(ip)    
+    device:Device = functions.get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
     d.set_version(3.3)  
     
@@ -693,7 +518,7 @@ def setlampbright_int(ip,brightness):
     # ip = data['ip']
     # brightness = data['brightness']
 
-    device:Device = get_device_by_ip(ip)    
+    device:Device = functions.get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
     d.set_version(3.3)  
     
@@ -720,7 +545,7 @@ def setcolour():
     ip = data['ip']
     colour = data['colour']
 
-    device:Device = get_device_by_ip(ip)
+    device:Device = functions.get_device_by_ip(ip)
     
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
     d.set_version(3.3)      
@@ -728,22 +553,45 @@ def setcolour():
     d.turn_on()
 
     colour = colour[1:]
-    c = hex_to_rgb(colour)
-    if (colour == 'ffffff'):
+    c = functions.hex_to_rgb(colour)
+    if (colour.lower() == 'ffffff'):
         d.set_white(1000,10)
     else:
-        c = hex_to_rgb(colour)
+        c = functions.hex_to_rgb(colour)
         d.set_colour(c[0],c[1],c[2])
 
     return "Success"
 
-def hex_to_rgb(hex):
-  return tuple(int(hex[i:i+2], 16) for i in (0, 2, 4))
+# /lampbright/{ip,colour(hex)} - Sets colour of the light
+def setcolour_int(ip,colour):
+    # data = request.get_json()
+    # ip = data['ip']
+    # colour = data['colour']
+
+    device:Device = functions.get_device_by_ip(ip)
+    
+    d = tinytuya.BulbDevice(device.id,device.ip,device.key)
+    d.set_version(3.3)      
+    data = d.status()
+    d.turn_on()
+
+    colour = colour[1:]
+    c = functions.hex_to_rgb(colour)
+    if (colour.lower() == 'ffffff'):
+        d.set_white(1000,10)
+    else:
+        c = functions.hex_to_rgb(colour)
+        d.set_colour(c[0],c[1],c[2])
+
+    return "Success"
+
+# def hex_to_rgb(hex):
+#   return tuple(int(hex[i:i+2], 16) for i in (0, 2, 4))
 
 @views.route('/lightsoff', methods=['GET','POST'])
 def lightsoff():
     #Light
-    deviceList= get_all_devices()
+    deviceList= functions.get_all_devices()
     for d in deviceList:
         if (d.type == "light"):
             b = tinytuya.BulbDevice(d.id, d.ip, d.key)
@@ -753,7 +601,7 @@ def lightsoff():
 @views.route('/lightson', methods=['GET','POST'])
 def lightson():
     #Light
-    deviceList= get_all_devices()
+    deviceList= functions.get_all_devices()
     for d in deviceList:
         if (d.type == "light"):
             b = tinytuya.BulbDevice(d.id, d.ip, d.key)
@@ -927,32 +775,61 @@ CLIENT_SECRETS_FILE = "google.json"
 
 @views.route('/authorize' , methods=['GET','POST'])
 def authorize():
+    device_id = request.args.get('device_id')
+    device_name = request.args.get('device_name')
+
+    state_data = {
+        "device_id": device_id,
+        "device_name": device_name
+    }
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILE,
         scopes=SCOPES,
         redirect_uri=url_for('views.oauth2callback', _external=True))
-    auth_url, state = flow.authorization_url(access_type='offline', include_granted_scopes='true')
-    session['state'] = state
+    
+    #auth_url, state = flow.authorization_url(access_type='offline', include_granted_scopes='true')
+
+    # Encode the state payload
+    encoded_state = quote(json.dumps(state_data))
+    auth_url, _ = flow.authorization_url(
+        access_type='offline',
+        include_granted_scopes='true',
+        state=encoded_state
+    )
+    session['state'] = encoded_state
     return redirect(auth_url)
 
 @views.route('google/callback', methods=['GET','POST'])
 def oauth2callback():
-    state = session['state']
+    # Decode the device info from state
+    encoded_state = request.args.get('state')
+    state_data = json.loads(unquote(encoded_state))
+
+    device_id = state_data.get("device_id")
+    device_name = state_data.get("device_name")
+
+    # Rebuild the flow with the same state
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILE,
         scopes=SCOPES,
-        state=state,
-        redirect_uri=url_for('views.oauth2callback', _external=True))
+        state=encoded_state,
+        redirect_uri=url_for('views.oauth2callback', _external=True)
+    )
+
     flow.fetch_token(authorization_response=request.url)
 
     credentials = flow.credentials
+
+    # Save the credentials and device info in the session or database
     session['credentials'] = {
         'token': credentials.token,
         'refresh_token': credentials.refresh_token,
         'token_uri': credentials.token_uri,
         'client_id': credentials.client_id,
         'client_secret': credentials.client_secret,
-        'scopes': credentials.scopes
+        'scopes': credentials.scopes,
+        'device_id': device_id,
+        'device_name': device_name
     }
     return redirect('/calendar')
 
