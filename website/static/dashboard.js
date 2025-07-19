@@ -26,32 +26,21 @@
 
             
             const toggle = document.getElementById('darkModeToggle');
-            document.body.classList.toggle('dark-mode', toggle.checked);
-            // const toggle = document.querySelector('.switch__input');
-            const body = document.body;
+            //const body = document.body;
 
-            // Set dark mode as default
-            toggle.checked = true;
-            body.classList.add('dark-mode');
+            const savedMode = localStorage.getItem('darkMode');
+            const isDarkMode = savedMode === null ? true : savedMode === 'true'
+
+            // Set dark mode as default            
+            toggle.checked = isDarkMode;
+            document.body.classList.toggle('dark-mode', toggle.checked);
+            //body.classList.add('dark-mode');
 
             toggle.addEventListener('change', function () {
                 const isDark = this.checked;
+                localStorage.setItem('darkMode', isDark);
                 document.body.classList.toggle('dark-mode', isDark);
-
-                // // Target cards and navbars
-                // document.querySelectorAll('.card').forEach(card => {
-                //     card.classList.toggle('bg-dark', isDark);
-                //     card.classList.toggle('text-light', isDark);
-                //     card.classList.toggle('bg-light', !isDark);
-                //     card.classList.toggle('text-dark', !isDark);
-                // });
-
-                // document.querySelectorAll('#sidebar').forEach(nav => {
-                //     nav.classList.toggle('bg-dark', isDark);
-                //     nav.classList.toggle('text-light', isDark);
-                //     nav.classList.toggle('bg-light', !isDark);
-                //     nav.classList.toggle('text-dark', !isDark);
-                // });
+                
             });
         });
 
