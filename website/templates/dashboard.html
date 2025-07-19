@@ -47,7 +47,7 @@
             </div>
 
             <!-- Spotify controls -->
-            <div class="grid-stack-item" gs-w="3" gs-h="3" gs-id="spotify-card">
+            <div class="grid-stack-item" gs-w="3" gs-h="4" gs-id="spotify-card">
                 <div class="card spotify-card grid-stack-item-content" >
                     <h5 class="card-title">🎵 Now Playing</h5>
                     <div id="spotify-art-container" class="mb-2 text-center">
@@ -70,12 +70,11 @@
             </div>
 
             <!-- Google Calendar -->
-            <div class="grid-stack-item" gs-w="3" gs-h="3" gs-id="calendar-card">
+            <div class="grid-stack-item" gs-w="2" gs-h="3" gs-id="calendar-card">
                 <div class="card bg-dark text-light grid-stack-item-content">
                     {% if not session.get('credentials') %}
                     <a href="{{ url_for('views.authorize') }}" class="btn btn-primary">Connect Google Calendar</a>
                     {% else %}
-
 
 
                     <div class="card-header">📅 Upcoming Events</div>
@@ -101,22 +100,25 @@
             </div>
 
             <!-- General Controls -->
-            <div class="grid-stack-item" gs-w="2" gs-h="2" gs-id="general-controls-card">
+            <div class="grid-stack-item" gs-w="1" gs-h="2" gs-id="general-controls-card">
                 <div class="card bg-dark text-light grid-stack-item-content">
                     <div class="card-body text-center">
                         <h5 class="card-title"><i class="fas fa-bolt mr-2"></i> Device Quick Controls</h5>
-                        <button class="btn btn-custom w-100 mb-2" onclick="toggleAllLights()"><i
-                                class="fas fa-lightbulb"></i> Toggle Lights</button>
-                        <button class="btn btn-panel w-100 mb-2" onclick="playPause()"><i
-                                class="fas fa-play-circle"></i> Play/Pause</button>
-                        <button class="btn btn-danger w-100" onclick="turnOffAll()"><i class="fas fa-power-off"></i>
-                            Turn Off All</button>
+                        <button class="btn btn-success w-100 mb-2" onclick="toggleAllLights()">
+                            <i class="fas fa-lightbulb"></i> > <i class="fas fa-power-off"></i> 
+                        </button>
+                        <button class="btn btn-panel w-100 mb-2" onclick="playPause()">
+                            <i class="fas fa-play-circle"></i>
+                        </button>
+                        <button class="btn btn-danger w-100" onclick="turnOffAll()">
+                            <i class="fas fa-lightbulb"></i> > <i class="fas fa-power-off"></i>
+                        </button>
                     </div>
                 </div>
             </div>
 
             <!-- Website Controls -->
-            <div class="grid-stack-item" gs-w="2" gs-h="2" gs-id="website-controls-card">
+            <div class="grid-stack-item" gs-w="1" gs-h="2" gs-id="website-controls-card">
                 <div class="card bg-dark text-light mb-2 grid-stack-item-content">
                     <div class="card-body text-center">
                         <h5 class="card-title"><i class="fas fa-cogs"></i> Website Controls</h5>
@@ -134,23 +136,39 @@
             <div class="grid-stack-item" gs-w="4" gs-h="2" gs-id="clock-card">
                 <div class="card bg-secondary text-light text-center grid-stack-item-content">
                     <div id="flip-clock" class="d-flex justify-content-center"></div>
-                    <div class="timezone mt-1">
-                        EST: <span id="est-time">--:--</span><br>
-                        GMT: <span id="gmt-time">--:--</span>
-                    </div>
+                        <div class="text-center bg-dark text-white shadow-sm mb-3">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <h5 class="">🌍 GMT</h5>
+                                    <p class="" id="gmt-time">--:--</p>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h5 class="">🌍 EST</h5>
+                                    <p class="" id="est-time">--:--</p>
+                                </div>
+                            </div>
+                        </div>
                 </div>
             </div>
 
             <!-- Voice Command -->
-            <div class="grid-stack-item" gs-w="4" gs-h="2" gs-id="voice-card">
+            <div class="grid-stack-item" gs-w="2" gs-h="2" gs-id="voice-card">
                 <div class="card bg-secondary text-light text-center grid-stack-item-content">
                     <h1 class="mb-4">🎙️ Voice Assistant</h1>                        
                     <!-- Microphone button (not a form) -->
-                    <button id="micBtn" class="btn btn-lg btn-primary rounded-circle shadow" style="width: 80px; height: 80px;">
+                    <button id="micBtn" class="btn btn-lg btn-primary text-center rounded-circle shadow" style="width: 80px; height: 80px;">
                         <i class="bi bi-mic-fill fs-2"></i>
                     </button>
                     <!-- Response output box -->
                     <div id="response" class="alert alert-info mt-4 p-3 w-75 mx-auto shadow-sm" style="white-space: pre-wrap;"></div>
+                </div>
+            </div>
+
+            <!-- Google Maps -->
+            <div class="grid-stack-item" gs-w="4" gs-h="4" gs-id="maps-card">
+                <div class="card bg-secondary text-light text-center grid-stack-item-content">
+                    <h1 class="mb-4"> Maps</h1>                        
+
                 </div>
             </div>
 
@@ -182,22 +200,7 @@
                         <h5 class="card-title"><i class="fas fa-clapperboard"></i> Scenes</h5>
 
                         {% for scene in scenes %}
-                        <!-- <ul class="list-group list-group-flush mb-3">
-                            {% for step in scene.steps %}
-                            <li class="list-group-item">
-                                {{ loop.index }}. {{ step.device_name }} - {{ step.action }}
-                                {% if step.action == 'brightness' %}
-                                - {{ step.option }}%
-                                {% elif step.action == 'colour' %}
-                                - <span style=" padding: 2px 10px; border-radius: 4px;">{{ step.option }}</span> <!--background-color: {{ step.option }};-->
-                            <!-- {% elif step.action == 'state' %}
-                                - {{ 'On' if step.option == 'true' else 'Off' }}
-                                {% endif %}
-                            </li>
-                            {% endfor %}
-                        </ul> -->
-
-                        <button class="btn btn-primary w-100 mb-2" onclick="runScene('{{ scene.name }}')">▶ Run {{ scene.name }}</button>
+                            <button class="btn btn-primary w-100 mb-2" onclick="runScene('{{ scene.name }}')">▶ Run {{ scene.name }}</button>
                         {% endfor %}
                     </div>
                 </div>

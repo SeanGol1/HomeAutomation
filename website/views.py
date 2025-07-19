@@ -5,7 +5,7 @@ from urllib.parse import quote, unquote
 from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect,url_for, session
 from . import fireStickController
 import json , time , tinytuya , cv2, numpy as np , requests , speedtest, psutil , spotipy, subprocess, os, platform
-from .spotify_api import sp_oauth, get_current_track
+from .spotify_api import sp_oauth, get_current_track, send_control
 from spotipy.oauth2 import SpotifyOAuth
 from ppadb.client import Client as AdbClient #pip install pure-python-adb
 from datetime import datetime
@@ -145,7 +145,6 @@ def dashboard():
 
     return render_template("dashboard.html", deviceList=functions.get_all_device_objs(), weather=weather_data, scenes=functions.get_all_scenes())
 
-
 @views.route('/system_status')
 def system_status():
     # CPU and RAM usage
@@ -169,7 +168,7 @@ def system_status():
 
 @views.route('/get_device_status')
 def get_device_status():
-    deviceList = get_all_device_objs()
+    deviceList = functions.get_all_device_objs()
     devices = []
     for d in deviceList:
         devices.append({
@@ -779,12 +778,21 @@ def spotify_callback():
     # Store token or use immediately to make an API call
     return "Spotify authorized successfully!"
 
-@views.route('spotify/spotify_status', methods=['GET','POST'])
+@views.route('/spotify/spotify_status', methods=['GET','POST'])
 def spotify_status():
     track = get_current_track()
     if track:
         return jsonify(track)
     return jsonify({"error": "No track playing or not authenticated."})
+
+@views.route('/spotify/<action>', methods=['GET','POST'])
+def spotify_control(action):
+    result = send_control(action)
+
+    if(result == "Success"):
+        return jsonify({'status': f'Spotify {action} command sent'}), 200
+    else:
+        return "Error", 500
 
 # Google
 

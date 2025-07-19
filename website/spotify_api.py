@@ -23,3 +23,31 @@ def get_current_track():
     if sp:
         return sp.current_playback()
     return None
+
+def send_control(action):
+    sp = get_spotify_client()
+    if not sp:
+        return "Error"
+
+    try:
+        current = sp.current_playback()
+
+        if action == 'playpause':
+            if current and current['is_playing']:
+                sp.pause_playback()
+            else:   #if current and not current['is_playing']:
+                sp.start_playback()
+
+        elif action == 'pause':
+            sp.pause_playback()
+        elif action == 'next':
+            sp.next_track()
+        elif action == 'previous':
+            sp.previous_track()
+        else:
+            return "Error"
+
+        return "Success"
+    
+    except Exception as e:
+        return "Error"
