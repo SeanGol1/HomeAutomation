@@ -1,7 +1,7 @@
 {% extends "dashboardBase.html" %} {% block title %}dashboard{% endblock %} {% block content
 %}
 
-        <div class="text-end mb-2">
+        <!-- <div class="text-end mb-2">
             <button id="editLayoutBtn" class="btn btn-warning m-2">Edit Layout</button>
             <button class="btn btn-success" onclick="saveLayout()">
                 <i class="fas fa-save"></i> Save Layout
@@ -9,12 +9,12 @@
             <button class="btn btn-danger" onclick="resetLayout()">
                 <i class="fas fa-undo"></i> Reset Layout
             </button>
-        </div>
+        </div> -->
 
         <div class="grid-stack">
             <!-- Weather -->
             <div class="grid-stack-item" gs-w="4" gs-h="2" gs-id="weather-card">
-                <div class="card bg-dark text-light grid-stack-item-content">
+                <div class="card grid-stack-item-content">
                     <div class="card-header">Weather</div>
                     <div class="card-body d-flex">
                         {% if weather and weather.current %}
@@ -49,7 +49,7 @@
             <!-- Spotify controls -->
             <div class="grid-stack-item" gs-w="3" gs-h="4" gs-id="spotify-card">
                 <div class="card spotify-card grid-stack-item-content" >
-                    <h5 class="card-title">🎵 Now Playing</h5>
+                    <div class="card-header">🎵 Now Playing</div>                    
                     <div id="spotify-art-container" class="mb-2 text-center">
                         <img id="spotify-art-img" src="/static/default_album.jpg" alt="Album Art">
                         <div id="spotify-controls">
@@ -71,9 +71,9 @@
 
             <!-- Google Calendar -->
             <div class="grid-stack-item" gs-w="2" gs-h="3" gs-id="calendar-card">
-                <div class="card bg-dark text-light grid-stack-item-content">
+                <div class="card grid-stack-item-content">
                     {% if not session.get('credentials') %}
-                    <a href="{{ url_for('views.authorize') }}" class="btn btn-primary">Connect Google Calendar</a>
+                    <a href="{{ url_for('views.authorize') }}" class="btn btn-primary mb-2">Connect Google Calendar</a>
                     {% else %}
 
 
@@ -100,81 +100,88 @@
             </div>
 
             <!-- General Controls -->
-            <div class="grid-stack-item" gs-w="1" gs-h="2" gs-id="general-controls-card">
-                <div class="card bg-dark text-light grid-stack-item-content">
-                    <div class="card-body text-center">
-                        <h5 class="card-title"><i class="fas fa-bolt mr-2"></i> Device Quick Controls</h5>
-                        <button class="btn btn-success w-100 mb-2" onclick="toggleAllLights()">
-                            <i class="fas fa-lightbulb"></i> > <i class="fas fa-power-off"></i> 
-                        </button>
-                        <button class="btn btn-panel w-100 mb-2" onclick="playPause()">
-                            <i class="fas fa-play-circle"></i>
-                        </button>
-                        <button class="btn btn-danger w-100" onclick="turnOffAll()">
-                            <i class="fas fa-lightbulb"></i> > <i class="fas fa-power-off"></i>
-                        </button>
+            <div class="grid-stack-item" gs-w="2" gs-h="3" gs-id="general-controls-card">
+                <div class="card grid-stack-item-content">
+                    <div class=" text-center">
+                        <div class="card-header"><i class="fas fa-bolt mr-2"></i> Devices </div>
+                        <div class="card-body">
+                            <button class="btn btn-success w-100 mb-2" onclick="toggleAllLights()">
+                                <i class="fas fa-lightbulb"></i> > <i class="fas fa-power-off"></i> 
+                            </button>
+                            <button class="btn btn-panel w-100 mb-2" onclick="playPause()">
+                                <i class="fas fa-play-circle"></i>
+                            </button>
+                            <button class="btn btn-danger w-100" onclick="turnOffAll()">
+                                <i class="fas fa-lightbulb"></i> > <i class="fas fa-power-off"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Website Controls -->
-            <div class="grid-stack-item" gs-w="1" gs-h="2" gs-id="website-controls-card">
-                <div class="card bg-dark text-light mb-2 grid-stack-item-content">
-                    <div class="card-body text-center">
-                        <h5 class="card-title"><i class="fas fa-cogs"></i> Website Controls</h5>
+            <div class="grid-stack-item" gs-w="2" gs-h="3" gs-id="website-controls-card">
+                <div class="card grid-stack-item-content">
+                    <div class="text-center">
+                        <div class="card-header"><i class="fas fa-cogs"></i> Website Controls</div>
+                        <div class="card-body">
                         <button class="btn btn-primary w-100 mb-2" onclick="window.location.href='/'"><i
                                 class="fas fa-home"></i> Home </button>
                         <button class="btn btn-secondary w-100 mb-2" onclick="window.location.href='/devices'"><i
                                 class="fas fa-lightbulb"></i> Devices </button>
                         <button class="btn btn-success w-100" onclick="location.reload()"><i
                                 class="fas fa-sync-alt"></i> Refresh </button>
+                                </div>
                     </div>
                 </div>
             </div>
 
             <!-- Clock -->
             <div class="grid-stack-item" gs-w="4" gs-h="2" gs-id="clock-card">
-                <div class="card bg-secondary text-light text-center grid-stack-item-content">
+                <div class="card text-center grid-stack-item-content">
                     <div id="flip-clock" class="d-flex justify-content-center"></div>
-                        <div class="text-center bg-dark text-white shadow-sm mb-3">
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <h5 class="">🌍 GMT</h5>
-                                    <p class="" id="gmt-time">--:--</p>
-                                </div>
-                                <div class="col-sm-6">
-                                    <h5 class="">🌍 EST</h5>
-                                    <p class="" id="est-time">--:--</p>
-                                </div>
+                    <div class="text-center shadow-sm mb-3">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <h5 class="">🌍 GMT</h5>
+                                <p class="" id="gmt-time">--:--</p>
+                            </div>
+                            <div class="col-sm-6">
+                                <h5 class="">🌍 EST</h5>
+                                <p class="" id="est-time">--:--</p>
                             </div>
                         </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Voice Command -->
             <div class="grid-stack-item" gs-w="2" gs-h="2" gs-id="voice-card">
-                <div class="card bg-secondary text-light text-center grid-stack-item-content">
-                    <h1 class="mb-4">🎙️ Voice Assistant</h1>                        
+                <div class="card text-center grid-stack-item-content">
+                    <div class="card-header mb-4">🎙️ Voice Assistant</div> 
+                    <div class="card-body">                      
                     <!-- Microphone button (not a form) -->
                     <button id="micBtn" class="btn btn-lg btn-primary text-center rounded-circle shadow" style="width: 80px; height: 80px;">
                         <i class="bi bi-mic-fill fs-2"></i>
                     </button>
                     <!-- Response output box -->
                     <div id="response" class="alert alert-info mt-4 p-3 w-75 mx-auto shadow-sm" style="white-space: pre-wrap;"></div>
+                </div> 
                 </div>
             </div>
 
             <!-- Google Maps -->
             <div class="grid-stack-item" gs-w="4" gs-h="4" gs-id="maps-card">
-                <div class="card bg-secondary text-light text-center grid-stack-item-content">
-                    <h1 class="mb-4"> Maps</h1>                        
+                <div class="card text-center grid-stack-item-content">
+                    <div class="card-header"> Maps</div>
+                    <div class="card-body"></div>                       
 
                 </div>
             </div>
 
             <!-- System Details -->
             <div class="grid-stack-item" gs-w="3" gs-h="2" gs-id="system-card">
-                <div class="card bg-dark text-light grid-stack-item-content" id="system-status-card">
+                <div class="card grid-stack-item-content" id="system-status-card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span><i class="fa fa-cogs"></i> System Status</span>
                         <small id="battery-status">Battery: --%</small>
@@ -192,16 +199,16 @@
                 </div>
             </div>
 
-            <!-- Website Controls -->
-            
+            <!-- Scenes -->
             <div class="grid-stack-item" gs-w="2" gs-h="2" gs-id="scenes-card">
-                <div class="card bg-dark text-light mb-2 grid-stack-item-content">
-                    <div class="card-body text-center">
-                        <h5 class="card-title"><i class="fas fa-clapperboard"></i> Scenes</h5>
-
-                        {% for scene in scenes %}
+                <div class="card grid-stack-item-content">
+                    <div class=" text-center">
+                        <div class="card-header"><i class="fas fa-clapperboard"></i> Scenes</div>
+                        <div class="card-body">
+                        {% for scene in scenes %}                        
                             <button class="btn btn-primary w-100 mb-2" onclick="runScene('{{ scene.name }}')">▶ Run {{ scene.name }}</button>
                         {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -211,7 +218,7 @@
             <!-- Device Cards -->
             {% for d in deviceList %}
             <div class="grid-stack-item" gs-w="2" gs-h="2" gs-id="{{d.ip}}-card">
-                <div class="card bg-dark text-white shadow grid-stack-item-content">
+                <div class="card shadow grid-stack-item-content">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span>
                             {% if d.type == 'light' %}
@@ -269,5 +276,17 @@
                 </div>
             </div>
             {% endfor %}
+        </div>
+
+
+
+                <div class="text-end mb-2">
+            <button id="editLayoutBtn" class="btn btn-warning m-2">Edit Layout</button>
+            <button class="btn btn-success" onclick="saveLayout()">
+                <i class="fas fa-save"></i> Save Layout
+            </button>
+            <button class="btn btn-danger" onclick="resetLayout()">
+                <i class="fas fa-undo"></i> Reset Layout
+            </button>
         </div>
    {% endblock %}

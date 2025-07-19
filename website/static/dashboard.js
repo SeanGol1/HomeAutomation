@@ -24,10 +24,34 @@
                 showSeconds: true
             });
 
+            
             const toggle = document.getElementById('darkModeToggle');
+            document.body.classList.toggle('dark-mode', toggle.checked);
+            // const toggle = document.querySelector('.switch__input');
+            const body = document.body;
+
+            // Set dark mode as default
+            toggle.checked = true;
+            body.classList.add('dark-mode');
 
             toggle.addEventListener('change', function () {
-            document.body.classList.toggle('dark-mode', this.checked);
+                const isDark = this.checked;
+                document.body.classList.toggle('dark-mode', isDark);
+
+                // // Target cards and navbars
+                // document.querySelectorAll('.card').forEach(card => {
+                //     card.classList.toggle('bg-dark', isDark);
+                //     card.classList.toggle('text-light', isDark);
+                //     card.classList.toggle('bg-light', !isDark);
+                //     card.classList.toggle('text-dark', !isDark);
+                // });
+
+                // document.querySelectorAll('#sidebar').forEach(nav => {
+                //     nav.classList.toggle('bg-dark', isDark);
+                //     nav.classList.toggle('text-light', isDark);
+                //     nav.classList.toggle('bg-light', !isDark);
+                //     nav.classList.toggle('text-dark', !isDark);
+                // });
             });
         });
 
@@ -324,3 +348,5 @@
             console.error(err);
         });
     }
+
+

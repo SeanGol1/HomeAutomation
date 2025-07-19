@@ -220,22 +220,22 @@
         });
     });
 
-    function renderSteps() {
-        const container = document.getElementById("stepsContainer");
-        container.innerHTML = ''; // Clear previous
+    // function renderSteps() {
+    //     const container = document.getElementById("stepsContainer");
+    //     container.innerHTML = ''; // Clear previous
 
-        steps.forEach((step, index) => {
-            const stepElement = document.createElement("div");
-            stepElement.className = "card mb-2 p-2 bg-dark text-light";
-            stepElement.innerHTML = `
-            <strong>Step ${index + 1}</strong><br>
-            <span>Device: ${step.device}</span><br>
-            <span>Action: ${step.action}</span><br>
-            <span>Option: ${step.option}</span>
-        `;
-            container.appendChild(stepElement);
-        });
-    }
+    //     steps.forEach((step, index) => {
+    //         const stepElement = document.createElement("div");
+    //         stepElement.className = "card mb-2 p-2 bg-dark text-light";
+    //         stepElement.innerHTML = `
+    //         <strong>Step ${index + 1}</strong><br>
+    //         <span>Device: ${step.device}</span><br>
+    //         <span>Action: ${step.action}</span><br>
+    //         <span>Option: ${step.option}</span>
+    //     `;
+    //         container.appendChild(stepElement);
+    //     });
+    // }
 
     function openTab(evt, type) {
   var i, tabcontent, tablinks;
