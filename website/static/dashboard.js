@@ -360,17 +360,3 @@
     // });
 
 
-     function runScene(sceneName) {
-    fetch(`/run_scene/${encodeURIComponent(sceneName)}`, {
-      method: 'POST'
-    })
-    .then(res => res.json())
-    .then(data => {
-      alert(`Scene "${sceneName}" has been run.\nResult: ${data.status || 'Check console for more info'}`);
-      console.log(data);
-    })
-    .catch(err => {
-      alert(`Failed to run scene "${sceneName}".`);
-      console.error(err);
-    });
-  }

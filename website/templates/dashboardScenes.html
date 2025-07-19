@@ -33,49 +33,6 @@
                         <input type="text" class="form-control" id="sceneName" name="sceneName" required>
                     </div>
 
-                    <!-- <div>
-                        <h4>Add Steps to the Scene</h4>
-                        <label for="devices">Select Device</label>
-                        <div class="dropdown mb-2">
-                            <select name="devices" id="ddlDevice" onchange="deviceChanged()" required>
-                                <option value="">-- Choose a Device --</option>
-                                {% for device in deviceList %}
-                                <option value="{{ device.ip }}">{{ device.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <label for="actions">Select Action</label>
-                        <div class="dropdown mb-2">
-                            <select name="actions" id="ddlAction" onchange="actionChanged()" required>
-                                <div id="lightActions">
-                                    <option value="">-- Choose an Action --</option>
-                                    <option value="state">Turn On/Off</option>
-                                    <option value="brightness">Set Brightness</option>
-                                    <option value="colour">Set Colour</option>
-                                </div>
-                            </select>
-                        </div>
-                        <label for="actions">Select Option</label>
-                        <div class="dropdown mb-2">
-                            <select name="options" id="ddlOption">
-                                <div id="lightActionsOnoff">
-                                    <option value="true">Turn On</option>
-                                    <option value="false">Turn Off</option>
-                                </div>
-                                <div>
-                                    <input type="range" min="0" max="100" value="50" id="lightActionsBright" class=" "
-                                        id="brightnessSlider">
-                                </div>
-                                <div>
-                                    <input type="color" class="lightcolour" width="100px" height="100px"
-                                        id="lightActionsColour" title="Select Colour" value="#ffffff">
-                                </div>
-                            </select>
-                        </div>
-                        <button id="btnStep" onclick="addStep()">Add Step</button>
-                    </div> -->
-
                     <div class="card p-4 shadow mb-4">
                         <h4 class="mb-3">Add Steps to the Scene</h4>
 
@@ -179,6 +136,7 @@
                             {% endfor %}
                         </ol>
                         <button onclick="runScene('{{scene.name}}')" class="btn btn-success">▶️ Run Scene</button>
+                        <button onclick="deleteScene('{{scene.name}}')" class="btn btn-danger"><i class="fas fa-trash"></i> Delete Scene</button>
                     </div>
                 </div>
                 {% else %}
@@ -199,15 +157,26 @@
         method: 'POST'
         })
         .then(res => res.json())
-        .then(data => console.log("Scene executed:", data))
-        .catch(err => console.error("Error:", err));
+        .then(data => {
+            alert(`Scene "${sceneName}" has been run.\nResult: ${data.status}`);
+            console.log(data);
+        })
+        .catch(err => {
+            alert(`Failed to run scene "${sceneName}".`);
+            console.error(err);
+        });
     }
 
-    function deviceChanged() {
-        var value = document.getElementById("ddlDevice").value;
-        //I want to store the full device object.
-        //selectedDevice = allDevices.find(device => device.ip === selectedIp);
-        document.getElementById('lightActions').style = "visibility: visible";
+    function deleteScene(sceneName) {
+        fetch(`/deleteScene/${encodeURIComponent(sceneName)}`, {
+        method: 'POST'
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log("Scene deleted!", data)
+            alert("Scene deleted!")
+        })
+        .catch(err => console.error("Error:", err));
     }
 
     function actionChanged() {
@@ -216,27 +185,6 @@
         $('#brightnessContainer').toggle(action === 'brightness');
         $('#colourContainer').toggle(action === 'colour');
     }
-
-
-    // function actionChanged() {
-    //     // var value = document.getElementById("ddlAction").value;
-    //     // if(value == "state"){
-    //     //     document.getElementById("lightActionsOnoff").style =  "visibility: visible";
-    //     //     document.getElementById("lightActionsBright").style =  "visibility: hidden";
-    //     //     document.getElementById("lightActionsColour").style =  "visibility: hidden";
-    //     // }
-    //     // else if(value == "brightness"){
-    //     //     document.getElementById("lightActionsOnoff").style =  "visibility: hidden";
-    //     //     document.getElementById("lightActionsBright").style =  "visibility: visible";
-    //     //     document.getElementById("lightActionsColour").style =  "visibility: hidden";
-    //     // }
-    //     // else if(value == "colour"){
-    //     //     document.getElementById("lightActionsOnoff").style =  "visibility: hidden";
-    //     //     document.getElementById("lightActionsBright").style =  "visibility: hidden";
-    //     //     document.getElementById("lightActionsColour").style =  "visibility: visible";
-    //     // }
-
-    // }
 
     let steps = [];
     $(document).ready(function () {

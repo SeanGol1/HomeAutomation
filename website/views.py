@@ -251,6 +251,24 @@ def add_scene():
         print(f"Error saving scene: {e}")
         return jsonify({ "status": "error", "message": str(e) }), 500
 
+@views.route('/deleteScene/<scene_name>', methods=['POST'])
+def delete_scene(scene_name):
+    if not os.path.exists('scenes.json'):
+        return False, "Scene file not found."
+
+    with open('scenes.json', 'r') as f:
+        scenes = json.load(f)
+
+    if scene_name not in scenes:
+        return False, "Scene not found."
+
+    del scenes[scene_name]
+
+    with open('scenes.json', 'w') as f:
+        json.dump(scenes, f, indent=2)
+
+    return jsonify({ "status": "success", "scene": scene_name }), 200
+
 @views.route('/scenes', methods=['GET', 'POST'])
 def create_scene():
     # with open('config.json') as f:
