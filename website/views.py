@@ -23,6 +23,8 @@ with open("config.json", "r") as jsonfile:
     configdata = json.load(jsonfile)
 
 views.secret_key = configdata["secretkey"] 
+# views.config['SESSION_COOKIE_SECURE'] = False  # For local dev only
+# views.config['SESSION_COOKIE_SAMESITE'] = "Lax"
 
 class Device:
   def __init__(self, name, ip, type,make,id,key):
@@ -876,50 +878,47 @@ def spotify_control(action):
 
 # Google
 
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+SCOPES = ['https://www.googleapis.com/auth/calendar']
 CLIENT_SECRETS_FILE = "google.json"
 
 @views.route('/authorize' , methods=['GET','POST'])
 def authorize():
-    device_id = request.args.get('device_id')
-    device_name = request.args.get('device_name')
+    # redirect_uri = url_for('views.oauth2callback', _external=True)
+    redirect_uri = 'https://415d19f830e7.ngrok-free.app/google/callback'
+    print("🚀 Redirect URI being used:", redirect_uri)
 
-    state_data = {
-        "device_id": device_id,
-        "device_name": device_name
-    }
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILE,
         scopes=SCOPES,
-        redirect_uri=url_for('views.oauth2callback', _external=True))
+        redirect_uri=redirect_uri)
     
-    #auth_url, state = flow.authorization_url(access_type='offline', include_granted_scopes='true')
+    # auth_url, state = flow.authorization_url(access_type='offline', include_granted_scopes='true')
 
-    # Encode the state payload
-    encoded_state = quote(json.dumps(state_data))
-    auth_url, _ = flow.authorization_url(
-        access_type='offline',
-        include_granted_scopes='true',
-        state=encoded_state
-    )
-    session['state'] = encoded_state
+    auth_url, state = flow.authorization_url() 
+    #        access_type='offline',
+        #include_granted_scopes='true'
+
+    session['state'] = state
+    
+
     return redirect(auth_url)
 
 @views.route('google/callback', methods=['GET','POST'])
 def oauth2callback():
-    # Decode the device info from state
-    encoded_state = request.args.get('state')
-    state_data = json.loads(unquote(encoded_state))
+    redirect_uri = 'https://415d19f830e7.ngrok-free.app/google/callback'
 
-    device_id = state_data.get("device_id")
-    device_name = state_data.get("device_name")
+    # state = session['state']
+    # if not state: 
+    #     return "Error"
 
+    # print( 'State: ' + state)   
+    
     # Rebuild the flow with the same state
     flow = Flow.from_client_secrets_file(
         CLIENT_SECRETS_FILE,
         scopes=SCOPES,
-        state=encoded_state,
-        redirect_uri=url_for('views.oauth2callback', _external=True)
+        # state=state,
+        redirect_uri=redirect_uri
     )
 
     flow.fetch_token(authorization_response=request.url)
@@ -933,9 +932,7 @@ def oauth2callback():
         'token_uri': credentials.token_uri,
         'client_id': credentials.client_id,
         'client_secret': credentials.client_secret,
-        'scopes': credentials.scopes,
-        'device_id': device_id,
-        'device_name': device_name
+        'scopes': credentials.scopes
     }
     return redirect('/calendar')
 
