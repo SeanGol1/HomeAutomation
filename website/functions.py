@@ -116,11 +116,26 @@ def get_all_device_objs():
                     device:views.Device = get_device_by_ip(device.ip) 
                     try:   
                         if(device.ip != "0.0.0.0"):  # for testing purposes
-                            print('Connecting to bulb %r ...' % device.ip)
-                            b = tinytuya.BulbDevice(device.id,device.ip,device.key)
+                            print('Connecting to bulb %r ...' % device.name)
+                            b = tinytuya.BulbDevice(device.id,'Auto',device.key)
+                            #b = tinytuya.BulbDevice(device.id,device.ip,device.key)
                             #b.connection_timeout(1000)
                             b.set_version(3.3) 
-                            data = b.status()                            
+                            data = b.status()       
+                            print(b.address)
+                            new_ip = b.address
+                            updated = False
+                            for dev in configdata["devices"]:
+                                if dev.get("id") == device.id and dev.get("ip") != new_ip:
+                                    print(f"Updating IP from {dev['ip']} to {new_ip}")
+                                    dev["ip"] = new_ip
+                                    updated = True
+                                    break
+                            
+                            if updated:
+                                with open("config.json", "w") as f:
+                                    json.dump(configdata, f, indent=4)
+                                                 
 
                             if(data['dps']['21'] == 'white'):
                                 currentcolour = '#ffffff'
@@ -278,6 +293,13 @@ def get_brightness_from_hex(code):
 def hex_to_rgb(hex):
   return tuple(int(hex[i:i+2], 16) for i in (0, 2, 4))
 
+def tinytuya_connect(ip):
+    device:views.Device = get_device_by_ip(ip)    
+    d = tinytuya.BulbDevice(device.id,'Auto',device.key)
+    d.set_version(3.3) 
+    
+    data = d.status()
+    return d,data
 
 
 def connect_to_firestick(ip):

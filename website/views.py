@@ -1,10 +1,9 @@
 #from distutils.command.config import config
-from multiprocessing.connection import wait
-from turtle import update
-from urllib.parse import quote, unquote
+#from multiprocessing.connection import wait
+# from turtle import update
 from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect,url_for, session
 from . import fireStickController
-import json , time , tinytuya , cv2, numpy as np , requests , speedtest, psutil , spotipy, subprocess, os, platform
+import json , time , tinytuya ,  numpy as np , requests , speedtest, psutil , spotipy, subprocess, os, platform #cv2,
 from .spotify_api import sp_oauth, get_current_track, send_control
 from spotipy.oauth2 import SpotifyOAuth
 from ppadb.client import Client as AdbClient #pip install pure-python-adb
@@ -519,11 +518,7 @@ def voice():
 
 @views.route('/lampswitch/<ip>', methods=['POST'])
 def lampswitch(ip):
-    device:Device = functions.get_device_by_ip(ip)    
-    d = tinytuya.BulbDevice(device.id,device.ip,device.key)
-    d.set_version(3.3) 
-    
-    data = d.status()
+    d,data = functions.tinytuya_connect(ip)
     isOn = False
     if data['dps']['20'] == False:
         d.turn_on()
@@ -541,7 +536,7 @@ def lampswitch(ip):
 
 def lampswitch_int(ip,on):
     device:Device = functions.get_device_by_ip(ip)    
-    d = tinytuya.BulbDevice(device.id,device.ip,device.key)
+    d = tinytuya.BulbDevice(device.id,'Auto',device.key)
     d.set_version(3.3) 
 
     isOn = False
@@ -562,7 +557,7 @@ def lampswitch_int(ip,on):
 @views.route('/lampbright/<ip>', methods=['GET','POST'])
 def lampbright(ip):
     device:Device = functions.get_device_by_ip(ip)    
-    d = tinytuya.BulbDevice(device.id,device.ip,device.key)
+    d = tinytuya.BulbDevice(device.id,'Auto',device.key)
     d.set_version(3.3)  
     
     data = d.status()
@@ -583,7 +578,7 @@ def lampbright(ip):
         else:
             d.set_brightness(255)
     data = d.status()
-    print(data)
+    #print(data)
     return "Success"
 
 # /lampbright/{ip,brightness} - sets brightness to to a percentage value. 
@@ -600,14 +595,14 @@ def setlampbright(data):
     data = d.status()    
     d.turn_on()
     
-    print(int(brightness))
+    #print(int(brightness))
     if(int(brightness) == 0):
         d.turn_off()
     else:
         d.set_brightness_percentage(int(brightness))
 
     data = d.status()
-    print(data)
+    #print(data)
     
     return "Success"
 
@@ -624,14 +619,14 @@ def setlampbright_int(ip,brightness):
     data = d.status()    
     d.turn_on()
     
-    print(int(brightness))
+    #print(int(brightness))
     if(int(brightness) == 0):
         d.turn_off()
     else:
         d.set_brightness_percentage(int(brightness))
 
     data = d.status()
-    print(data)
+    #print(data)
     
     return "Success"
 
@@ -663,10 +658,6 @@ def setcolour():
 
 # /lampbright/{ip,colour(hex)} - Sets colour of the light
 def setcolour_int(ip,colour):
-    # data = request.get_json()
-    # ip = data['ip']
-    # colour = data['colour']
-
     device:Device = functions.get_device_by_ip(ip)
     
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
@@ -683,9 +674,6 @@ def setcolour_int(ip,colour):
         d.set_colour(c[0],c[1],c[2])
 
     return "Success"
-
-# def hex_to_rgb(hex):
-#   return tuple(int(hex[i:i+2], 16) for i in (0, 2, 4))
 
 @views.route('/lightsoff', methods=['GET','POST'])
 def lightsoff():
@@ -725,7 +713,6 @@ def next_episode():
     mc.up()
     mc.right()
     mc.select()
-    
 
 @views.route('/recent_show', methods=['GET','POST'])
 def recent_show():
@@ -793,54 +780,53 @@ def wakeup():
     
     
 ### Change lights to match the colour that the camera picks up ###
+# @views.route('/moodlight', methods=['GET','POST'])
+# def moodlight():
+#     # taking the input from webcam
+#     vid = cv2.VideoCapture(0)
 
-@views.route('/moodlight', methods=['GET','POST'])
-def moodlight():
-    # taking the input from webcam
-    vid = cv2.VideoCapture(0)
-
-    d = tinytuya.BulbDevice(configdata['Light_ID_1'], configdata['Light_IP_1'], configdata['Light_KEY_1'])
-    d.set_version(3.1)  # IMPORTANT to set this regardless of version
-    d.set_socketPersistent(True)  # Optional: Keep socket open for multiple commands
+#     d = tinytuya.BulbDevice(configdata['Light_ID_1'], configdata['Light_IP_1'], configdata['Light_KEY_1'])
+#     d.set_version(3.1)  # IMPORTANT to set this regardless of version
+#     d.set_socketPersistent(True)  # Optional: Keep socket open for multiple commands
 
   
-    # running while loop just to make sure that
-    # our program keep running until we stop it
-    while True:
+#     # running while loop just to make sure that
+#     # our program keep running until we stop it
+#     while True:
         
 
-        # capturing the current frame
-        _, frame = vid.read()
+#         # capturing the current frame
+#         _, frame = vid.read()
 
-        # displaying the current frame
-        cv2.imshow("frame", frame)
+#         # displaying the current frame
+#         cv2.imshow("frame", frame)
 
-        # setting values for base colors
-        b = frame[:, :, :1]
-        g = frame[:, :, 1:2]
-        r = frame[:, :, 2:]
+#         # setting values for base colors
+#         b = frame[:, :, :1]
+#         g = frame[:, :, 1:2]
+#         r = frame[:, :, 2:]
 
-        # computing the mean
-        b_mean = np.mean(b)
-        g_mean = np.mean(g)
-        r_mean = np.mean(r)
+#         # computing the mean
+#         b_mean = np.mean(b)
+#         g_mean = np.mean(g)
+#         r_mean = np.mean(r)
 
-        #d.set_brightness(255)
+#         #d.set_brightness(255)
           
-        # # Set to RED Color - set_colour(r, g, b):
-        d.set_colour(r_mean,g_mean,b_mean)
-        #if(r>255):
-         #   r = 255
-        #if(g>255):
-        #   g = 255
-        #if(b>255):
-         #   b=255
+#         # # Set to RED Color - set_colour(r, g, b):
+#         d.set_colour(r_mean,g_mean,b_mean)
+#         #if(r>255):
+#          #   r = 255
+#         #if(g>255):
+#         #   g = 255
+#         #if(b>255):
+#          #   b=255
             
-        #d.set_colour(r,g,b)
-        data = d.status()
-        #print('r'+str(r),'g'+str(g), 'b'+ str(b))
-        print('R'+str(r_mean),'G'+str(g_mean),'B'+str(b_mean))
-        #print('set_status() result %r' % data)
+#         #d.set_colour(r,g,b)
+#         data = d.status()
+#         #print('r'+str(r),'g'+str(g), 'b'+ str(b))
+#         print('R'+str(r_mean),'G'+str(g_mean),'B'+str(b_mean))
+#         #print('set_status() result %r' % data)
 
 # Spotify
 @views.route('/spotify/login_spotify')
@@ -869,6 +855,7 @@ def spotify_status():
 
 @views.route('/spotify/<action>', methods=['GET','POST'])
 def spotify_control(action):
+    print(action)
     result = send_control(action)
 
     if(result == "Success"):

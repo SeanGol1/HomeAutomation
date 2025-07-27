@@ -39,10 +39,11 @@
                     <div class="col-sm-6 card">
                         <h4 class="card-header">Weather</h4>
                         <div class="card-body">
-                            <div class="mb-3">
+                            <div class="mb-3 input-wrapper">
                                 <label for="weather_api_key" class="form-label">Weather API Key</label>
-                                <input type="text" class="form-control" id="weather_api_key" name="weather_api_key"
-                                    value="{{ config.weather.weather_api_key }}">
+                                <input type="password" class="form-control" id="weather_api_key" name="weather_api_key"
+                                    value="{{ config.weather.weather_api_key }}"></input>
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="weather_api_key">👁️</button>
                             </div>
 
                             <div class="mb-3">
@@ -56,15 +57,17 @@
                     <div class="col-sm-6 card">
                         <h4 class="card-header">Spotify</h4>
                         <div class="card-body">
-                            <div class="mb-3">
+                            <div class="mb-3 input-wrapper">
                                 <label for="spotify_client_id" class="form-label">Client ID</label>
-                                <input type="text" class="form-control" id="spotify_client_id" name="spotify_client_id"
+                                <input type="password" class="form-control" id="spotify_client_id" name="spotify_client_id"
                                     value="{{ config.spotify.client_id }}">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="spotify_client_id">👁️</button>
                             </div>
                             <div class="mb-3">
                                 <label for="spotify_client_secret" class="form-label">Client Secret</label>
-                                <input type="text" class="form-control" id="spotify_client_secret"
+                                <input type="password" class="form-control" id="spotify_client_secret"
                                     name="spotify_client_secret" value="{{ config.spotify.client_secret }}">
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="spotify_client_id">👁️</button>
                             </div>
                         </div>
                     </div>
@@ -73,8 +76,9 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <label for="google_api_id" class="form-label">Maps API Key</label>
-                                <input type="text" class="form-control" id="google_api_id" name="google_api_id"
+                                <input type="password" class="form-control" id="google_api_id" name="google_api_id"
                                     value="{{ config.google.maps_api_key }}">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button" data-target="google_api_id">👁️</button>
                             </div>
                             <div class="mb-3" >
                                 <label for="home_address" class="form-label">Enter Home Address</label>
@@ -88,11 +92,14 @@
                             </div>
 
                             <button id="btnAddLocal">Add Location</button>
+                            <br>
+                            <h4>Locations:</h4>
                             {% for l in config.google.locations %}
                             <div class="mb-3">
-                                <label for="spotify_client_secret" class="form-label">l</label>
-                                <input type="text" class="form-control" id="spotify_client_secret"
-                                    name="spotify_client_secret" value="{{ l }}">
+                                <!-- <label for="spotify_client_secret" class="form-label">l</label> -->
+                                <!-- <input type="text" class="form-control" id="spotify_client_secret"
+                                    name="spotify_client_secret" value="{{ l }}"> -->
+                                    <p>{{l}}</p>
                             </div>
                             {% endfor %}
 
@@ -190,6 +197,17 @@
                 return false;
             });
         });
+
+
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function () {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            this.textContent = isPassword ? '🙈' : '👁️';
+        });
+    });
 
 </script>
 {% endblock %}
