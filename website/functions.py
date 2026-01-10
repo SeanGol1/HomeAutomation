@@ -92,7 +92,8 @@ def get_all_devices():
             device.get("type"),
             device.get("make"),
             device.get("id"),
-            device.get("key")
+            device.get("key"),
+            device.get("version")
             ))
     
     return deviceList  
@@ -110,17 +111,21 @@ def get_all_device_objs():
                 d.get("type"),
                 d.get("make"),
                 d.get("id"),
-                d.get("key"))
+                d.get("key"),
+                d.get("version"))
             
             if(device.type == "light"):
-                    device:views.Device = get_device_by_ip(device.ip) 
+                    #device:views.Device = get_device_by_ip(device.ip) 
                     try:   
                         if(device.ip != "0.0.0.0"):  # for testing purposes
                             print('Connecting to bulb %r ...' % device.name)
+                            # if(device.key != ""):
                             b = tinytuya.BulbDevice(device.id,'Auto',device.key)
-                            #b = tinytuya.BulbDevice(device.id,device.ip,device.key)
+                            # else:
+                            #     b = tinytuya.BulbDevice(device.id,device.ip)
                             #b.connection_timeout(1000)
-                            b.set_version(3.3) 
+                            
+                            b.set_version(device.version)
                             data = b.status()       
                             print(b.address)
                             new_ip = b.address
@@ -296,7 +301,7 @@ def hex_to_rgb(hex):
 def tinytuya_connect(ip):
     device:views.Device = get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,'Auto',device.key)
-    d.set_version(3.3) 
+    d.set_version(device.version) 
     
     data = d.status()
     return d,data

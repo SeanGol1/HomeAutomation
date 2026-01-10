@@ -140,3 +140,7 @@ key.pem
 config.json
 scenes.json
 tiles.json
+.dockerignore
+compose.yaml
+snapshot.json
+snapshot.json

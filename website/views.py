@@ -26,17 +26,18 @@ views.secret_key = configdata["secretkey"]
 # views.config['SESSION_COOKIE_SAMESITE'] = "Lax"
 
 class Device:
-  def __init__(self, name, ip, type,make,id,key):
+  def __init__(self, name, ip, type,make,id,key,version):
     self.name = name
     self.ip = ip
     self.type = type
     self.make = make
     self.id = id 
     self.key = key
+    self.version = version
 
 class Bulb(Device):
-    def __init__(self,name, ip, type,make,id,key,state, brightness, colour):
-        Device.__init__(self, name, ip, type,make,id,key)
+    def __init__(self,name, ip, type,make,id,key,version,state, brightness, colour):
+        Device.__init__(self, name, ip, type,make,id,key,version)
         self.state = state
         self.brightness = brightness
         self.colour = colour
@@ -537,7 +538,7 @@ def lampswitch(ip):
 def lampswitch_int(ip,on):
     device:Device = functions.get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,'Auto',device.key)
-    d.set_version(3.3) 
+    d.set_version(device.version) 
 
     isOn = False
     if on == True:
@@ -558,7 +559,7 @@ def lampswitch_int(ip,on):
 def lampbright(ip):
     device:Device = functions.get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,'Auto',device.key)
-    d.set_version(3.3)  
+    d.set_version(device.version)  
     
     data = d.status()
     d.turn_on()
@@ -590,7 +591,7 @@ def setlampbright(data):
 
     device:Device = functions.get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
-    d.set_version(3.3)  
+    d.set_version(device.version)  
     
     data = d.status()    
     d.turn_on()
@@ -614,7 +615,7 @@ def setlampbright_int(ip,brightness):
 
     device:Device = functions.get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
-    d.set_version(3.3)  
+    d.set_version(device.version)  
     
     data = d.status()    
     d.turn_on()
@@ -642,7 +643,7 @@ def setcolour():
     device:Device = functions.get_device_by_ip(ip)
     
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
-    d.set_version(3.3)      
+    d.set_version(device.version)      
     data = d.status()
     d.turn_on()
 
@@ -661,7 +662,7 @@ def setcolour_int(ip,colour):
     device:Device = functions.get_device_by_ip(ip)
     
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
-    d.set_version(3.3)      
+    d.set_version(device.version)      
     data = d.status()
     d.turn_on()
 
@@ -682,7 +683,7 @@ def lightsoff():
     for d in deviceList:
         if (d.type == "light"):
             b = tinytuya.BulbDevice(d.id, d.ip, d.key)
-            b.set_version(3.3)
+            b.set_version(d.version)
             b.turn_off()
 
 @views.route('/lightson', methods=['GET','POST'])
@@ -692,7 +693,7 @@ def lightson():
     for d in deviceList:
         if (d.type == "light"):
             b = tinytuya.BulbDevice(d.id, d.ip, d.key)
-            b.set_version(3.3)
+            b.set_version(d.version)
             b.turn_on()
 
 ### Control Firestick ###
