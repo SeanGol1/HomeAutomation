@@ -515,3 +515,35 @@ body:has(.switch__input:checked) {
             width: 1px;
             height: 1px;
         }
+
+
+
+           svg {
+      width: 90vw;
+      max-width: 900px;
+      background: #020617;
+    }
+
+    .room {
+      fill: #1e293b;
+      stroke: #94a3b8;
+      stroke-width: 2;
+      cursor: pointer;
+      transition: fill 0.2s ease;
+    }
+
+    .room:hover {
+      fill: #334155;
+    }
+
+    .room.active {
+      fill: #facc15;
+    }
+
+    .label {
+      fill: #e5e7eb;
+      font-size: 14px;
+      text-anchor: middle;
+      dominant-baseline: middle;
+      pointer-events: none;
+    }

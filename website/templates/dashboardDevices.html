@@ -8,6 +8,60 @@
 <div class="container mt-4">
 
     <div class="row">
+        <svg viewBox="0 0 800 500">
+
+  <!-- Room 2 -->
+  <g id="room_2">
+    <rect class="room" x="20" y="20" width="200" height="120"/>
+    <text class="label" x="120" y="80">2</text>
+  </g>
+
+  <!-- Room 3 -->
+  <g id="room_3">
+    <rect class="room" x="220" y="20" width="160" height="120"/>
+    <text class="label" x="300" y="80">3</text>
+  </g>
+
+  <!-- Room 4 -->
+  <g id="room_4">
+    <rect class="room" x="380" y="20" width="240" height="120"/>
+    <text class="label" x="500" y="80">4</text>
+  </g>
+
+  <!-- Room 7 (vertical) -->
+  <g id="room_7">
+    <rect class="room" x="640" y="20" width="100" height="300"/>
+    <text class="label" x="690" y="170">7</text>
+  </g>
+
+  <!-- Room 1 -->
+  <g id="room_1">
+    <rect class="room" x="20" y="140" width="360" height="140"/>
+    <text class="label" x="200" y="210">1</text>
+  </g>
+
+  <!-- Room 5 -->
+  <g id="room_5">
+    <rect class="room" x="380" y="140" width="260" height="140"/>
+    <text class="label" x="510" y="210">5</text>
+  </g>
+
+  <!-- Room 6 (angled polygon) -->
+  <g id="room_6">
+    <polygon class="room"
+      points="
+        380,280
+        520,260
+        700,360
+        580,460
+        400,380
+      "/>
+    <text class="label" x="540" y="350">6</text>
+  </g>
+
+</svg>
+    </div>
+    <div class="row">
     {% for d in deviceList %}
 
     {% if d.type == "light"%}

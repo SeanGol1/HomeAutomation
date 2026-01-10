@@ -391,3 +391,15 @@ function initMap() {
     );
   }
 }
+
+
+  document.querySelectorAll('g').forEach(room => {
+    room.addEventListener('click', () => {
+      room.querySelector('.room').classList.toggle('active');
+
+      // Example backend call
+      // fetch(`/api/rooms/${room.id}/lights/off`, { method: 'POST' });
+
+      console.log(`Clicked ${room.id}`);
+    });
+  });

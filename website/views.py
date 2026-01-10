@@ -26,7 +26,7 @@ views.secret_key = configdata["secretkey"]
 # views.config['SESSION_COOKIE_SAMESITE'] = "Lax"
 
 class Device:
-  def __init__(self, name, ip, type,make,id,key,version):
+  def __init__(self, name, ip, type,make,id,key,version,room):
     self.name = name
     self.ip = ip
     self.type = type
@@ -34,10 +34,11 @@ class Device:
     self.id = id 
     self.key = key
     self.version = version
+    self.room = room
 
 class Bulb(Device):
-    def __init__(self,name, ip, type,make,id,key,version,state, brightness, colour):
-        Device.__init__(self, name, ip, type,make,id,key,version)
+    def __init__(self,name, ip, type,make,id,key,version,room,state, brightness, colour):
+        Device.__init__(self, name, ip, type,make,id,key,version,room)
         self.state = state
         self.brightness = brightness
         self.colour = colour

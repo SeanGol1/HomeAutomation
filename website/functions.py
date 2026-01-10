@@ -93,7 +93,8 @@ def get_all_devices():
             device.get("make"),
             device.get("id"),
             device.get("key"),
-            device.get("version")
+            device.get("version"),
+            device.get("room")
             ))
     
     return deviceList  
@@ -112,7 +113,8 @@ def get_all_device_objs():
                 d.get("make"),
                 d.get("id"),
                 d.get("key"),
-                d.get("version"))
+                d.get("version"),
+                d.get("room"))
             
             if(device.type == "light"):
                     #device:views.Device = get_device_by_ip(device.ip) 
