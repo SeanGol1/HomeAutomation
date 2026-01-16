@@ -547,3 +547,15 @@ body:has(.switch__input:checked) {
       dominant-baseline: middle;
       pointer-events: none;
     }
+
+    .map-container {
+  background: #020617;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.map-container svg {
+  width: 100%;
+  height: auto;
+  max-height: 70vh;
+}

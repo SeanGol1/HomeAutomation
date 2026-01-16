@@ -120,7 +120,7 @@ def get_all_device_objs():
                     #device:views.Device = get_device_by_ip(device.ip) 
                     try:   
                         if(device.ip != "0.0.0.0"):  # for testing purposes
-                            print('Connecting to bulb %r ...' % device.name)
+                            print('get_all Connecting to bulb %r ...' % device.name)
                             # if(device.key != ""):
                             b = tinytuya.BulbDevice(device.id,'Auto',device.key)
                             # else:
@@ -158,7 +158,9 @@ def get_all_device_objs():
                             d.get("type"),
                             d.get("make"),
                             d.get("id"),
-                            d.get("key"),
+                            d.get("key"),               
+                            d.get("version"),
+                            d.get("room"),
                             data["dps"]["20"],
                             brightness,
                             currentcolour)
@@ -171,9 +173,9 @@ def get_all_device_objs():
                             print('Connection Successful!') 
                         else: 
                             deviceList.append(device)
-                    except:
+                    except(Exception) as e:
                         deviceList.append(device)
-                        print('Connection Failed.')
+                        print('Connection Failed.' + str(e))
             else:                
                 deviceList.append(device)
     return deviceList            
@@ -190,7 +192,9 @@ def get_device_by_ip(ip):
             device.get("type"),
             device.get("make"),
             device.get("id"),
-            device.get("key")
+            device.get("key"),
+            device.get("version"),
+            device.get("room")
             )
 
     return None 

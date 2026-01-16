@@ -6,131 +6,141 @@
 </div>
 
 <div class="container mt-4">
-
     <div class="row">
-        <svg viewBox="0 0 800 500">
+        <div class="col-lg-6 col-md-12 mb-3">
+            <div class="map-container">
+                <svg viewBox="0 0 800 500">
 
-  <!-- Room 2 -->
-  <g id="room_2">
-    <rect class="room" x="20" y="20" width="200" height="120"/>
-    <text class="label" x="120" y="80">2</text>
-  </g>
+                    <!-- Room 2 -->
+                    <g id="devon_room" class="room-group">
+                        <rect class="room" x="20" y="20" width="200" height="120" />
+                        <text class="label" x="120" y="80">Devon</text>
+                    </g>
 
-  <!-- Room 3 -->
-  <g id="room_3">
-    <rect class="room" x="220" y="20" width="160" height="120"/>
-    <text class="label" x="300" y="80">3</text>
-  </g>
+                    <!-- Room 3 -->
+                    <g id="bathroom" class="room-group"> 
+                        <rect class="room" x="220" y="20" width="160" height="120" />
+                        <text class="label" x="300" y="80">Bathroom</text>
+                    </g>
 
-  <!-- Room 4 -->
-  <g id="room_4">
-    <rect class="room" x="380" y="20" width="240" height="120"/>
-    <text class="label" x="500" y="80">4</text>
-  </g>
+                    <!-- Room 4 -->
+                    <g id="kitchen" class="room-group">
+                        <rect class="room" x="380" y="20" width="240" height="120" />
+                        <text class="label" x="500" y="80">Kitchen</text>
+                    </g>
 
-  <!-- Room 7 (vertical) -->
-  <g id="room_7">
-    <rect class="room" x="640" y="20" width="100" height="300"/>
-    <text class="label" x="690" y="170">7</text>
-  </g>
+                    <!-- Room 7 (vertical) -->
+                    <g id="balcony" class="room-group">
+                        <rect class="room" x="640" y="20" width="100" height="300" />
+                        <text class="label" x="690" y="170">Balcony</text>
+                    </g>
 
-  <!-- Room 1 -->
-  <g id="room_1">
-    <rect class="room" x="20" y="140" width="360" height="140"/>
-    <text class="label" x="200" y="210">1</text>
-  </g>
+                    <!-- Room 1 -->
+                    <g id="hall" class="room-group">
+                        <rect class="room" x="20" y="140" width="360" height="140" />
+                        <text class="label" x="200" y="210">Hall</text>
+                    </g>
 
-  <!-- Room 5 -->
-  <g id="room_5">
-    <rect class="room" x="380" y="140" width="260" height="140"/>
-    <text class="label" x="510" y="210">5</text>
-  </g>
+                    <!-- Room 5 -->
+                    <g id="living_room" class="room-group">
+                        <rect class="room" x="380" y="140" width="260" height="140" />
+                        <text class="label" x="510" y="210">Living</text>
+                    </g>
 
-  <!-- Room 6 (angled polygon) -->
-  <g id="room_6">
-    <polygon class="room"
-      points="
-        380,280
-        520,260
-        700,360
-        580,460
-        400,380
-      "/>
-    <text class="label" x="540" y="350">6</text>
-  </g>
+                    <!-- Room 6 (angled polygon) -->
+                    <g id="sean_room" class="room-group">
+                        <polygon class="room" points="
+            380,280
+            520,260
+            700,360
+            580,460
+            400,380
+        " />
+                        <text class="label" x="540" y="350">Sean</text>
+                    </g>
 
-</svg>
-    </div>
-    <div class="row">
-    {% for d in deviceList %}
+                </svg>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-12">
+            <div class="row">
+                {% for d in deviceList %}
 
-    {% if d.type == "light"%}
-    
-        <div class="col-md-4 mb-4" id="obj{{d.ip}}" data-object="{{d}}" >
-            <div class="card">
-                <button type="button" class="close text-danger deleteDevice" data-ip="{{d.ip}}" aria-label="Close"
-                    style="position: absolute; top: 5px; right: 10px; z-index: 1;">
-                    <span aria-hidden="true"><i class="fa fa-trash"></i></span>
-                </button>
-                <div class="card-header"><i class="fa fa-lightbulb-o"></i> {{d.name}}</div>
-                <div class="card-body">
-                    {% if d.state == True %}                    
-                        <button class="btn btn-success btn-block mb-2 lampswitch"  id="lampswitch-{{d.ip}}" data-ip="{{d.ip}}">Toggle ON/OFF</button>
-                    {% else %}
-                        <button class="btn btn-danger btn-block mb-2 lampswitch"  id="lampswitch-{{d.ip}}" data-ip="{{d.ip}}">Toggle ON/OFF</button>
-                    {% endif %}
-                    <button class="btn btn-secondary btn-block lampbright" id="lampbright" data-ip="{{d.ip}}">Toggle Brightness</button>
-                    <div class="slidecontainer">
-                        <p>Set Brightness:</p>
-                        <input type="range" min="0" max="100" value="{{d.brightness}}" class="slider brightnessSlider" id="brightnessSlider" data-ip="{{d.ip}}">
+                {% if d.type == "light"%}
+
+                <div class="device-card col-xl-4 col-md-6 mb-4" id="obj{{d.ip}}" data-object="{{d}}" data-room="{{ d.room }}">
+                    <div class="card h-100 position-relative">
+                        <button type="button" class="close text-danger deleteDevice" data-ip="{{d.ip}}"
+                            aria-label="Close" style="position: absolute; top: 5px; right: 10px; z-index: 1;">
+                            <span aria-hidden="true"><i class="fa fa-trash"></i></span>
+                        </button>
+                        <div class="card-header"><i class="fa fa-lightbulb-o"></i> {{d.name}}</div>
+                        <div class="card-body">
+                            {% if d.state == True %}
+                            <button class="btn btn-success btn-block mb-2 lampswitch" id="lampswitch-{{d.ip}}"
+                                data-ip="{{d.ip}}"><i class="fas fa-power-off"></i></button>
+                            {% else %}
+                            <button class="btn btn-danger btn-block mb-2 lampswitch" id="lampswitch-{{d.ip}}"
+                                data-ip="{{d.ip}}"><i class="fas fa-power-off"></i></button>
+                            {% endif %}
+                            <button class="btn btn-secondary btn-block lampbright" id="lampbright"
+                                data-ip="{{d.ip}}">Toggle
+                                Brightness</button>
+                            <div class="slidecontainer">
+                                <p>Set Brightness:</p>
+                                <input type="range" min="0" max="100" value="{{d.brightness}}"
+                                    class="slider brightnessSlider" id="brightnessSlider" data-ip="{{d.ip}}">
+                            </div>
+
+                            <input type="color" id="lightcolour" class="lightcolour" name="lightcolour"
+                                value="{{d.colour}}" data-ip="{{d.ip}}">
+                            <!-- <button class="btn btn-danger btn-block mt-2 deleteDevice" data-ip="{{d.ip}}">Delete Device</button> -->
+                        </div>
                     </div>
-                    
-                    <input type="color" id="lightcolour" class="lightcolour" name="lightcolour" value="{{d.colour}}" data-ip="{{d.ip}}">
-                    <!-- <button class="btn btn-danger btn-block mt-2 deleteDevice" data-ip="{{d.ip}}">Delete Device</button> -->
                 </div>
+
+                {% endif %}
+
+                {% if d.type == "firestick"%}
+                <div class="device-card col-xl-4 col-md-6 mb-4" data-room="{{ d.room }}">
+                    <div class="card h-100 position-relative">
+                        <button type="button" class="close text-danger deleteDevice" data-ip="{{d.ip}}"
+                            aria-label="Close" style="position: absolute; top: 5px; right: 10px; z-index: 1;">
+                            <span aria-hidden="true"><i class="fa fa-trash"></i></span>
+                        </button>
+                        <div class="card-header"><i class="fa fa-television"></i> {{d.name}}</div>
+                        <div class="card-body">
+                            <button class="btn btn-info btn-block mb-2" id="next_episode">Next Episode</button>
+                            <button class="btn btn-info btn-block mb-2" id="playpause">Play/Pause</button>
+                            <button class="btn btn-info btn-block mb-2" id="recent_show">Most Recent Show</button>
+                            <button class="btn btn-info btn-block" id="formula1">Formula 1</button>
+
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if d.type == "spotify"%}
+                <div class="device-card col-xl-4 col-md-6 mb-4">
+                    <div class="card h-100 position-relative">
+                        <button type="button" class="close text-danger deleteDevice" data-ip="{{d.ip}}"
+                            aria-label="Close" style="position: absolute; top: 5px; right: 10px; z-index: 1;">
+                            <span aria-hidden="true"><i class="fa fa-trash"></i></span>
+                        </button>
+                        <div class="card-header"><i class="fa fa-spotify"></i> Spotify</div>
+                        <div class="card-body">
+                            <button class="btn btn-info btn-block" id="spotify">Toggle Spotify</button>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+
+                {% endfor %}
+
             </div>
         </div>
-
-        {% endif %}
-
-        {% if d.type == "firestick"%}
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <button type="button" class="close text-danger deleteDevice" data-ip="{{d.ip}}" aria-label="Close"
-                    style="position: absolute; top: 5px; right: 10px; z-index: 1;">
-                    <span aria-hidden="true"><i class="fa fa-trash"></i></span>
-                </button>
-                <div class="card-header"><i class="fa fa-television"></i> {{d.name}}</div>
-                <div class="card-body">
-                    <button class="btn btn-info btn-block mb-2" id="next_episode">Next Episode</button>
-                    <button class="btn btn-info btn-block mb-2" id="playpause">Play/Pause</button>
-                    <button class="btn btn-info btn-block mb-2" id="recent_show">Most Recent Show</button>
-                    <button class="btn btn-info btn-block" id="formula1">Formula 1</button>
-                    
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        {% if d.type == "spotify"%}
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <button type="button" class="close text-danger deleteDevice" data-ip="{{d.ip}}" aria-label="Close"
-                    style="position: absolute; top: 5px; right: 10px; z-index: 1;">
-                    <span aria-hidden="true"><i class="fa fa-trash"></i></span>
-                </button>
-                <div class="card-header"><i class="fa fa-spotify"></i> Spotify</div>
-                <div class="card-body">
-                    <button class="btn btn-info btn-block" id="spotify">Toggle Spotify</button>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-
-       {% endfor %}
-
-
-    </div> 
+    </div>
 </div>
-  {% endblock %}
+<script src="{{ url_for('static', filename='js/dashboardDevices.js') }}"></script>
+{% endblock %}

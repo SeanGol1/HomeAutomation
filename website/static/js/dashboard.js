@@ -392,14 +392,46 @@ function initMap() {
   }
 }
 
+// let selectedRoom = null;
 
-  document.querySelectorAll('g').forEach(room => {
-    room.addEventListener('click', () => {
-      room.querySelector('.room').classList.toggle('active');
+// const rooms = document.querySelectorAll('svg g');
+// const devices = document.querySelectorAll('.device-card');
 
-      // Example backend call
-      // fetch(`/api/rooms/${room.id}/lights/off`, { method: 'POST' });
+// rooms.forEach(room => {
+//   room.addEventListener('click', () => {
 
-      console.log(`Clicked ${room.id}`);
-    });
-  });
+//     const roomId = room.id;
+//     const shape = room.querySelector('.room');
+
+//     // Toggle room selection
+//     if (selectedRoom === roomId) {
+//       selectedRoom = null;
+//       shape.classList.remove('active');
+//     } else {
+//       selectedRoom = roomId;
+
+//       // Clear previous selection
+//       rooms.forEach(r =>
+//         r.querySelector('.room').classList.remove('active')
+//       );
+
+//       shape.classList.add('active');
+//     }
+
+//     filterDevices();
+//   });
+// });
+
+// function filterDevices() {
+//   devices.forEach(device => {
+//     const deviceRoom = device.dataset.room;
+
+//     if (!selectedRoom || deviceRoom === selectedRoom) {
+//       device.style.display = '';
+//     } else {
+//       device.style.display = 'none';
+//     }
+//   });
+// }
+
+
