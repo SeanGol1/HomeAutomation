@@ -121,16 +121,15 @@ def get_all_device_objs():
                     try:   
                         if(device.ip != "0.0.0.0"):  # for testing purposes
                             print('get_all Connecting to bulb %r ...' % device.name)
-                            # if(device.key != ""):
                             b = tinytuya.BulbDevice(device.id,'Auto',device.key)
-                            # else:
-                            #     b = tinytuya.BulbDevice(device.id,device.ip)
                             #b.connection_timeout(1000)
                             
                             b.set_version(device.version)
+                            b.set_socketPersistent(False)
                             data = b.status()       
                             print(b.address)
                             new_ip = b.address
+                            b.close()
                             updated = False
                             for dev in configdata["devices"]:
                                 if dev.get("id") == device.id and dev.get("ip") != new_ip:
@@ -171,11 +170,15 @@ def get_all_device_objs():
 
                             deviceList.append(newBulb) 
                             print('Connection Successful!') 
+
                         else: 
                             deviceList.append(device)
                     except(Exception) as e:
                         deviceList.append(device)
                         print('Connection Failed.' + str(e))
+
+                    #finally:
+                        #b.close()
             else:                
                 deviceList.append(device)
     return deviceList            
@@ -308,6 +311,7 @@ def tinytuya_connect(ip):
     device:views.Device = get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,'Auto',device.key)
     d.set_version(device.version) 
+    d.set_socketPersistent(False)
     
     data = d.status()
     return d,data

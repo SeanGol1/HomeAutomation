@@ -127,19 +127,23 @@ def dashboard():
     except FileNotFoundError:
         selected_tiles = []
 
-    sp_oauth = SpotifyOAuth(
-        client_id= configdata["spotify"]["client_id"],
-        client_secret= configdata["spotify"]["client_secret"],
-        redirect_uri="http://localhost:5000/spotify/callback",
-        scope="user-read-playback-state,user-modify-playback-state,user-read-currently-playing"
-    )
-    token_info = sp_oauth.get_cached_token()
+    try:
+        sp_oauth = SpotifyOAuth(
+            client_id= configdata["spotify"]["client_id"],
+            client_secret= configdata["spotify"]["client_secret"],
+            redirect_uri="http://localhost:5000/spotify/callback",
+            scope="user-read-playback-state,user-modify-playback-state,user-read-currently-playing"
+        )
+        token_info = sp_oauth.get_cached_token()
 
-    if not token_info:
-        return redirect('/spotify/login_spotify')  # No token? Login first.
+        if not token_info:
+            return redirect('/spotify/login_spotify')  # No token? Login first.
 
-    sp = spotipy.Spotify(auth=token_info['access_token'])
-    current_track = sp.current_playback()
+        sp = spotipy.Spotify(auth=token_info['access_token'])
+        current_track = sp.current_playback()
+    except Exception as e:
+        print("Spotify Error:", e)
+        current_track = None
 
 
     api_key = configdata['weather']['weather_api_key']
@@ -533,6 +537,7 @@ def lampswitch(ip):
 
     response = make_response(jsonify({'isOn': isOn}), 200)
     response.headers['Content-Type'] = 'application/json'
+    d.close()
     return response
 
 
@@ -540,6 +545,7 @@ def lampswitch_int(ip,on):
     device:Device = functions.get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,'Auto',device.key)
     d.set_version(device.version) 
+    d.set_socketPersistent(False)
 
     isOn = False
     if on == True:
@@ -549,6 +555,8 @@ def lampswitch_int(ip,on):
         d.turn_off()
         isOn = False
     print(jsonify(isOn))
+
+    d.close()
 
     response = make_response("Success", 200)
     response.headers['Content-Type'] = 'application/json'
@@ -561,6 +569,7 @@ def lampbright(ip):
     device:Device = functions.get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,'Auto',device.key)
     d.set_version(device.version)  
+    d.set_socketPersistent(False)
     
     data = d.status()
     d.turn_on()
@@ -580,6 +589,7 @@ def lampbright(ip):
         else:
             d.set_brightness(255)
     data = d.status()
+    d.close()
     #print(data)
     return "Success"
 
@@ -593,6 +603,7 @@ def setlampbright(data):
     device:Device = functions.get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
     d.set_version(device.version)  
+    d.set_socketPersistent(False)
     
     data = d.status()    
     d.turn_on()
@@ -605,6 +616,7 @@ def setlampbright(data):
 
     data = d.status()
     #print(data)
+    d.close()
     
     return "Success"
 
@@ -617,6 +629,7 @@ def setlampbright_int(ip,brightness):
     device:Device = functions.get_device_by_ip(ip)    
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
     d.set_version(device.version)  
+    d.set_socketPersistent(False)
     
     data = d.status()    
     d.turn_on()
@@ -629,6 +642,7 @@ def setlampbright_int(ip,brightness):
 
     data = d.status()
     #print(data)
+    d.close()
     
     return "Success"
 
@@ -644,7 +658,8 @@ def setcolour():
     device:Device = functions.get_device_by_ip(ip)
     
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
-    d.set_version(device.version)      
+    d.set_version(device.version)  
+    d.set_socketPersistent(False)    
     data = d.status()
     d.turn_on()
 
@@ -655,6 +670,8 @@ def setcolour():
     else:
         c = functions.hex_to_rgb(colour)
         d.set_colour(c[0],c[1],c[2])
+
+    d.close()
 
     return "Success"
 
@@ -663,7 +680,8 @@ def setcolour_int(ip,colour):
     device:Device = functions.get_device_by_ip(ip)
     
     d = tinytuya.BulbDevice(device.id,device.ip,device.key)
-    d.set_version(device.version)      
+    d.set_version(device.version)
+    d.set_socketPersistent(False)     
     data = d.status()
     d.turn_on()
 
@@ -675,6 +693,7 @@ def setcolour_int(ip,colour):
         c = functions.hex_to_rgb(colour)
         d.set_colour(c[0],c[1],c[2])
 
+    d.close()
     return "Success"
 
 @views.route('/lightsoff', methods=['GET','POST'])
@@ -684,6 +703,7 @@ def lightsoff():
     for d in deviceList:
         if (d.type == "light"):
             b = tinytuya.BulbDevice(d.id, d.ip, d.key)
+            d.set_socketPersistent(False)
             b.set_version(d.version)
             b.turn_off()
 
@@ -694,8 +714,11 @@ def lightson():
     for d in deviceList:
         if (d.type == "light"):
             b = tinytuya.BulbDevice(d.id, d.ip, d.key)
+            d.set_socketPersistent(False)
             b.set_version(d.version)
             b.turn_on()
+            b.close()
+
 
 ### Control Firestick ###
 
