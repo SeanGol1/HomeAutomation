@@ -1,81 +1,74 @@
 {% extends "dashboardBase.html" %} {% block title %}dashboardDevices{% endblock %} {% block content
 %}
-<div>
+<!-- <div>
     <br>
     <a class="btn btn-primary btn-block mb-2" id="add-device" href="/addDevice">Add New Device</a>
-</div>
+</div> -->
 
 <div class="container mt-4">
     <div class="row">
         <div class="col-lg-6 col-md-12 mb-3">
             <div class="map-container">
-                <svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" class="house-map">
-                    <style>
-                        .room {
-                                  fill: #1e293b;
-      stroke: #94a3b8;
-      stroke-width: 2;
-      cursor: pointer;
-      transition: fill 0.2s ease;
-                        }
+                <div class="floorplan-wrapper">
+                
+                    <svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg" class="house-map">
 
-                        .label{
-fill: #e5e7eb;
-      font-size: 14px;
-      text-anchor: middle;
-      dominant-baseline: middle;
-      pointer-events: none;
-                        }
-                    </style>
-                    <!-- Room 2 -->
-                    <g id="devon_room" class="room-group">
-                        <rect class="room" x="20" y="20" width="200" height="120" />
-                        <text class="label" x="120" y="80">Devon</text>
-                    </g>
+                        <style>
+                            .room {
+                                fill: rgba(59, 130, 246, 0.0);
+                                stroke: #3b82f6;
+                                stroke-width: 3;
+                                vector-effect: non-scaling-stroke;
+                                cursor: pointer;
+                                transition: fill 0.2s ease;
+                            }
 
-                    <!-- Room 3 -->
-                    <g id="bathroom" class="room-group"> 
-                        <rect class="room" x="220" y="20" width="160" height="120" />
-                        <text class="label" x="300" y="80">Bathroom</text>
-                    </g>
+                            .room.active {
+                                fill: rgba(255, 244, 26, 0.25);
+                                transition: fill 0.2s ease;
+                            }
 
-                    <!-- Room 4 -->
-                    <g id="kitchen" class="room-group">
-                        <rect class="room" x="380" y="20" width="240" height="120" />
-                        <text class="label" x="500" y="80">Kitchen</text>
-                    </g>
+                        </style>
 
-                    <!-- Room 7 (vertical) -->
-                    <g id="balcony" class="room-group">
-                        <rect class="room" x="640" y="20" width="100" height="300" />
-                        <text class="label" x="690" y="170">Balcony</text>
-                    </g>
 
-                    <!-- Room 1 -->
-                    <g id="hall" class="room-group">
-                        <rect class="room" x="20" y="140" width="360" height="140" />
-                        <text class="label" x="200" y="210">Hall</text>
-                    </g>
+                        <image href="/static/houseplan.jpg"
+                                x="0"
+                                y="0"
+                                width="1000"
+                                height="1000"
+                                preserveAspectRatio="xMidYMid meet"/>
 
-                    <!-- Room 5 -->
-                    <g id="living_room" class="room-group">
-                        <rect class="room" x="380" y="140" width="260" height="140" />
-                        <text class="label" x="510" y="210">Living</text>
-                    </g>
 
-                    <!-- Room 6 (angled polygon) -->
-                    <g id="sean_room" class="room-group">
-                        <polygon class="room" points="
-            380,280
-            520,260
-            700,360
-            580,460
-            400,380
-        " />
-                        <text class="label" x="540" y="350">Sean</text>
-                    </g>
+                        <g id="devon_room" >
+                            <rect class="room" x="20" y="80" width="275" height="275" />
+                        </g>
 
-                </svg>
+                        <g id="bathroom" >
+                            <rect class="room" x="295" y="80" width="200" height="275" />
+                        </g>
+
+                        <g id="kitchen">
+                            <rect class="room" x="495" y="80" width="275" height="275" />
+                        </g>
+
+                        <g id="hallway" >
+                            <rect class="room" x="20" y="355" width="425" height="285" />
+                        </g>
+
+                        <g id="living_room">
+                            <polygon class="room" points="445,355 770,355 770,80 980,80 980,640 445,640" />
+                        </g>
+
+                        <g id="sean_room" >
+                            <rect class="room" x="295" y="640" width="425" height="275" />
+                        </g>
+
+                    </svg>
+
+                </div>
+
+
+
             </div>
         </div>
         <div class="col-lg-6 col-md-12">
@@ -84,7 +77,8 @@ fill: #e5e7eb;
 
                 {% if d.type == "light"%}
 
-                <div class="device-card col-xl-4 col-md-6 mb-4" id="obj{{d.ip}}" data-object="{{d}}" data-room="{{ d.room }}">
+                <div class="device-card col-xl-4 col-md-6 mb-4" id="obj{{d.ip}}" data-object="{{d}}"
+                    data-room="{{ d.room }}">
                     <div class="card h-100 position-relative">
                         <button type="button" class="close text-danger deleteDevice" data-ip="{{d.ip}}"
                             aria-label="Close" style="position: absolute; top: 5px; right: 10px; z-index: 1;">
@@ -99,9 +93,9 @@ fill: #e5e7eb;
                             <button class="btn btn-danger btn-block mb-2 lampswitch" id="lampswitch-{{d.ip}}"
                                 data-ip="{{d.ip}}"><i class="fas fa-power-off"></i></button>
                             {% endif %}
-                            <button class="btn btn-secondary btn-block lampbright" id="lampbright"
+                            <!-- <button class="btn btn-secondary btn-block lampbright" id="lampbright"
                                 data-ip="{{d.ip}}">Toggle
-                                Brightness</button>
+                                Brightness</button> -->
                             <div class="slidecontainer">
                                 <p>Set Brightness:</p>
                                 <input type="range" min="0" max="100" value="{{d.brightness}}"
