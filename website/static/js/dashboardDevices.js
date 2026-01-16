@@ -39,4 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+
+  document.addEventListener('click', () => {
+    const video = document.querySelector('.floorplan-video');
+    if (video && video.paused) {
+        video.play().catch(() => {});
+    }
+}, { once: true });
 });

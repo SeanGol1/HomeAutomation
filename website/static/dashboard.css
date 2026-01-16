@@ -521,14 +521,14 @@ body:has(.switch__input:checked) {
         svg {
             width: 90vw;
             max-width: 900px;
-            background: #020617;
+            /* background: #020617; */
         }
 
 
         .map-container {
-            background: #020617;
-            border-radius: 12px;
-            padding: 12px;
+            /* background: #020617; */
+            /* border-radius: 12px;
+            padding: 12px; */
             width: 100%;
             max-width: 900px;
             height: auto;
@@ -541,19 +541,21 @@ body:has(.switch__input:checked) {
             max-height: 70vh;
         }
 
-        .house-map {
-            width: 100%;
-            height: auto;
-            /* Maintain aspect ratio */
-            display: block;
-        }
 
-        .floorplan-wrapper {
+
+        /* .floorplan-wrapper {
             position: relative;
             width: 100%;
             max-width: 900px;
             aspect-ratio: 800 / 500;
-            /* match SVG viewBox */
+            /* match SVG viewBox 
+        } */
+
+        .floorplan-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
         }
 
         .floorplan-img {
@@ -563,14 +565,37 @@ body:has(.switch__input:checked) {
             display: block;
         }
 
-        .floorplan-svg {
+        /* .floorplan-svg {
             position: absolute;
             inset: 0;
             width: 100%;
             height: 100%;
             pointer-events: auto;
+        } */
+
+        /* Video fills container */
+        .floorplan-video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: black; /* optional letterbox color */
+            z-index: 1;
         }
 
-        .lampswitch{
+        .house-map {
+            /* width: 100%;
+            height: auto; */
+            /* Maintain aspect ratio */
+            /* display: block; */
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        .lampswitch {
             font-size: 2rem;
         }
