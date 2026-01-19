@@ -121,7 +121,7 @@ def dashboard():
     maps_api_key = configdata["google"]["maps_api_key"]
     # Load selected tiles from the config
     try:
-        with open('tiles.json') as t:
+        with open('configs/tiles.json') as t:
             tile_config = json.load(t)
         selected_tiles = tile_config.get('selected_tiles', [])
     except FileNotFoundError:
@@ -238,7 +238,7 @@ def settings():
 
      # Load selected tiles from the config
     try:
-        with open('tiles.json') as f:
+        with open('configs/tiles.json') as f:
             tile_config = json.load(f)
         selected_tiles = tile_config.get('selected_tiles', [])
     except FileNotFoundError:
@@ -294,7 +294,7 @@ def save_tiles():
         # fallback: collect everything with "tile-" prefix
         selected_tiles = [value for key, value in request.form.items() if key.startswith('tile-')]
 
-    with open('tiles.json', 'w') as f:
+    with open('configs/tiles.json', 'w') as f:
         json.dump({"selected_tiles": selected_tiles}, f, indent=2)
 
     # Save to session/database/config, etc.
@@ -333,10 +333,10 @@ def add_scene():
         name = data.get('name','')
 
         # If scenes.config doesn't exist yet, start with empty dict
-        if not os.path.exists('scenes.json'):
+        if not os.path.exists('configs/scenes.json'):
             scenes_data = {}
         else:
-            with open('scenes.json', 'r') as f:
+            with open('configs/scenes.json', 'r') as f:
                 try:
                     scenes_data = json.load(f)
                 except json.JSONDecodeError:
@@ -347,7 +347,7 @@ def add_scene():
         scenes_data[scene_name] = steps
 
         # Write updated data back to file
-        with open('scenes.json', 'w') as f:
+        with open('configs/scenes.json', 'w') as f:
             json.dump(scenes_data, f, indent=2)
 
         return jsonify({ "status": "success", "scene": scene_name }), 200
@@ -358,10 +358,10 @@ def add_scene():
 
 @views.route('/deleteScene/<scene_name>', methods=['POST'])
 def delete_scene(scene_name):
-    if not os.path.exists('scenes.json'):
+    if not os.path.exists('configs/scenes.json'):
         return False, "Scene file not found."
 
-    with open('scenes.json', 'r') as f:
+    with open('configs/scenes.json', 'r') as f:
         scenes = json.load(f)
 
     if scene_name not in scenes:
@@ -369,7 +369,7 @@ def delete_scene(scene_name):
 
     del scenes[scene_name]
 
-    with open('scenes.json', 'w') as f:
+    with open('configs/scenes.json', 'w') as f:
         json.dump(scenes, f, indent=2)
 
     return jsonify({ "status": "success", "scene": scene_name }), 200
@@ -403,7 +403,7 @@ def create_scene():
 
         if scene_devices:
             # Load existing scenes
-            scenes_path = 'scenes.json'
+            scenes_path = 'configs/scenes.json'
             scenes = []
             if os.path.exists(scenes_path):
                 with open(scenes_path, 'r') as f:
@@ -436,7 +436,7 @@ def send_device_command(ip, action, option):
 @views.route('/run_scene/<scene_name>', methods=['POST'])
 def run_scene(scene_name):
     try:
-        with open('scenes.json') as f:
+        with open('configs/scenes.json') as f:
             sceneconfig = json.load(f)
 
         steps = sceneconfig.get(scene_name)
@@ -910,7 +910,7 @@ def spotify_control(action):
 # Google
 
 SCOPES = ['https://www.googleapis.com/auth/calendar']
-CLIENT_SECRETS_FILE = "google.json"
+CLIENT_SECRETS_FILE = "configs/google.json"
 
 @views.route('/authorize' , methods=['GET','POST'])
 def authorize():

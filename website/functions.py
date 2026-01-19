@@ -205,12 +205,12 @@ def get_device_by_ip(ip):
 
 
 def get_all_scenes():
-    with open('scenes.json') as f:
+    with open('configs/scenes.json') as f:
         sceneconfig = json.load(f)
     return [{"name": name, "steps": steps} for name, steps in sceneconfig.items()]
     
 def get_all_scenes_names():
-    with open('scenes.json') as f:
+    with open('configs/scenes.json') as f:
         sceneconfig = json.load(f)
     
     ip_to_name = {device.ip: device.name for device in get_all_devices()}
