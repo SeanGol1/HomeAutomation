@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect,url_for, session
+from flask import Blueprint, request, jsonify ,redirect
 from ..services.spotify_api import sp_oauth, get_current_track, send_control
 from spotipy.oauth2 import SpotifyOAuth
 import website.functions as functions 

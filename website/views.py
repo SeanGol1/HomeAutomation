@@ -2,10 +2,10 @@
 #from multiprocessing.connection import wait
 # from turtle import update
 from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect,url_for, session
-from . import fireStickController
+# from . import fireStickController
 import json , time , tinytuya ,  numpy as np , requests , speedtest, psutil , spotipy, subprocess, os, platform #cv2,
 #from .functions.spotify_api import sp_oauth, get_current_track, send_control
-from spotipy.oauth2 import SpotifyOAuth
+# from spotipy.oauth2 import SpotifyOAuth
 from ppadb.client import Client as AdbClient #pip install pure-python-adb
 from datetime import datetime
 from google.oauth2.credentials import Credentials
@@ -740,89 +740,7 @@ def lightson():
             b.close()
 
 
-### Control Firestick ###
 
-@views.route('/next_episode', methods=['GET','POST'])
-def next_episode():
-    fireStickIP = configdata['firestick_IP']
-
-    mc = fireStickController.fireStickController()
-    mc.addDevice(fireStickIP)
-    mc.down()
-    mc.down()
-    mc.right()
-    mc.right()
-    mc.right()
-    mc.select()
-    time.sleep(5)
-    mc.up()
-    mc.right()
-    mc.select()
-
-@views.route('/recent_show', methods=['GET','POST'])
-def recent_show():
-    fireStickIP = configdata['firestick_IP']
-
-    mc = fireStickController.fireStickController()
-    mc.addDevice(fireStickIP)
-    mc.home()
-    mc.right()
-    mc.right()
-    mc.right()
-    mc.select()
-    time.sleep(5)
-    mc.right()
-    mc.right()
-    mc.select()
-    mc.up()
-    mc.up()
-    mc.select()
-    mc.right()
-    mc.up()
-    mc.select()
-
-@views.route('/playpause', methods=['GET','POST'])
-def playpause():
-    fireStickIP = configdata['firestick_IP']
-
-    mc = fireStickController.fireStickController()
-    
-    mc.addDevice(fireStickIP)
-    mc.playpause()
-    
-@views.route('/poweroff', methods=['GET','POST'])
-def powerdown():
-    fireStickIP = configdata['firestick_IP']
-    mc = fireStickController.fireStickController()
-    mc.addDevice(fireStickIP)
-    mc.poweroff()
-
-@views.route('/formula1', methods=['GET','POST'])
-def f1():
-    fireStickIP = configdata['firestick_IP']
-
-    mc = fireStickController.fireStickController()
-    mc.addDevice(fireStickIP)
-    mc.home()
-    time.sleep(1)
-    mc.right(), mc.right(), mc.right()
-    mc.select()
-    time.sleep(10)
-    mc.select()
-    time.sleep(3)
-    mc.left(), mc.down(), mc.down()
-    mc.select()
-    mc.down(), mc.down(), mc.down(), mc.down(), mc.down(), mc.down(), mc.down(), mc.down()
-    mc.select(), mc.select()
-
-@views.route('/wakeup', methods=['GET','POST'])
-def wakeup():
-    fireStickIP = configdata['firestick_IP']
-
-    mc = fireStickController.fireStickController()
-    mc.addDevice(fireStickIP)
-    mc.home()
-    
     
 ### Change lights to match the colour that the camera picks up ###
 # @views.route('/moodlight', methods=['GET','POST'])

@@ -4,7 +4,6 @@ from adb_shell.auth.sign_pythonrsa import PythonRSASigner
 from adb_shell.auth.keygen import keygen
 
 class fireStickController():
-    #fireStickIP = '192.168.15.13'
     def __init__(self):
         if not os.path.isfile('adbkey'):
             print('Generating ADB Keys')

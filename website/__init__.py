@@ -2,6 +2,7 @@ from flask import Flask
 from os import path
 from .views import views
 from .routes.spotify import spotify
+from .routes.firestick import firestick
 import json
 
 def create_app():
@@ -14,6 +15,7 @@ def create_app():
     app.config['SESSION_COOKIE_SAMESITE'] = "Lax"
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(spotify,url_prefix='/spotify') 
+    app.register_blueprint(firestick,url_prefix='/firestick') 
     return app
 
 

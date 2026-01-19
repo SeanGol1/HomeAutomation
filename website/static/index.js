@@ -115,7 +115,7 @@
 
     $('#next_episode').on('click', function(e) {
         e.preventDefault()
-        fetch('next_episode',{
+        fetch('firestick/next_episode',{
             method: "POST",
         }).then((_res) => {
         });
@@ -131,7 +131,7 @@
     });
     $('#playpause').on('click', function(e) {
         e.preventDefault()
-        fetch('playpause',{
+        fetch('firestick/playpause',{
             method: "POST",
         }).then((_res) => {
         });
@@ -140,7 +140,7 @@
     
     $('#poweroff').on('click', function(e) {
         e.preventDefault()
-        fetch('poweroff',{
+        fetch('firestick/poweroff',{
             method: "POST",
         }).then((_res) => {
         });
@@ -149,7 +149,7 @@
      
     $('#formula1').on('click', function(e) {
         e.preventDefault()
-        fetch('formula1',{
+        fetch('firestick/formula1',{
             method: "POST",
         }).then((_res) => {
         });
@@ -158,7 +158,7 @@
 
    $('#recent_show').on('click', function(e) {
         e.preventDefault()
-        fetch('recent_show',{
+        fetch('firestick/recent_show',{
             method: "POST",
         }).then((_res) => {
         });
@@ -167,7 +167,7 @@
 
     $('#wakeup').on('click', function(e) {
         e.preventDefault()
-        fetch('wakeup',{
+        fetch('firestick/wakeup',{
             method: "POST",
         }).then((_res) => {
         });
