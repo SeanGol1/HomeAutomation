@@ -1,314 +1,330 @@
 {% extends "dashboardBase.html" %} {% block title %}dashboard{% endblock %} {% block content
 %}
 
-        <div class="grid-stack">
-            <!-- Weather -->
-            {% if 'weather-card' in selected_tiles %}
-            <div class="grid-stack-item" gs-w="4" gs-h="2" gs-id="weather-card">
-                <div class="card grid-stack-item-content">
-                    <div class="card-header">Weather</div>
-                    <div class="card-body d-flex">
-                        {% if weather and weather.current %}
-                        <!-- Left: Current weather -->
-                        <div class="me-3 text-center">
-                            <h5 class="card-title">{{ weather.location.name }}, {{ weather.location.country }}</h5>
+<div class="grid-stack">
+    <!-- Weather -->
+    {% if 'weather-card' in selected_tiles %}
+    <div class="grid-stack-item" gs-w="3" gs-h="1" gs-id="weather-card">
+        <div class="card grid-stack-item-content">
+            <!-- <div class="card-header">Weather</div> -->
+            <div class="card-body d-flex">
+                {% if weather and weather.current %}
+                <!-- Left: Current weather -->
+                <div class="me-3 text-center">
+                    <h5 class="card-title">{{ weather.location.name }}, {{ weather.location.country }}</h5>
+                    <div class="row">
+                        <div class="col-6">
                             <p class="card-text mb-1">
                                 <strong>{{ weather.current.temp_c }}°C</strong><br>
                                 {{ weather.current.condition.text }}
                             </p>
+                        </div>
+                        <div class="col-6">
                             <img src="{{ weather.current.condition.icon }}" alt="Current weather icon">
                         </div>
+                    </div>
 
-                        <!-- Right: Compact forecast -->
-                        <div class="forecast-list d-flex flex-column justify-content-start align-items-start ms-auto">
-                            {% for day in weather.forecast.forecastday %}
-                            <div class="d-flex align-items-center mb-1" style="font-size: 0.8rem;">
-                                <span class="me-1">{{ day.weekday }}</span>
-                                <img src="{{ day.day.condition.icon }}" alt="Icon" width="24" height="24" class="me-1">
-                                <span>{{ day.day.avgtemp_c }}°C</span>
-                            </div>
-                            {% endfor %}
-                        </div>
+                </div>
 
-                        {% else %}
-                        <p>Weather data not available.</p>
-                        {% endif %}
+                <!-- Right: Compact forecast -->
+                <div class="forecast-list d-flex flex-column justify-content-start align-items-start ms-auto">
+                    {% for day in weather.forecast.forecastday %}
+                    <div class="d-flex align-items-center mb-1" style="font-size: 0.8rem;">
+                        <span class="me-1">{{ day.weekday }}</span>
+                        <img src="{{ day.day.condition.icon }}" alt="Icon" width="24" height="24" class="me-1">
+                        <span>{{ day.day.avgtemp_c }}°C</span>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% else %}
+                <p>Weather data not available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+
+
+    <!-- Clock -->
+    {% if 'clock-card' in selected_tiles %}
+    <div class="grid-stack-item" gs-w="4" gs-h="2" gs-id="clock-card">
+        <div class="card text-center grid-stack-item-content">
+            <div id="flip-clock" class="d-flex justify-content-center"></div>
+            <div class="text-center shadow-sm mb-3">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="">🌍 GMT</h5>
+                        <p class="" id="gmt-time">--:--</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <h5 class="">🌍 EST</h5>
+                        <p class="" id="est-time">--:--</p>
                     </div>
                 </div>
             </div>
-             {% endif %}
-
-            <!-- Spotify controls -->
-             {% if 'spotify-card' in selected_tiles %}
-            <div class="grid-stack-item" gs-w="3" gs-h="4" gs-id="spotify-card">
-                <div class="card spotify-card grid-stack-item-content" >
-                    <div class="card-header">🎵 Now Playing</div>                    
-                    <div id="spotify-art-container" class="mb-2 text-center">
-                        <img id="spotify-art-img" src="/static/default_album.jpg" alt="Album Art">
-                        <div id="spotify-controls">
-                            <button class="spotify-btn" onclick="spotifyControl('previous')">
-                                <i class="fas fa-step-backward"></i>
-                            </button>
-                            <button class="spotify-btn" onclick="spotifyControl('playpause')">
-
-                                <i class="fas fa-play" id="spotify-icon"></i>
-                            </button>
-                            <button class="spotify-btn" onclick="spotifyControl('next')">
-                                <i class="fas fa-step-forward"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="spotify-track" class="text-center mt-2">Loading...</div>
-                </div>
-            </div>
-             {% endif %}
-
-            <!-- Google Calendar -->
-             {% if 'calendar-card' in selected_tiles %}
-            <div class="grid-stack-item" gs-w="2" gs-h="3" gs-id="calendar-card">
-                <div class="card grid-stack-item-content">
-                    {% if not session.get('credentials') %}
-                    <a href="{{ url_for('views.authorize') }}"  target="_blank" class="btn btn-primary mb-2">Connect Google Calendar</a>
-                    {% else %}
+        </div>
+    </div>
+    {% endif %}
 
 
-                    <div class="card-header">📅 Upcoming Events</div>
-                    <div class="card-body">
-                        {% if events %}
-                        <ul class="list-unstyled">
-                            {% for event in events %}
-                            <li>
-                                <strong>{{ event.start.dateTime[:16]|default(event.start.date) }}</strong><br>
-                                {{ event.summary }}
-                            </li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        <p>No upcoming events.</p>
-                        {% endif %}
-                    </div>
 
-                    {% endif %}
-
-
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- General Controls -->
-             {% if 'general-controls-card' in selected_tiles %}
-            <div class="grid-stack-item" gs-w="2" gs-h="3" gs-id="general-controls-card">
-                <div class="card grid-stack-item-content">
-                    <div class=" text-center">
-                        <div class="card-header"><i class="fas fa-bolt mr-2"></i> Devices </div>
-                        <div class="card-body">
-                            <button class="btn btn-success w-100 mb-2" onclick="toggleAllLights()">
-                                <i class="fas fa-lightbulb"></i> > <i class="fas fa-power-off"></i> 
-                            </button>
-                            <button class="btn btn-panel w-100 mb-2" onclick="playPause()">
-                                <i class="fas fa-play-circle"></i>
-                            </button>
-                            <button class="btn btn-danger w-100" onclick="turnOffAll()">
-                                <i class="fas fa-lightbulb"></i> > <i class="fas fa-power-off"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}    
-            
-            
-            <!-- Website Controls -->
-             {% if 'website-controls-card' in selected_tiles %}
-            <div class="grid-stack-item" gs-w="2" gs-h="3" gs-id="website-controls-card">
-                <div class="card grid-stack-item-content">
-                    <div class="text-center">
-                        <div class="card-header"><i class="fas fa-cogs"></i> Website Controls</div>
-                        <div class="card-body">
-                        <button class="btn btn-primary w-100 mb-2" onclick="window.location.href='/'"><i
-                                class="fas fa-home"></i> Home </button>
-                        <button class="btn btn-secondary w-100 mb-2" onclick="window.location.href='/devices'"><i
-                                class="fas fa-lightbulb"></i> Devices </button>
-                        <button class="btn btn-success w-100" onclick="location.reload()"><i
-                                class="fas fa-sync-alt"></i> Refresh </button>
-                                </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %} 
-
-
-            <!-- Clock -->
-             {% if 'clock-card' in selected_tiles %}
-            <div class="grid-stack-item" gs-w="4" gs-h="2" gs-id="clock-card">
-                <div class="card text-center grid-stack-item-content">
-                    <div id="flip-clock" class="d-flex justify-content-center"></div>
-                    <div class="text-center shadow-sm mb-3">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <h5 class="">🌍 GMT</h5>
-                                <p class="" id="gmt-time">--:--</p>
-                            </div>
-                            <div class="col-sm-6">
-                                <h5 class="">🌍 EST</h5>
-                                <p class="" id="est-time">--:--</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %} 
-
-            <!-- Voice Command -->
-            {% if 'voice-card' in selected_tiles %}
-            <div class="grid-stack-item" gs-w="3" gs-h="3" gs-id="voice-card">
-                <div class="card text-center grid-stack-item-content">
-                    <div class="card-header mb-4">🎙️ Voice Assistant</div> 
-                    <div class="card-body">                      
-                    <!-- Microphone button (not a form) -->
-                    <button id="micBtn" class="btn btn-lg btn-primary text-center rounded-circle shadow" style="width: 80px; height: 80px;">
-                        <i class="bi bi-mic-fill fs-2"></i>
+    <!-- Spotify controls -->
+    {% if 'spotify-card' in selected_tiles %}
+    <div class="grid-stack-item" gs-w="3" gs-h="4" gs-id="spotify-card">
+        <div class="card spotify-card grid-stack-item-content">
+            <div class="card-header">🎵 Now Playing</div>
+            <div id="spotify-art-container" class="mb-2 text-center">
+                <img id="spotify-art-img" src="/static/default_album.jpg" alt="Album Art">
+                <div id="spotify-controls">
+                    <button class="spotify-btn" onclick="spotifyControl('previous')">
+                        <i class="fas fa-step-backward"></i>
                     </button>
-                    <!-- Response output box -->
-                    <div id="response" class="alert alert-info mt-4 p-3 w-75 mx-auto shadow-sm" style="white-space: pre-wrap;"></div>
-                </div> 
+                    <button class="spotify-btn" onclick="spotifyControl('playpause')">
+
+                        <i class="fas fa-play" id="spotify-icon"></i>
+                    </button>
+                    <button class="spotify-btn" onclick="spotifyControl('next')">
+                        <i class="fas fa-step-forward"></i>
+                    </button>
                 </div>
             </div>
-            {% endif %} 
 
-            <!-- Google Maps -->
-            {% if 'maps-card' in selected_tiles %}
-            <div class="grid-stack-item" gs-w="4" gs-h="4" gs-id="maps-card">
-                <div class="card text-center grid-stack-item-content">
-                    <div class="card-header"> Maps</div>
-                    <div class="card-body">
-                        <div id="map" class="rounded-4 shadow mt-4 border" style="height: 200px;"></div>
-                    </div>                       
-                </div>
+            <div id="spotify-track" class="text-center mt-2">Loading...</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Google Calendar -->
+    {% if 'calendar-card' in selected_tiles %}
+    <div class="grid-stack-item" gs-w="2" gs-h="3" gs-id="calendar-card">
+        <div class="card grid-stack-item-content">
+            {% if not session.get('credentials') %}
+            <a href="{{ url_for('views.authorize') }}" target="_blank" class="btn btn-primary mb-2">Connect Google
+                Calendar</a>
+            {% else %}
+
+
+            <div class="card-header">📅 Upcoming Events</div>
+            <div class="card-body">
+                {% if events %}
+                <ul class="list-unstyled">
+                    {% for event in events %}
+                    <li>
+                        <strong>{{ event.start.dateTime[:16]|default(event.start.date) }}</strong><br>
+                        {{ event.summary }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No upcoming events.</p>
+                {% endif %}
             </div>
-            {% endif %} 
 
-
-            <!-- System Details -->
-             {% if 'system-card' in selected_tiles %}
-            <div class="grid-stack-item" gs-w="3" gs-h="2" gs-id="system-card">
-                <div class="card grid-stack-item-content" id="system-status-card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span><i class="fa fa-cogs"></i> System Status</span>
-                        <small id="battery-status">Battery: --%</small>
-                    </div>
-                    <div class="card-body row">
-                        <div class="col-sm-6">
-                            <p>CPU: <span id="cpu-usage">--%</span></p>
-                            <p>RAM: <span id="ram-usage">--%</span></p>
-                        </div>
-                        <div class="col-sm-6">
-                            <p>Down: <span id="down-speed">-- Mbps</span></p>
-                            <p>Up: <span id="up-speed">-- Mbps</span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
             {% endif %}
 
 
-            <!-- Scenes -->
-             {% if 'scenes-card' in selected_tiles %}
-            <div class="grid-stack-item" gs-w="2" gs-h="2" gs-id="scenes-card">
-                <div class="card grid-stack-item-content">
-                    <div class=" text-center">
-                        <div class="card-header"><i class="fas fa-clapperboard"></i> Scenes</div>
-                        <div class="card-body">
-                        {% for scene in scenes %}                        
-                            <button class="btn btn-primary w-100 mb-2" onclick="runScene('{{ scene.name }}')">▶ Run {{ scene.name }}</button>
-                        {% endfor %}
-                        </div>
-                    </div>
-                </div>
+        </div>
+    </div>
+    {% endif %}
+
+        <!-- Device Cards -->
+    {% for d in deviceList %}
+    {% if d.ip in selected_tiles %}
+    <div class="grid-stack-item" gs-w="2" gs-h="2" gs-id="{{d.ip}}-card">
+        <div class="card shadow grid-stack-item-content">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    {% if d.type == 'light' %}
+                    💡
+                    {% elif d.type == 'firestick' %}
+                    📺
+                    {% else %}
+                    ⚙️
+                    {% endif %}
+                    {{ d.name }}
+                </span>
             </div>
-            {% endif %}
-
-
-            <!-- Device Cards -->
-            {% for d in deviceList %}
-            {% if d.ip in selected_tiles %}
-            <div class="grid-stack-item" gs-w="2" gs-h="2" gs-id="{{d.ip}}-card">
-                <div class="card shadow grid-stack-item-content">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span>
-                            {% if d.type == 'light' %}
-                            💡
-                            {% elif d.type == 'firestick' %}
-                            📺
-                            {% else %}
-                            ⚙️
-                            {% endif %}
-                            {{ d.name }}
-                        </span>
-                    </div>
-                    <div class="card-body text-center">
-                        {% if d.type == 'light' %}
-                        <!-- Light -->
-                        <div class="row">
-                            <div class="col-md-6 text-center">
-                                {% if d.state == true %}
-                                <button class="btn btn-success mb-3 lampswitch " id="lampswitch-{{d.ip}}"
-                                    data-ip="{{ d.ip }}" title="Toggle Light">
-                                    <i class="fas fa-power-off"></i>
-                                </button>
-                                {% else %}
-                                <button class="btn btn-danger mb-3 lampswitch " id="lampswitch-{{d.ip}}"
-                                    data-ip="{{ d.ip }}" title="Toggle Light">
-                                    <i class="fas fa-power-off"></i>
-                                </button>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6 text-center">
-                                <input type="color" class="lightcolour" width="100px" height="100px"
-                                    title="Select Colour" value="{{ d.colour }}" data-ip="{{ d.ip }}">
-                            </div>
-                        </div>
-                        <div class="slidecontainer">
-                            <input type="range" min="0" max="100" value="{{d.brightness}}"
-                                class="slider brightnessSlider" id="brightnessSlider" data-ip="{{d.ip}}">
-                        </div>
-
-
-                        {% elif d.type == 'firestick' %}
-
-                        <!-- Firestick -->
-                        <button class="btn btn-warning w-100 mb-2" onclick="firestickCommand('next_episode')">Next
-                            Episode</button>
-                        <button class="btn btn-info w-100 mb-2"
-                            onclick="firestickCommand('playpause')">Play/Pause</button>
-                        <!-- <button class="btn btn-danger w-100" onclick="firestickCommand('poweroff')">Power
-                                    Off</button> -->
-                        <a class="btn btn-success w-100" href="/remote/{{d.ip}}">Open Controller</a>
+            <div class="card-body text-center">
+                {% if d.type == 'light' %}
+                <!-- Light -->
+                <div class="row">
+                    <div class="col-md-6 text-center">
+                        {% if d.state == true %}
+                        <button class="btn btn-success mb-3 lampswitch " id="lampswitch-{{d.ip}}" data-ip="{{ d.ip }}"
+                            title="Toggle Light">
+                            <i class="fas fa-power-off"></i>
+                        </button>
                         {% else %}
-                        <p class="text-muted">Unknown device type.</p>
+                        <button class="btn btn-danger mb-3 lampswitch " id="lampswitch-{{d.ip}}" data-ip="{{ d.ip }}"
+                            title="Toggle Light">
+                            <i class="fas fa-power-off"></i>
+                        </button>
                         {% endif %}
                     </div>
+                    <div class="col-md-6 text-center">
+                        <input type="color" class="lightcolour" width="100px" height="100px" title="Select Colour"
+                            value="{{ d.colour }}" data-ip="{{ d.ip }}">
+                    </div>
+                </div>
+                <div class="slidecontainer">
+                    <input type="range" min="0" max="100" value="{{d.brightness}}" class="slider brightnessSlider"
+                        id="brightnessSlider" data-ip="{{d.ip}}">
+                </div>
+
+
+                {% elif d.type == 'firestick' %}
+
+                <!-- Firestick -->
+                <button class="btn btn-warning w-100 mb-2" onclick="firestickCommand('next_episode')">Next
+                    Episode</button>
+                <button class="btn btn-info w-100 mb-2" onclick="firestickCommand('playpause')">Play/Pause</button>
+                <!-- <button class="btn btn-danger w-100" onclick="firestickCommand('poweroff')">Power
+                                    Off</button> -->
+                <a class="btn btn-success w-100" href="/remote/{{d.ip}}">Open Controller</a>
+                {% else %}
+                <p class="text-muted">Unknown device type.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% endif %}
+    {% endfor %}
+
+    <!-- General Controls -->
+    {% if 'general-controls-card' in selected_tiles %}
+    <div class="grid-stack-item" gs-w="2" gs-h="3" gs-id="general-controls-card">
+        <div class="card grid-stack-item-content">
+            <div class=" text-center">
+                <div class="card-header"><i class="fas fa-bolt mr-2"></i> Devices </div>
+                <div class="card-body">
+                    <button class="btn btn-success w-100 mb-2" onclick="toggleAllLights()">
+                        <i class="fas fa-lightbulb"></i> > <i class="fas fa-power-off"></i>
+                    </button>
+                    <button class="btn btn-panel w-100 mb-2" onclick="playPause()">
+                        <i class="fas fa-play-circle"></i>
+                    </button>
+                    <button class="btn btn-danger w-100" onclick="turnOffAll()">
+                        <i class="fas fa-lightbulb"></i> > <i class="fas fa-power-off"></i>
+                    </button>
                 </div>
             </div>
-
-            {% endif %}
-            {% endfor %}
         </div>
+    </div>
+    {% endif %}
 
 
-
-                <div class="text-end mb-2">
-            <button id="editLayoutBtn" class="btn btn-warning m-2">Edit Layout</button>
-            <button class="btn btn-success" onclick="saveLayout()">
-                <i class="fas fa-save"></i> Save Layout
-            </button>
-            <button class="btn btn-danger" onclick="resetLayout()">
-                <i class="fas fa-undo"></i> Reset Layout
-            </button>
+    <!-- Website Controls -->
+    {% if 'website-controls-card' in selected_tiles %}
+    <div class="grid-stack-item" gs-w="2" gs-h="3" gs-id="website-controls-card">
+        <div class="card grid-stack-item-content">
+            <div class="text-center">
+                <div class="card-header"><i class="fas fa-cogs"></i> Website Controls</div>
+                <div class="card-body">
+                    <button class="btn btn-primary w-100 mb-2" onclick="window.location.href='/'"><i
+                            class="fas fa-home"></i> Home </button>
+                    <button class="btn btn-secondary w-100 mb-2" onclick="window.location.href='/devices'"><i
+                            class="fas fa-lightbulb"></i> Devices </button>
+                    <button class="btn btn-success w-100" onclick="location.reload()"><i class="fas fa-sync-alt"></i>
+                        Refresh </button>
+                </div>
+            </div>
         </div>
+    </div>
+    {% endif %}
+
+    
+    <!-- System Details -->
+    {% if 'system-card' in selected_tiles %}
+    <div class="grid-stack-item" gs-w="3" gs-h="2" gs-id="system-card">
+        <div class="card grid-stack-item-content" id="system-status-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fa fa-cogs"></i> System Status</span>
+                <small id="battery-status">Battery: --%</small>
+            </div>
+            <div class="card-body row">
+                <div class="col-sm-6">
+                    <p>CPU: <span id="cpu-usage">--%</span></p>
+                    <p>RAM: <span id="ram-usage">--%</span></p>
+                </div>
+                <div class="col-sm-6">
+                    <p>Down: <span id="down-speed">-- Mbps</span></p>
+                    <p>Up: <span id="up-speed">-- Mbps</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
 
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ maps_api_key }}&libraries=places&callback=initMap"></script>
-        <script src="{{ url_for('static', filename='js/dashboardpage.js') }}"></script>
-   {% endblock %}
+    <!-- Voice Command -->
+    {% if 'voice-card' in selected_tiles %}
+    <div class="grid-stack-item" gs-w="3" gs-h="3" gs-id="voice-card">
+        <div class="card text-center grid-stack-item-content">
+            <div class="card-header mb-4">🎙️ Voice Assistant</div>
+            <div class="card-body">
+                <!-- Microphone button (not a form) -->
+                <button id="micBtn" class="btn btn-lg btn-primary text-center rounded-circle shadow"
+                    style="width: 80px; height: 80px;">
+                    <i class="bi bi-mic-fill fs-2"></i>
+                </button>
+                <!-- Response output box -->
+                <div id="response" class="alert alert-info mt-4 p-3 w-75 mx-auto shadow-sm"
+                    style="white-space: pre-wrap;"></div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Google Maps -->
+    {% if 'maps-card' in selected_tiles %}
+    <div class="grid-stack-item" gs-w="4" gs-h="4" gs-id="maps-card">
+        <div class="card text-center grid-stack-item-content">
+            <div class="card-header"> Maps</div>
+            <div class="card-body">
+                <div id="map" class="rounded-4 shadow mt-4 border" style="height: 200px;"></div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+
+
+
+    <!-- Scenes -->
+    {% if 'scenes-card' in selected_tiles %}
+    <div class="grid-stack-item" gs-w="2" gs-h="2" gs-id="scenes-card">
+        <div class="card grid-stack-item-content">
+            <div class=" text-center">
+                <div class="card-header"><i class="fas fa-clapperboard"></i> Scenes</div>
+                <div class="card-body">
+                    {% for scene in scenes %}
+                    <button class="btn btn-primary w-100 mb-2" onclick="runScene('{{ scene.name }}')">▶ Run {{
+                        scene.name }}</button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+
+
+<div class="text-end mb-2">
+    <button id="editLayoutBtn" class="btn btn-warning m-2">Edit Layout</button>
+    <button class="btn btn-success" onclick="saveLayout()">
+        <i class="fas fa-save"></i> Save Layout
+    </button>
+    <button class="btn btn-danger" onclick="resetLayout()">
+        <i class="fas fa-undo"></i> Reset Layout
+    </button>
+</div>
+
+
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ maps_api_key }}&libraries=places&callback=initMap"></script>
+<script src="{{ url_for('static', filename='js/dashboardpage.js') }}"></script>
+{% endblock %}

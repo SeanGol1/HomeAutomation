@@ -2,6 +2,7 @@
 adbkey.pub
 adbkey
 myconfig.json
+configs/
 
 
 # Byte-compiled / optimized / DLL files
@@ -154,3 +155,4 @@ houseplan.mp4
 houseplansmall.jpg
 website/static/houseplanv2.jpg
 website/static/houseplanv3.jpg
+website/views.py

@@ -161,6 +161,10 @@ def dashboard():
     except Exception as e:
         print("Error fetching weather:", e)
 
+    # layout = []
+    # with open('/configs/layout.json', 'w') as f:
+    #     layout = json.load(f)
+
     return render_template("dashboard.html", deviceList=functions.get_all_device_objs(), weather=weather_data,maps_api_key=maps_api_key, selected_tiles=selected_tiles, scenes=functions.get_all_scenes())
 
 
@@ -205,8 +209,23 @@ def get_device_status():
         })
     return jsonify(devices)
 
+@views.route('/save-layout', methods=['POST'])
+def save_layout(layout):
+    layout = request.get_json()
+    print("layout:", layout)
 
+    with open('/configs/layout.json', 'w') as f:
+        json.dump({"layout": layout}, f, indent=2)
 
+    return redirect(url_for('views.dashboard'))
+
+@views.route('/load-layout', methods=['GET'])
+def load_layout():
+    layout = []
+    with open('configs/layout.json', 'r') as f:
+        layout = json.load(f)
+
+    return jsonify(layout)
 
 ### Settings
 
@@ -562,7 +581,7 @@ def lampswitch_int(ip,on):
     response.headers['Content-Type'] = 'application/json'
     return response
 
-
+# TODO: unused 
 # /lampbright/<ip> - Toggles brightness between 25 , 100 , 255
 @views.route('/lampbright/<ip>', methods=['GET','POST'])
 def lampbright(ip):
