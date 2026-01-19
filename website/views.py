@@ -2,11 +2,9 @@
 #from multiprocessing.connection import wait
 # from turtle import update
 from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect,url_for, session
-# from . import fireStickController
 import json , time , tinytuya ,  numpy as np , requests , speedtest, psutil , spotipy, subprocess, os, platform #cv2,
-#from .functions.spotify_api import sp_oauth, get_current_track, send_control
-# from spotipy.oauth2 import SpotifyOAuth
 from ppadb.client import Client as AdbClient #pip install pure-python-adb
+from spotipy.oauth2 import SpotifyOAuth
 from datetime import datetime
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
@@ -15,7 +13,6 @@ import website.functions as functions
 
 views = Blueprint('views', __name__)
 
-#spotify = Blueprint('spotify', __name__)
 
 configdata = ''
 with open("config.json", "r") as jsonfile:
