@@ -4,7 +4,7 @@
 from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect,url_for, session
 from . import fireStickController
 import json , time , tinytuya ,  numpy as np , requests , speedtest, psutil , spotipy, subprocess, os, platform #cv2,
-from .spotify_api import sp_oauth, get_current_track, send_control
+#from .functions.spotify_api import sp_oauth, get_current_track, send_control
 from spotipy.oauth2 import SpotifyOAuth
 from ppadb.client import Client as AdbClient #pip install pure-python-adb
 from datetime import datetime
@@ -15,7 +15,7 @@ import website.functions as functions
 
 views = Blueprint('views', __name__)
 
-spotify = Blueprint('spotify', __name__)
+#spotify = Blueprint('spotify', __name__)
 
 configdata = ''
 with open("config.json", "r") as jsonfile:
@@ -196,6 +196,7 @@ def system_status():
 
 @views.route('/get_device_status')
 def get_device_status():
+
     deviceList = functions.get_all_device_objs()
     devices = []
     for d in deviceList:
@@ -872,40 +873,6 @@ def wakeup():
 #         print('R'+str(r_mean),'G'+str(g_mean),'B'+str(b_mean))
 #         #print('set_status() result %r' % data)
 
-# Spotify
-@views.route('/spotify/login_spotify')
-def login_spotify():
-    auth_url = sp_oauth.get_authorize_url()
-    return redirect(auth_url)
-
-@views.route('/spotify/callback')
-def spotify_callback():
-    code = request.args.get('code')
-    token_info = sp_oauth.get_access_token(code)
-
-    if not token_info:
-        return "Authorization failed.", 400
-
-    access_token = token_info['access_token']
-    # Store token or use immediately to make an API call
-    return "Spotify authorized successfully!"
-
-@views.route('/spotify/spotify_status', methods=['GET','POST'])
-def spotify_status():
-    track = get_current_track()
-    if track:
-        return jsonify(track)
-    return jsonify({"error": "No track playing or not authenticated."})
-
-@views.route('/spotify/<action>', methods=['GET','POST'])
-def spotify_control(action):
-    print(action)
-    result = send_control(action)
-
-    if(result == "Success"):
-        return jsonify({'status': f'Spotify {action} command sent'}), 200
-    else:
-        return "Error", 500
 
 # Google
 
