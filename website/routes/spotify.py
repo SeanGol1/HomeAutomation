@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify ,redirect
 from ..services.spotify_api import sp_oauth, get_current_track, send_control
-from spotipy.oauth2 import SpotifyOAuth
-import website.functions as functions 
+# from spotipy.oauth2 import SpotifyOAuth
+# import website.functions as functions 
 
 spotify = Blueprint('spotify', __name__)
 

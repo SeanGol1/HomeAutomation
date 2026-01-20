@@ -2,6 +2,9 @@ import website.views as views
 from flask import jsonify 
 import json, os, platform,tinytuya,subprocess
 
+# Development mode check
+IS_DEVELOPMENT = os.environ.get('FLASK_ENV') == 'development' or os.environ.get('FLASK_DEBUG') == '1'
+
 # Voice Commands
 def getAction(text):
     print ('made it to get action.')
@@ -116,7 +119,7 @@ def get_all_device_objs():
                 d.get("version"),
                 d.get("room"))
             
-            if(device.type == "light"):
+            if(device.type == "light" and not IS_DEVELOPMENT): 
                     #device:views.Device = get_device_by_ip(device.ip) 
                     try:   
                         if(device.ip != "0.0.0.0"):  # for testing purposes
@@ -164,10 +167,6 @@ def get_all_device_objs():
                             brightness,
                             currentcolour)
 
-                            
-                            print('colour')
-                            print(currentcolour)
-
                             deviceList.append(newBulb) 
                             print('Connection Successful!') 
 
@@ -177,8 +176,6 @@ def get_all_device_objs():
                         deviceList.append(device)
                         print('Connection Failed.' + str(e))
 
-                    #finally:
-                        #b.close()
             else:                
                 deviceList.append(device)
     return deviceList            

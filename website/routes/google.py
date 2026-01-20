@@ -1,7 +1,7 @@
 import datetime
-from flask import Blueprint, render_template, request, jsonify ,redirect
+from flask import Blueprint, render_template, request ,redirect
 from requests import session
-import website.functions as functions 
+#import website.functions as functions 
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build

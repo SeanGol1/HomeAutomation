@@ -12,8 +12,6 @@ configdata = ''
 with open("config.json", "r") as jsonfile:
     configdata = json.load(jsonfile)
 
-
-
 @firestick.route("/remote/<ip>", methods=["GET", "POST"])
 def remote(ip):
     if request.method == "POST":

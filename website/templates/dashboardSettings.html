@@ -132,7 +132,7 @@
 
         <div class="tabcontent" id="dashboardTiles">
             <h3>Choose tiles you want displayed</h3>
-            <form method="POST" action="/settings/save-tiles">
+            <form method="POST" action="/usersettings/save-tiles">
                 <div class="row tile-checkbox">
                     <div class="col-md-6">
                         <h5>System Tile List</h5>
@@ -188,7 +188,7 @@
         $('#btnAddLocal').on('click', function (e) {
             e.preventDefault()
             const address = $('#new_location').val();
-            fetch(`/settings/addMapLocation/${address}`, {
+            fetch(`/usersettings/addMapLocation/${address}`, {
                 method: "POST",
             })
                 .then(response => {

@@ -1,16 +1,16 @@
 import json
 import os
-from flask import Blueprint, flash, render_template, request, jsonify ,redirect, url_for
+from flask import Blueprint, flash, render_template, request ,redirect, url_for
 import website.functions as functions 
 
-settings = Blueprint('settings', __name__)
+usersettings = Blueprint('usersettings', __name__)
 
 staticTiles = ['weather-card','spotify-card', 'calendar-card' , 'general-controls-card' , 'website-controls-card', 
                   'clock-card', 'voice-card', 'maps-card' , 'system-card', 'scenes-card', ]
 
 
 
-@settings.route('/', methods=['GET', 'POST'])
+@usersettings.route('/', methods=['GET', 'POST'])
 def settings():
     CONFIG_PATH = os.path.join(os.getcwd(), 'config.json')
     with open(CONFIG_PATH, 'r') as f:
@@ -66,7 +66,7 @@ def settings():
     return render_template('dashboardSettings.html', config=config , staticTiles = staticTiles, selected_tiles=selected_tiles, deviceList = functions.get_all_devices())
 
 
-@settings.route('/save-tiles', methods=['POST'])
+@usersettings.route('/save-tiles', methods=['POST'])
 def save_tiles():
     selected_tiles = request.form.getlist('tiles[]')
     print("Selected tiles:", selected_tiles)
@@ -81,7 +81,7 @@ def save_tiles():
     # Save to session/database/config, etc.
     return redirect(url_for('views.dashboard'))
 
-@settings.route('/addMapLocation/<address>', methods=['GET', 'POST'])
+@usersettings.route('/addMapLocation/<address>', methods=['GET', 'POST'])
 def addMapLocation(address):
     CONFIG_PATH = os.path.join(os.getcwd(), 'config.json')
     with open(CONFIG_PATH, 'r') as f:
