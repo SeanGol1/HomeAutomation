@@ -6,7 +6,6 @@ from website.views import lampswitch_int, setcolour_int, setlampbright_int
 scenes = Blueprint('scenes', __name__)
 
 
-### Scenes
 
 # @scenes.route('/')
 # def scenes():    

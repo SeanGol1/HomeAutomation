@@ -2,13 +2,9 @@
 #from multiprocessing.connection import wait
 # from turtle import update
 from flask import Blueprint, render_template, request, flash, jsonify ,  make_response, redirect,url_for, session
-import json , time , tinytuya ,  numpy as np , requests , speedtest, psutil , spotipy, subprocess, os, platform #cv2,
-from ppadb.client import Client as AdbClient #pip install pure-python-adb
+import json , time , tinytuya ,  numpy as np , requests , speedtest, psutil , spotipy, subprocess, os, platform 
 from spotipy.oauth2 import SpotifyOAuth
 from datetime import datetime
-# from google.oauth2.credentials import Credentials
-# from google_auth_oauthlib.flow import Flow
-# from googleapiclient.discovery import build
 import website.functions as functions 
 
 views = Blueprint('views', __name__)
@@ -40,8 +36,8 @@ class Bulb(Device):
         self.brightness = brightness
         self.colour = colour
 
-staticTiles = ['weather-card','spotify-card', 'calendar-card' , 'general-controls-card' , 'website-controls-card', 
-                  'clock-card', 'voice-card', 'maps-card' , 'system-card', 'scenes-card', ]
+# staticTiles = ['weather-card','spotify-card', 'calendar-card' , 'general-controls-card' , 'website-controls-card', 
+#                   'clock-card', 'voice-card', 'maps-card' , 'system-card', 'scenes-card', ]
 
 ### WEBSITE ROUTES ###
 @views.route('/')
@@ -225,155 +221,7 @@ def load_layout():
 
     return jsonify(layout)
 
-### Settings
-
-@views.route('/settings', methods=['GET', 'POST'])
-def settings():
-    CONFIG_PATH = os.path.join(os.getcwd(), 'config.json')
-    with open(CONFIG_PATH, 'r') as f:
-        config = json.load(f)
-
-
-     # Load selected tiles from the config
-    try:
-        with open('configs/tiles.json') as f:
-            tile_config = json.load(f)
-        selected_tiles = tile_config.get('selected_tiles', [])
-    except FileNotFoundError:
-        selected_tiles = []
-
-    if request.method == 'POST':
-        try:
-            # Top-level values
-            config['weather']['weather_api_key'] = request.form.get('weather_api_key', config['weather']['weather_api_key'])
-            config['weather']['city'] = request.form.get('city', config['weather']['city'])
-
-            # Nested: Spotify
-            config['spotify']['client_id'] = request.form.get('spotify_client_id', config['spotify']['client_id'])
-            config['spotify']['client_secret'] = request.form.get('spotify_client_secret', config['spotify']['client_secret'])
-
-            # Nested: Google
-            if 'google' not in config:
-                config['google'] = {}
-            if 'maps_api_key' not in config['google']:
-                config['google']['maps_api_key'] = ""
-            config['google']['maps_api_key'] = request.form.get('maps_api_key', config['google']['maps_api_key'])
-            if 'home_address' not in config['google']:
-                config['google']['home_address'] = ""
-            config['google']['home_address'] = request.form.get('home_address', config['google']['home_address'])
-
-
-            # Nested: Firestick
-            config['firestick']['adbclient_host'] = request.form.get('adbclient_host', config['firestick']['adbclient_host'])
-            config['firestick']['adbclient_port'] = request.form.get('adbclient_port', config['firestick']['adbclient_port'])
-
-            # Save updated config
-            with open(CONFIG_PATH, 'w') as f:
-                json.dump(config, f, indent=4)
-            flash("Settings updated successfully!", "success")
-            return redirect(url_for('views.settings'))
-
-        except Exception as e:
-            flash(f"Error updating settings: {e}", "danger")
-
-    # On GET, load current config
-    with open(CONFIG_PATH, 'r') as f:
-        config = json.load(f)
-
-    return render_template('dashboardSettings.html', config=config , staticTiles = staticTiles, selected_tiles=selected_tiles, deviceList = functions.get_all_devices())
-
-
-@views.route('/save-tiles', methods=['POST'])
-def save_tiles():
-    selected_tiles = request.form.getlist('tiles[]')
-    print("Selected tiles:", selected_tiles)
-
-    if not selected_tiles:
-        # fallback: collect everything with "tile-" prefix
-        selected_tiles = [value for key, value in request.form.items() if key.startswith('tile-')]
-
-    with open('configs/tiles.json', 'w') as f:
-        json.dump({"selected_tiles": selected_tiles}, f, indent=2)
-
-    # Save to session/database/config, etc.
-    return redirect(url_for('views.dashboard'))
-
-@views.route('/addMapLocation/<address>', methods=['GET', 'POST'])
-def addMapLocation(address):
-    CONFIG_PATH = os.path.join(os.getcwd(), 'config.json')
-    with open(CONFIG_PATH, 'r') as f:
-        config = json.load(f)
-
-    # Ensure 'locations' exists and is a list
-    if 'google' not in config:
-        config['google'] = {}
-    if 'locations' not in config['google'] or not isinstance(config['google']['locations'], list):
-        config['google']['locations'] = []
-
-    config['google']['locations'].append(address)
-
-    # Save updated config
-    with open(CONFIG_PATH, 'w') as f:
-        json.dump(config, f, indent=4)
-
-    return f"Added address: {address}"
-
-
-
-
-####
-
-
-
-
-@views.route("/remote/<ip>", methods=["GET", "POST"])
-def remote(ip):
-    if request.method == "POST":
-        action = request.form.get("action")
-        device = get_device(ip)
-        if device and action:
-            send_key(device, action)
-    return render_template("remote.html")
-
-KEYS = {
-    "up": 19,
-    "down": 20,
-    "left": 21,
-    "right": 22,
-    "ok": 23,
-    "back": 4,
-    "home": 3,
-    "menu": 82,
-    "play_pause": 85,
-    "rewind": 89,
-    "fast_forward": 90,
-    "power": 26,
-}
-
-def get_device(ip):
-    config = ''
-    with open("config.json", "r") as jsonfile:
-        config = json.load(jsonfile)
-    finalip = ip + ':5555'
-    try:
-        client = AdbClient(host=config["firestick"]["adbclient_host"], port=int(config["firestick"]["adbclient_port"]))
-        device = client.device(finalip)
-        if not device:
-            functions.connect_to_firestick(ip)
-    except:
-        functions.connect_to_firestick(ip)
-    finally: 
-        if not client:
-            client = AdbClient(host=config["firestick"]["adbclient_host"], port=int(config["firestick"]["adbclient_port"]))  
-        if not device:
-            device = client.device(finalip)
-    
-    return device
-
-def send_key(device, key_name):
-    keycode = KEYS.get(key_name.lower())
-    if keycode:
-        device.shell(f"input keyevent {keycode}")
+### Voice Control Endpoint ###
 
 @views.route("/voice", methods=["GET", "POST"])
 def voice():
