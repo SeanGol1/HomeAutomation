@@ -101,7 +101,7 @@
     <div class="grid-stack-item" gs-w="2" gs-h="3" gs-id="calendar-card">
         <div class="card grid-stack-item-content">
             {% if not session.get('credentials') %}
-            <a href="{{ url_for('views.authorize') }}" target="_blank" class="btn btn-primary mb-2">Connect Google
+            <a href="{{ url_for('google.authorize') }}" target="_blank" class="btn btn-primary mb-2">Connect Google
                 Calendar</a>
             {% else %}
 

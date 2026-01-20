@@ -27,7 +27,7 @@
         <div class="tabcontent active" id="createScene">
             <div class="container mt-4">
                 <h2 class="mb-3">Create New Scene</h2>
-                <form action="{{ url_for('views.create_scene') }}" method="POST">
+                <form action="{{ url_for('scenes.create_scene') }}" method="POST">
                     <div class="mb-3">
                         <label for="sceneName" class="form-label">Scene Name</label>
                         <input type="text" class="form-control" id="sceneName" name="sceneName" required>
