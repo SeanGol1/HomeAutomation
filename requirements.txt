@@ -34,7 +34,7 @@ psutil==7.0.0
 psutils==3.3.11
 puremagic==1.30
 pure-python-adb==0.3.0.dev0
-pyasn1==0.6.1
+pyasn1==0.6.2
 pyasn1_modules==0.4.2
 pyparsing==3.2.3
 pypdf==5.7.0
