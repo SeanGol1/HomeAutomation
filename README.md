@@ -3,6 +3,12 @@
 ## Overview  
 This app is a smart home automation dashboard and API system designed to run on a local server — ideally a Raspberry Pi. It allows you to control various devices in your home using web-based commands or by scanning NFC tags that trigger API requests.
 
+<p align="center">
+  <img src="/other/homeautomation_2.png" width="30%" />
+  <img src="/other/homeautomation.png" width="30%" />
+  <img src="/other/homeautomation_1.png" width="30%" />
+</p>
+
 ## How it Works  
 - Install and run the Flask app on your home server (Raspberry Pi recommended).  
 - The server exposes a web dashboard and a set of API endpoints to control smart devices like lights and Firestick TVs.  
