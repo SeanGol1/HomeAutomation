@@ -246,7 +246,7 @@ def voice():
 
 ### Control Devices Endpoints ###
 
-@views.route('/lampswitch/<ip>', methods=['POST'])
+@views.route('/lampswitch/<ip>', methods=['GET','POST'])
 def lampswitch(ip):
     d,data = functions.tinytuya_connect(ip)
     isOn = False
@@ -319,30 +319,31 @@ def lampbright(ip):
 
 # /lampbright/{ip,brightness} - sets brightness to to a percentage value. 
 @views.route('/setlampbright', methods=['GET','POST'])
-def setlampbright(data):
-    data = request.get_json()
-    ip = data['ip']
-    brightness = data['brightness']
+def setlampbright():
+    try:
+        data = request.get_json()
+        ip = data['ip']
+        brightness = data['brightness']  
 
-    device:Device = functions.get_device_by_ip(ip)    
-    d = tinytuya.BulbDevice(device.id,device.ip,device.key)
-    d.set_version(device.version)  
-    d.set_socketPersistent(False)
+        d,data = functions.tinytuya_connect(ip)
+        d.turn_on()
     
-    data = d.status()    
-    d.turn_on()
-    
-    #print(int(brightness))
-    if(int(brightness) == 0):
-        d.turn_off()
-    else:
-        d.set_brightness_percentage(int(brightness))
+        #print(int(brightness))
+        if(int(brightness) == 0):
+            d.turn_off()
+        else:
+            d.set_brightness_percentage(int(brightness))
 
-    data = d.status()
-    #print(data)
-    d.close()
+        data = d.status()
+        #print(data)
+        d.close()
+
+        return "Success"
+
+    except Exception as e:
+        print("Error in setlampbright:", e)
     
-    return "Success"
+    return "Error: "+ e, 500
 
 
 def setlampbright_int(ip,brightness):
@@ -350,22 +351,24 @@ def setlampbright_int(ip,brightness):
     # ip = data['ip']
     # brightness = data['brightness']
 
-    device:Device = functions.get_device_by_ip(ip)    
-    d = tinytuya.BulbDevice(device.id,device.ip,device.key)
-    d.set_version(device.version)  
-    d.set_socketPersistent(False)
+    # device:Device = functions.get_device_by_ip(ip)    
+    # d = tinytuya.BulbDevice(device.id,device.ip,device.key)
+    # d.set_version(device.version)  
+    # d.set_socketPersistent(False)
     
-    data = d.status()    
+    # data = d.status()    
+
+    d,data = functions.tinytuya_connect(ip)
     d.turn_on()
     
-    #print(int(brightness))
+    print('internal ' + int(brightness))
     if(int(brightness) == 0):
         d.turn_off()
     else:
         d.set_brightness_percentage(int(brightness))
 
     data = d.status()
-    #print(data)
+    print(data)
     d.close()
     
     return "Success"

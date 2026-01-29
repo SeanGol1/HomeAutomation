@@ -123,14 +123,14 @@ def get_all_device_objs():
                     #device:views.Device = get_device_by_ip(device.ip) 
                     try:   
                         if(device.ip != "0.0.0.0"):  # for testing purposes
-                            print('get_all Connecting to bulb %r ...' % device.name)
+                            print('Connecting to bulb '+ device.name+ ' (' + device.ip + ') ...')
                             b = tinytuya.BulbDevice(device.id,'Auto',device.key)
                             #b.connection_timeout(1000)
                             
                             b.set_version(device.version)
                             b.set_socketPersistent(False)
                             data = b.status()       
-                            print(b.address)
+                            # print(b.address)
                             new_ip = b.address
                             b.close()
                             updated = False
